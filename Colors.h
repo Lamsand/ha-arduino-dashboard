@@ -1,0 +1,12 @@
+#define BLACK 0x0000
+#define WHITE 0xffff
+#define HABlue 0x1dfe
+#define RED 0xf800
+#define red 0xfd13
+#define ORANGE 0xe3e4
+#define GREY 0x8410
+#define grey 0xe71c
+#define YELLOW 0xffb3
+#define yellow 0xffda
+#define darkYELLOW 0xee4f
+#define evccGREEN 0x16e8
