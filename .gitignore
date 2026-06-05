@@ -1,0 +1,8 @@
+arduino_secrets.h
+build/
+*.o
+*.elf
+*.hex
+*.bin
+.DS_Store
+Thumbs.db
