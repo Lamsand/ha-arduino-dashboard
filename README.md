@@ -6,7 +6,8 @@ A touch-screen dashboard for **Home Assistant** built on the **Arduino Giga R1 +
 
 ## 📸 Preview
 
-> *(Add a photo or screenshot of your dashboard here)*
+<img width="799" height="599" alt="image" src="https://github.com/user-attachments/assets/17791413-fc8b-4f75-a712-d503ec2e6a3b" />
+
 
 ---
 
