@@ -1,22 +1,30 @@
 /*
-  ha-arduino-dashboard.ino - A dashboard for Home Assistant on the Arduino Giga Display
-  Created by Sander Lambrechts, June 2026.
-  This code is open source and may be used, modified, and distributed freely.
-  This project is designed to run on the Arduino Giga Display, utilizing its touchscreen capabilities and SD card storage for a dynamic and interactive Home Assistant dashboard. The dashboard displays various home automation data such as energy consumption, music status, lighting, and more, allowing users to interact with their smart home devices directly from the display.
+  ha-arduino-dashboard.ino - A dashboard for Home Assistant on the Arduino Giga
+  Display
+
+  Created by Sander Lambrechts, June 2026. This code is open source and
+  may be used, modified, and distributed freely. This project is designed to run
+  on the Arduino Giga Display, utilizing its touchscreen capabilities and SD
+  card storage for a dynamic and interactive Home Assistant dashboard. The
+  dashboard displays various home automation data such as energy consumption,
+  music status, lighting, and more, allowing users to interact with their smart
+  home devices directly from the display.
+
   https://github.com/Lamsand/ha-arduino-dashboard
 */
 
-#include <WiFi.h>
 #include <ArduinoMqttClient.h>
-#include "arduino_secrets.h"
-#include "Dashboard.h"
-#include "Colors.h"
+#include <WiFi.h>
+
 #include "Arduino_GigaDisplayTouch.h"
+#include "Colors.h"
+#include "Dashboard.h"
+#include "arduino_secrets.h"
 
 Arduino_GigaDisplayTouch touchDetector;
 // Declarations
 int lastTouch;
-const int threshold = 250;  //time in milliseconds
+const int threshold = 250;  // time in milliseconds
 
 int touch_x;
 int touch_y;
@@ -41,14 +49,14 @@ MqttClient mqttClient(wifiClient);
          |___________________|____________________|
     */
 
-int lightCo[5] = { 0, 44, 400, 218, 1 };
-int carCo[5] = { 400, 44, 399, 218, 1 };
-int energyCo[5] = { 0, 262, 400, 217, 0 };
-int musicCo[5] = { 400, 262, 399, 217, 1 };
-int wasteCo[5] = { 900, 262, 199, 217, 1 };
-int ventiCo[5] = { 400, 262, 399, 217, 2 };
-int heatPumpCo[5] = { 400, 44, 399, 218, 2 };
-int mowerCo[5] = { 0, 44, 400, 218, 2 };
+int lightCo[5] = {0, 44, 400, 218, 1};
+int carCo[5] = {400, 44, 399, 218, 1};
+int energyCo[5] = {0, 262, 400, 217, 0};
+int musicCo[5] = {400, 262, 399, 217, 1};
+int wasteCo[5] = {900, 262, 199, 217, 1};
+int ventiCo[5] = {400, 262, 399, 217, 2};
+int heatPumpCo[5] = {400, 44, 399, 218, 2};
+int mowerCo[5] = {0, 44, 400, 218, 2};
 
 // waste
 int wasteType = 4;
@@ -82,7 +90,7 @@ String heatPumpTime = "00:00";
 int mowerBattery = 0;
 bool mowerState = LOW;
 
-//venti
+// venti
 int keuken_CO2 = 0;
 int keuken_humidity = 0;
 int keuken_quality = 0;
@@ -193,8 +201,7 @@ void setup() {
     Serial.println();
   } else {
     Serial.print("Touch controller init - FAILED");
-    while (1)
-      ;
+    while (1);
   }
   // set colors in dashboard.h
   dashboard.publicTEXT = TEXT;
@@ -267,15 +274,16 @@ void loop() {
   GDTpoint_t points[5];
   contacts = touchDetector.getTouchPoints(points);
   if (contacts > 0 && (millis() - lastTouch > threshold)) {  // touch
-    lastTouch = millis();                                    // register last touch
+    lastTouch = millis();  // register last touch
     Serial.print("Contacts:");
     Serial.println(contacts);
-    //record the x,y coordinates
+    // record the x,y coordinates
     for (uint8_t i = 0; i < contacts; i++) {
       touch_x = 800 - points[i].y;
       touch_y = points[i].x;
     }
-    if ((touch_x < 100 && page != "home" && page.indexOf("/") == -1) || page == "blackScreen") {  // Return
+    if ((touch_x < 100 && page != "home" && page.indexOf("/") == -1) ||
+        page == "blackScreen") {  // Return
       page = "home";
       print();
       // printImg();
@@ -283,92 +291,160 @@ void loop() {
       if (touch_x > 700 && touch_y > 40) {
         page = "home2";
         print2();
-      } else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] && touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] && (carCo[4] == 0 || carCo[4] == 1)) {  // Car clicked
+      } else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
+                 touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
+                 (carCo[4] == 0 || carCo[4] == 1)) {  // Car clicked
         page = "detailCar";
-        dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower, laadpaal_chargingSpeed, laadpaal_targetCharge, laadpaal_cruisingRange);
-      } else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] && touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] && (lightCo[4] == 0 || lightCo[4] == 1)) {  // Lights clicked
+        dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
+                            laadpaal_chargingSpeed, laadpaal_targetCharge,
+                            laadpaal_cruisingRange);
+      } else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
+                 touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
+                 (lightCo[4] == 0 || lightCo[4] == 1)) {  // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
-        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol, lights_glazenBol, lights_berging, lights_maanlamp, lights_raamversiering);
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16, lights_sfeerlichtjes);
+        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
+                               lights_glazenBol, lights_berging,
+                               lights_maanlamp, lights_raamversiering);
+        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                   lights_sfeerlichtjes);
         dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
         dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
-        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_maanlamp);
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_raamversiering);
-      } else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] && touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] && (energyCo[4] == 0 || energyCo[4] == 1)) {  // Energy clicked
+        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                              lights_maanlamp);
+        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                                   lights_raamversiering);
+      } else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
+                 touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
+                 (energyCo[4] == 0 || energyCo[4] == 1)) {  // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
-        dashboard.energy(importArr, productionArr, consumptionArr, longImportArr, longProductionArr, longConsumptionArr, currentImport, currentProduction, currentConsumption, timeArr, longTimeArr, energy_state, energy_longGraph, energy_roundState, drawImport, drawProduction, drawConsumption);
-      } else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] && touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] && (musicCo[4] == 0 || musicCo[4] == 1)) {  // Music clicked
+        dashboard.energy(importArr, productionArr, consumptionArr,
+                         longImportArr, longProductionArr, longConsumptionArr,
+                         currentImport, currentProduction, currentConsumption,
+                         timeArr, longTimeArr, energy_state, energy_longGraph,
+                         energy_roundState, drawImport, drawProduction,
+                         drawConsumption);
+      } else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
+                 touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
+                 (musicCo[4] == 0 || musicCo[4] == 1)) {  // Music clicked
         page = "music";
         dashboard.fillScreen(AllBackg);
-        dashboard.music(keuken_channel, keuken_title, keuken_state, speelkamer_channel, speelkamer_title, speelkamer_state);
-      } else if (touch_y < heatPumpCo[1] + heatPumpCo[3] && touch_y > heatPumpCo[1] && touch_x < heatPumpCo[0] + heatPumpCo[2] && touch_x > heatPumpCo[0] && (heatPumpCo[4] == 0 || heatPumpCo[4] == 1)) {  // Music clicked
+        dashboard.music(keuken_channel, keuken_title, keuken_state,
+                        speelkamer_channel, speelkamer_title, speelkamer_state);
+      } else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
+                 touch_y > heatPumpCo[1] &&
+                 touch_x < heatPumpCo[0] + heatPumpCo[2] &&
+                 touch_x > heatPumpCo[0] &&
+                 (heatPumpCo[4] == 0 || heatPumpCo[4] == 1)) {  // Music clicked
         page = "heatPump";
         dashboard.fillScreen(AllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
-      } else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] && touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] && (mowerCo[4] == 0 || mowerCo[4] == 1)) {  // Music clicked
+      } else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
+                 touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
+                 (mowerCo[4] == 0 || mowerCo[4] == 1)) {  // Music clicked
         page = "mower";
         dashboard.fillScreen(AllBackg);
         dashboard.mower(mowerBattery, mowerState);
-      } else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] && touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] && (ventiCo[4] == 0 || ventiCo[4] == 1)) {  // Ventilation clicked
+      } else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
+                 touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
+                 (ventiCo[4] == 0 || ventiCo[4] == 1)) {  // Ventilation clicked
         page = "venti";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 239);
         dashboard.homeEmpty(0, 239, 798, 239);
-        dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2, kelder_VOC, keuken_humidity, kelder_humidity, keuken_quality, kelder_quality, keuken_boostRemaining, kelder_boostRemaining);
+        dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2,
+                               kelder_VOC, keuken_humidity, kelder_humidity,
+                               keuken_quality, kelder_quality,
+                               keuken_boostRemaining, kelder_boostRemaining);
         dashboard.ventilationImg(keuken_boost, kelder_boost);
-      } else if (touch_x > 746 && touch_x < 800 && touch_y > 0 && touch_y < 44) {  // Settings clicked
+      } else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
+                 touch_y < 44) {  // Settings clicked
         page = "settings";
         dashboard.settings(darkMode, lastReset);
       }
     } else if (page == "home2") {
-      if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] && touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] && (carCo[4] == 0 || carCo[4] == 2)) {  // Car clicked
+      if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
+          touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
+          (carCo[4] == 0 || carCo[4] == 2)) {  // Car clicked
         page = "detailCar";
-        dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower, laadpaal_chargingSpeed, laadpaal_targetCharge, laadpaal_cruisingRange);
-      } else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] && touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] && (lightCo[4] == 0 || lightCo[4] == 2)) {  // Lights clicked
+        dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
+                            laadpaal_chargingSpeed, laadpaal_targetCharge,
+                            laadpaal_cruisingRange);
+      } else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
+                 touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
+                 (lightCo[4] == 0 || lightCo[4] == 2)) {  // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
-        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol, lights_glazenBol, lights_berging, lights_maanlamp, lights_raamversiering);
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16, lights_sfeerlichtjes);
+        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
+                               lights_glazenBol, lights_berging,
+                               lights_maanlamp, lights_raamversiering);
+        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                   lights_sfeerlichtjes);
         dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
         dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
-        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_maanlamp);
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_raamversiering);
-      } else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] && touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] && (energyCo[4] == 0 || energyCo[4] == 2)) {  // Energy clicked
+        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                              lights_maanlamp);
+        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                                   lights_raamversiering);
+      } else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
+                 touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
+                 (energyCo[4] == 0 || energyCo[4] == 2)) {  // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
-        dashboard.energy(importArr, productionArr, consumptionArr, longImportArr, longProductionArr, longConsumptionArr, currentImport, currentProduction, currentConsumption, timeArr, longTimeArr, energy_state, energy_longGraph, energy_roundState, drawImport, drawProduction, drawConsumption);
-      } else if (touch_y < heatPumpCo[1] + heatPumpCo[3] && touch_y > heatPumpCo[1] && touch_x < heatPumpCo[0] + heatPumpCo[2] && touch_x > heatPumpCo[0] && (heatPumpCo[4] == 0 || heatPumpCo[4] == 2)) {  // Music clicked
+        dashboard.energy(importArr, productionArr, consumptionArr,
+                         longImportArr, longProductionArr, longConsumptionArr,
+                         currentImport, currentProduction, currentConsumption,
+                         timeArr, longTimeArr, energy_state, energy_longGraph,
+                         energy_roundState, drawImport, drawProduction,
+                         drawConsumption);
+      } else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
+                 touch_y > heatPumpCo[1] &&
+                 touch_x < heatPumpCo[0] + heatPumpCo[2] &&
+                 touch_x > heatPumpCo[0] &&
+                 (heatPumpCo[4] == 0 || heatPumpCo[4] == 2)) {  // Music clicked
         page = "heatPump";
         dashboard.fillScreen(AllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
-      } else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] && touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] && (mowerCo[4] == 0 || mowerCo[4] == 2)) {  // Music clicked
+      } else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
+                 touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
+                 (mowerCo[4] == 0 || mowerCo[4] == 2)) {  // Music clicked
         page = "mower";
         dashboard.fillScreen(AllBackg);
         dashboard.mower(mowerBattery, mowerState);
-      } else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] && touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] && (musicCo[4] == 0 || musicCo[4] == 2)) {  // Music clicked
+      } else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
+                 touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
+                 (musicCo[4] == 0 || musicCo[4] == 2)) {  // Music clicked
         page = "music";
         dashboard.fillScreen(AllBackg);
-        dashboard.music(keuken_channel, keuken_title, keuken_state, speelkamer_channel, speelkamer_title, speelkamer_state);
-      } else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] && touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] && (ventiCo[4] == 0 || ventiCo[4] == 2)) {  // Ventilation clicked
+        dashboard.music(keuken_channel, keuken_title, keuken_state,
+                        speelkamer_channel, speelkamer_title, speelkamer_state);
+      } else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
+                 touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
+                 (ventiCo[4] == 0 || ventiCo[4] == 2)) {  // Ventilation clicked
         page = "venti";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 799, 239);
         dashboard.homeEmpty(0, 239, 799, 239);
-        dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2, kelder_VOC, keuken_humidity, kelder_humidity, keuken_quality, kelder_quality, keuken_boostRemaining, kelder_boostRemaining);
+        dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2,
+                               kelder_VOC, keuken_humidity, kelder_humidity,
+                               keuken_quality, kelder_quality,
+                               keuken_boostRemaining, kelder_boostRemaining);
         dashboard.ventilationImg(keuken_boost, kelder_boost);
-      } else if (touch_x > 746 && touch_x < 800 && touch_y > 0 && touch_y < 44) {  // Settings clicked
+      } else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
+                 touch_y < 44) {  // Settings clicked
         page = "settings";
         dashboard.settings(darkMode, lastReset);
       }
     } else if (page == "detailLights") {
-      if (touch_x < 267 && touch_x > 100 && touch_y < 262 && touch_y > 44) {  // Sfeerlichtjes
+      if (touch_x < 267 && touch_x > 100 && touch_y < 262 &&
+          touch_y > 44) {  // Sfeerlichtjes
         mqttClient.beginMessage("lights/sfeerlichtjes");
         mqttClient.print("Switch");
         mqttClient.endMessage();
       }
-      if (touch_x > 267 && touch_x < 533 && touch_y < 262 && touch_y > 44) {  // Grote bol
+      if (touch_x > 267 && touch_x < 533 && touch_y < 262 &&
+          touch_y > 44) {  // Grote bol
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
           contacts = touchDetector.getTouchPoints(points);
@@ -392,7 +468,8 @@ void loop() {
           mqttClient.endMessage();
         }
       }
-      if (touch_x > 533 && touch_x < 800 && touch_y < 262 && touch_y > 44) {  // Glazen bol
+      if (touch_x > 533 && touch_x < 800 && touch_y < 262 &&
+          touch_y > 44) {  // Glazen bol
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
           contacts = touchDetector.getTouchPoints(points);
@@ -416,7 +493,8 @@ void loop() {
           mqttClient.endMessage();
         }
       }
-      if (touch_x < 400 && touch_x > 100 && touch_y < 480 && touch_y > 262) {  // Maanlamp
+      if (touch_x < 400 && touch_x > 100 && touch_y < 480 &&
+          touch_y > 262) {  // Maanlamp
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
           contacts = touchDetector.getTouchPoints(points);
@@ -440,7 +518,8 @@ void loop() {
           mqttClient.endMessage();
         }
       }
-      // if (touch_x > 400 && touch_x < 800 && touch_y < 480 && touch_y > 262) {  // Berging
+      // if (touch_x > 400 && touch_x < 800 && touch_y < 480 && touch_y > 262) {
+      // // Berging
       //   contacts = touchDetector.getTouchPoints(points);
       //   while (contacts == 0) {
       //     contacts = touchDetector.getTouchPoints(points);
@@ -464,14 +543,16 @@ void loop() {
       //     mqttClient.endMessage();
       //   }
       // }
-      if (touch_x > 400 && touch_x < 800 && touch_y < 480 && touch_y > 262) {  // Raamversiering
+      if (touch_x > 400 && touch_x < 800 && touch_y < 480 &&
+          touch_y > 262) {  // Raamversiering
         mqttClient.beginMessage("lights/raamversiering");
         mqttClient.print("Switch");
         mqttClient.endMessage();
       }
 
     } else if (page == "settings") {
-      if (touch_x < 360 && touch_x > 285 && touch_y < 140 && touch_y > 109) {  // darkMode clicked
+      if (touch_x < 360 && touch_x > 285 && touch_y < 140 &&
+          touch_y > 109) {  // darkMode clicked
         darkMode = !darkMode;
         if (darkMode) {
           BACKG = BLACK;
@@ -489,7 +570,8 @@ void loop() {
           dashboard.publicAllBackg = AllBackg;
         }
         dashboard.settings(darkMode, lastReset);
-      } else if (touch_x < 170 && touch_x > 130 && touch_y < 462 && touch_y > 422) {
+      } else if (touch_x < 170 && touch_x > 130 && touch_y < 462 &&
+                 touch_y > 422) {
         Serial.println("RESET!!!!!");
         NVIC_SystemReset();
       }
@@ -497,26 +579,37 @@ void loop() {
       String k = page;
       k.replace("detailLights/", "");
       Serial.println(k);
-      if ((touch_x < 300 || touch_x > 500) || (touch_y < 40 || touch_y > 440)) {  // Return
+      if ((touch_x < 300 || touch_x > 500) ||
+          (touch_y < 40 || touch_y > 440)) {  // Return
         Serial.println("return");
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
-        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol, lights_glazenBol, lights_berging, lights_maanlamp, lights_raamversiering);
-        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol, lights_glazenBol, lights_berging, lights_maanlamp, lights_raamversiering);
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16, lights_sfeerlichtjes);
+        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
+                               lights_glazenBol, lights_berging,
+                               lights_maanlamp, lights_raamversiering);
+        dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
+                               lights_glazenBol, lights_berging,
+                               lights_maanlamp, lights_raamversiering);
+        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                   lights_sfeerlichtjes);
         dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
         dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
-        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_maanlamp);
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_raamversiering);
+        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                              lights_maanlamp);
+        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                                   lights_raamversiering);
       }
-      if (touch_x > 300 && touch_x < 500 && touch_y > 340 && touch_y < 440) {  // O/I button clicked
+      if (touch_x > 300 && touch_x < 500 && touch_y > 340 &&
+          touch_y < 440) {  // O/I button clicked
         mqttClient.beginMessage("lights/" + k);
         mqttClient.print("Switch");
         mqttClient.endMessage();
       }
     } else if (page.startsWith("music")) {
       if (page == "music") {
-        if (touch_x < 350 && touch_x > 50 && touch_y < 350 && touch_y > 50 && (touch_x < 250 || touch_x > 350 || touch_y < 300 || touch_y > 400)) {  // Keuken icon clicked
+        if (touch_x < 350 && touch_x > 50 && touch_y < 350 && touch_y > 50 &&
+            (touch_x < 250 || touch_x > 350 || touch_y < 300 ||
+             touch_y > 400)) {  // Keuken icon clicked
           page = "music/keuken";
           dashboard.chooseChannel();
           newMusic = LOW;
@@ -525,17 +618,21 @@ void loop() {
           newSpeelkamer = LOW;
           newKeuken = LOW;
         }
-        if (touch_x > 250 && touch_x < 350 && touch_y > 300 && touch_y < 400) {  // Keuken button clicked
+        if (touch_x > 250 && touch_x < 350 && touch_y > 300 &&
+            touch_y < 400) {  // Keuken button clicked
           mqttClient.beginMessage("music/keuken");
           mqttClient.print("Switch");
           mqttClient.endMessage();
         }
-        if (touch_x < 750 && touch_x > 450 && touch_y < 350 && touch_y > 50 && (touch_x < 650 || touch_x > 750 || touch_y < 300 || touch_y > 400)) {  // Speelkamer icon clicked
+        if (touch_x < 750 && touch_x > 450 && touch_y < 350 && touch_y > 50 &&
+            (touch_x < 650 || touch_x > 750 || touch_y < 300 ||
+             touch_y > 400)) {  // Speelkamer icon clicked
           page = "music/speelkamer";
           dashboard.chooseChannel();
           newMusic = LOW;
         }
-        if (touch_x > 650 && touch_x < 750 && touch_y > 300 && touch_y < 400) {  // Speelkamer button clicked
+        if (touch_x > 650 && touch_x < 750 && touch_y > 300 &&
+            touch_y < 400) {  // Speelkamer button clicked
           mqttClient.beginMessage("music/speelkamer");
           mqttClient.print("Switch");
           mqttClient.endMessage();
@@ -561,7 +658,8 @@ void loop() {
           mqttClient.endMessage();
         }
         page = "music";
-        dashboard.music(keuken_channel, keuken_title, keuken_state, speelkamer_channel, speelkamer_title, speelkamer_state);
+        dashboard.music(keuken_channel, keuken_title, keuken_state,
+                        speelkamer_channel, speelkamer_title, speelkamer_state);
       } else if (page == "music/speelkamer") {
         if (touch_x > 100) {
           mqttClient.beginMessage("music/speelkamer");
@@ -583,7 +681,8 @@ void loop() {
           mqttClient.endMessage();
         }
         page = "music";
-        dashboard.music(keuken_channel, keuken_title, keuken_state, speelkamer_channel, speelkamer_title, speelkamer_state);
+        dashboard.music(keuken_channel, keuken_title, keuken_state,
+                        speelkamer_channel, speelkamer_title, speelkamer_state);
       }
     } else if (page == "energy") {
       newEnergyGraph = HIGH;
@@ -604,36 +703,42 @@ void loop() {
       }
     } else if (page == "venti") {
       if (keuken_boost) {
-        if (touch_x > 595 && touch_x < 765 && touch_y > 35 && touch_y < 205) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 35 &&
+            touch_y < 205) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/keuken/control");
           mqttClient.print("Stop");
           mqttClient.endMessage();
         }
       } else {
-        if (touch_x > 390 && touch_x < 560 && touch_y > 35 && touch_y < 205) {  // Keuken 1u
+        if (touch_x > 390 && touch_x < 560 && touch_y > 35 &&
+            touch_y < 205) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/keuken/control");
           mqttClient.print(60);
           mqttClient.endMessage();
         }
-        if (touch_x > 595 && touch_x < 765 && touch_y > 35 && touch_y < 205) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 35 &&
+            touch_y < 205) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/keuken/control");
           mqttClient.print(180);
           mqttClient.endMessage();
         }
       }
       if (kelder_boost) {
-        if (touch_x > 595 && touch_x < 765 && touch_y > 275 && touch_y < 445) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 275 &&
+            touch_y < 445) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/kelder/control");
           mqttClient.print("Stop");
           mqttClient.endMessage();
         }
       } else {
-        if (touch_x > 390 && touch_x < 560 && touch_y > 275 && touch_y < 445) {  // Keuken 1u
+        if (touch_x > 390 && touch_x < 560 && touch_y > 275 &&
+            touch_y < 445) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/kelder/control");
           mqttClient.print(60);
           mqttClient.endMessage();
         }
-        if (touch_x > 595 && touch_x < 765 && touch_y > 275 && touch_y < 445) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 275 &&
+            touch_y < 445) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/kelder/control");
           mqttClient.print(180);
           mqttClient.endMessage();
@@ -641,18 +746,21 @@ void loop() {
       }
     } else if (page == "mower") {
       if (mowerState) {
-        if (touch_x > 264 && touch_x < 464 && touch_y > 360 && touch_y < 440) {  // Return
+        if (touch_x > 264 && touch_x < 464 && touch_y > 360 &&
+            touch_y < 440) {  // Return
           mqttClient.beginMessage("mower/set");
           mqttClient.print("Return");
           mqttClient.endMessage();
         }
-        if (touch_x > 40 && touch_x < 240 && touch_y > 360 && touch_y < 440) {  // Pause
+        if (touch_x > 40 && touch_x < 240 && touch_y > 360 &&
+            touch_y < 440) {  // Pause
           mqttClient.beginMessage("mower/set");
           mqttClient.print("Pause");
           mqttClient.endMessage();
         }
       } else {
-        if (touch_x > 40 && touch_x < 464 && touch_y > 360 && touch_y < 440) {  // Start
+        if (touch_x > 40 && touch_x < 464 && touch_y > 360 &&
+            touch_y < 440) {  // Start
           mqttClient.beginMessage("mower/set");
           mqttClient.print("Start");
           mqttClient.endMessage();
@@ -661,11 +769,13 @@ void loop() {
     }
     lastTouch = millis();
   }
-  if (sfeerlichtjesChange || groteBolChange || glazenBolChange || maanlampChange || bergingChange || raamversieringChange) {
+  if (sfeerlichtjesChange || groteBolChange || glazenBolChange ||
+      maanlampChange || bergingChange || raamversieringChange) {
     if (page.startsWith("detailLights")) {
       // Serial.println("Refresh");
       if (sfeerlichtjesChange) {
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16, lights_sfeerlichtjes);
+        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                   lights_sfeerlichtjes);
       }
       if (groteBolChange) {
         dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
@@ -674,10 +784,12 @@ void loop() {
         dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
       }
       if (maanlampChange) {
-        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_maanlamp);
+        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                              lights_maanlamp);
       }
       if (raamversieringChange) {
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, lights_raamversiering);
+        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+                                   lights_raamversiering);
       }
       if (page.startsWith("detailLights/") == HIGH) {
         dashboard.lightSw();
@@ -708,7 +820,8 @@ void loop() {
     }
     newHomeInfo = LOW;
   }
-  if (newMusic || newKeukenChan || newSpeelkamerChan || newSpeelkamer || newKeuken) {
+  if (newMusic || newKeukenChan || newSpeelkamerChan || newSpeelkamer ||
+      newKeuken) {
     if (page == "music") {
       if (newKeukenChan) {
         dashboard.k_kanaal(keuken_channel, keuken_state);
@@ -723,7 +836,8 @@ void loop() {
         dashboard.k_state(keuken_state);
       }
       if (newMusic) {
-        dashboard.musicV(keuken_channel, keuken_title, speelkamer_channel, speelkamer_title);
+        dashboard.musicV(keuken_channel, keuken_title, speelkamer_channel,
+                         speelkamer_title);
         dashboard.k_state(keuken_state);
         dashboard.s_state(speelkamer_state);
       }
@@ -743,14 +857,22 @@ void loop() {
         dashboard.bliksem(450 + 340 / 4, 124 + 156 / 2, energy_state);
       }
       if (newEnergyGraph) {
-        dashboard.energyGraph(importArr, productionArr, consumptionArr, longImportArr, longProductionArr, longConsumptionArr, timeArr, longTimeArr, energy_longGraph, energy_roundState, drawImport, drawProduction, drawConsumption);
+        dashboard.energyGraph(importArr, productionArr, consumptionArr,
+                              longImportArr, longProductionArr,
+                              longConsumptionArr, timeArr, longTimeArr,
+                              energy_longGraph, energy_roundState, drawImport,
+                              drawProduction, drawConsumption);
       }
       // Serial.println("Refresh");
     }
     if (page == "home" && newBlxmInfo) {
-      if (energyCo[4] == 0 || energyCo[4] == 1) { dashboard.bliksem(0 + 399 / 4, 262 + 217 / 2, energy_state); }
+      if (energyCo[4] == 0 || energyCo[4] == 1) {
+        dashboard.bliksem(0 + 399 / 4, 262 + 217 / 2, energy_state);
+      }
     } else if (page == "home2" && newBlxmInfo) {
-      if (energyCo[4] == 0 || energyCo[4] == 2) { dashboard.bliksem(0 + 399 / 4, 262 + 217 / 2, energy_state); }
+      if (energyCo[4] == 0 || energyCo[4] == 2) {
+        dashboard.bliksem(0 + 399 / 4, 262 + 217 / 2, energy_state);
+      }
     }
     newBlxmInfo = LOW;
     newEnergyVal = LOW;
@@ -759,7 +881,10 @@ void loop() {
   if (newVentiV || newVentiImg) {
     if (page == "venti") {
       if (newVentiV) {
-        dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2, kelder_VOC, keuken_humidity, kelder_humidity, keuken_quality, kelder_quality, keuken_boostRemaining, kelder_boostRemaining);
+        dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2,
+                               kelder_VOC, keuken_humidity, kelder_humidity,
+                               keuken_quality, kelder_quality,
+                               keuken_boostRemaining, kelder_boostRemaining);
       }
       if (newVentiImg) {
         dashboard.ventilationImg(keuken_boost, kelder_boost);
@@ -774,7 +899,8 @@ void loop() {
   if (night && lastTouch + 60000 < millis()) {  // Shut down at night
     dashboard.fillScreen(BLACK);
     page = "blackScreen";
-  } else if (lastTouch + 60000 < millis() && page != "home" && page.indexOf("/") == -1) {  // Return to home after a while
+  } else if (lastTouch + 60000 < millis() && page != "home" &&
+             page.indexOf("/") == -1) {  // Return to home after a while
     page = "home";
     print();
     // printImg();
@@ -1001,7 +1127,8 @@ void onMqttMessage(int messageSize) {
     }
     lastEnergyNewValue = millis();
   }
-  if (topic.startsWith("music/") && message != "Switch" && message != "Up" && message != "Down" && message != "Next" && message != "Last") {
+  if (topic.startsWith("music/") && message != "Switch" && message != "Up" &&
+      message != "Down" && message != "Next" && message != "Last") {
     newMusic = HIGH;
     if (topic.startsWith("music/keuken")) {
       if (topic == "music/keuken/volume") {
@@ -1013,12 +1140,16 @@ void onMqttMessage(int messageSize) {
       if (topic == "music/keuken/channel") {
         if (message == "VRT Radio 1" || message == "Radio 1") {
           message = "Radio 1";
-        } else if (message == "VRT Studio Brussel Vuurland" || message == "Studio Brussel Vuurland" || message == "Vuurland") {
+        } else if (message == "VRT Studio Brussel Vuurland" ||
+                   message == "Studio Brussel Vuurland" ||
+                   message == "Vuurland") {
           message = "Vuurland";
         } else if (message == "VRT NWS") {
-        } else if (message == "Radio 2 vlaams-brabant" || message == "Radio 2") {
+        } else if (message == "Radio 2 vlaams-brabant" ||
+                   message == "Radio 2") {
           message = "Radio 2";
-        } else if (message == "Spotify Connect" || message == "" || message == "Spotify") {
+        } else if (message == "Spotify Connect" || message == "" ||
+                   message == "Spotify") {
           message = "Spotify";
         }
         keuken_channel = message;
@@ -1043,12 +1174,16 @@ void onMqttMessage(int messageSize) {
       if (topic == "music/speelkamer/channel") {
         if (message == "VRT Radio 1" || message == "Radio 1") {
           message = "Radio 1";
-        } else if (message == "VRT Studio Brussel Vuurland" || message == "Studio Brussel Vuurland" || message == "Vuurland") {
+        } else if (message == "VRT Studio Brussel Vuurland" ||
+                   message == "Studio Brussel Vuurland" ||
+                   message == "Vuurland") {
           message = "Vuurland";
         } else if (message == "VRT NWS") {
-        } else if (message == "Radio 2 vlaams-brabant" || message == "Radio 2") {
+        } else if (message == "Radio 2 vlaams-brabant" ||
+                   message == "Radio 2") {
           message = "Radio 2";
-        } else if (message == "Spotify Connect" || message == "" || message == "Spotify") {
+        } else if (message == "Spotify Connect" || message == "" ||
+                   message == "Spotify") {
           message = "Spotify";
         }
         speelkamer_channel = message;
@@ -1065,20 +1200,24 @@ void onMqttMessage(int messageSize) {
     }
   }
   if (topic.startsWith("afval")) {
-    //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4; None = 5
+    //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4;
+    //   None = 5
     musicCo[2] = 199;  // { 400, 262, 199, 217 };
     wasteCo[0] = 600;  // { 600, 262, 199, 217 };
     if (message.indexOf("GFT") != -1) {
-      if (message.indexOf("Restafval") != -1 || message.indexOf("restafval") != -1) {
+      if (message.indexOf("Restafval") != -1 ||
+          message.indexOf("restafval") != -1) {
         wasteType = 4;
       } else {
         wasteType = 1;
       }
-    } else if (message.indexOf("Restafval") != -1 || message.indexOf("restafval") != -1) {
+    } else if (message.indexOf("Restafval") != -1 ||
+               message.indexOf("restafval") != -1) {
       wasteType = 0;
     } else if (message.indexOf("PMD") != -1) {
       wasteType = 2;
-    } else if (message.indexOf("Papier") != -1 || message.indexOf("papier") != -1) {
+    } else if (message.indexOf("Papier") != -1 ||
+               message.indexOf("papier") != -1) {
       wasteType = 3;
     } else {
       wasteType = 5;
@@ -1185,30 +1324,77 @@ void print() {
   dashboard.printTemp(outDoorTemp);
   dashboard.printHeatPumpTime(heatPumpTime);
   dashboard.printWaterTemp(hotWaterTemp);
-  if (lightCo[4] == 0 || lightCo[4] == 1) { dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]); }
-  if (carCo[4] == 0 || carCo[4] == 1) { dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery, laadpaal_chargingPower, laadpaal_targetCharge); }
-  if (musicCo[4] == 0 || musicCo[4] == 1) { dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]); }
-  if (ventiCo[4] == 0 || ventiCo[4] == 1) { dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]); }
-  if (energyCo[4] == 0 || energyCo[4] == 1) { dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3], energy_state, currentImport); }
-  if (wasteCo[4] == 0 || wasteCo[4] == 1) { dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]); }
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) { dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2], heatPumpCo[3], hotWaterTemp); }
-  if (mowerCo[4] == 0 || mowerCo[4] == 1) { dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]); }
+  if (lightCo[4] == 0 || lightCo[4] == 1) {
+    dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
+  }
+  if (carCo[4] == 0 || carCo[4] == 1) {
+    dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
+                      laadpaal_chargingPower, laadpaal_targetCharge);
+  }
+  if (musicCo[4] == 0 || musicCo[4] == 1) {
+    dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
+  }
+  if (ventiCo[4] == 0 || ventiCo[4] == 1) {
+    dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
+  }
+  if (energyCo[4] == 0 || energyCo[4] == 1) {
+    dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
+                         energy_state, currentImport);
+  }
+  if (wasteCo[4] == 0 || wasteCo[4] == 1) {
+    dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]);
+  }
+  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
+    dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
+                           heatPumpCo[3], hotWaterTemp);
+  }
+  if (mowerCo[4] == 0 || mowerCo[4] == 1) {
+    dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
+  }
   printImg();
 }
 void printV() {
-  if (carCo[4] == 0 || carCo[4] == 1) { dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery, laadpaal_chargingPower, laadpaal_targetCharge); }
-  if (energyCo[4] == 0 || energyCo[4] == 1) { dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3], energy_state, currentImport); }
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) { dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2], heatPumpCo[3], hotWaterTemp); }
+  if (carCo[4] == 0 || carCo[4] == 1) {
+    dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
+                       laadpaal_chargingPower, laadpaal_targetCharge);
+  }
+  if (energyCo[4] == 0 || energyCo[4] == 1) {
+    dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
+                          energy_state, currentImport);
+  }
+  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
+    dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
+                            heatPumpCo[3], hotWaterTemp);
+  }
 }
 void printImg() {
-  if (lightCo[4] == 0 || lightCo[4] == 1) { dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]); }
-  if (carCo[4] == 0 || carCo[4] == 1) { dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]); }
-  if (energyCo[4] == 0 || energyCo[4] == 1) { dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3], energy_state); }
-  if (musicCo[4] == 0 || musicCo[4] == 1) { dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]); }
-  if (ventiCo[4] == 0 || ventiCo[4] == 1) { dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]); }
-  if (wasteCo[4] == 0 || wasteCo[4] == 1) { dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3], wasteType); }
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) { dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2], heatPumpCo[3], compressor); }
-  if (mowerCo[4] == 0 || mowerCo[4] == 1) { dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]); }
+  if (lightCo[4] == 0 || lightCo[4] == 1) {
+    dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
+  }
+  if (carCo[4] == 0 || carCo[4] == 1) {
+    dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]);
+  }
+  if (energyCo[4] == 0 || energyCo[4] == 1) {
+    dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
+                            energy_state);
+  }
+  if (musicCo[4] == 0 || musicCo[4] == 1) {
+    dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
+  }
+  if (ventiCo[4] == 0 || ventiCo[4] == 1) {
+    dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
+  }
+  if (wasteCo[4] == 0 || wasteCo[4] == 1) {
+    dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3],
+                           wasteType);
+  }
+  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
+    dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
+                              heatPumpCo[3], compressor);
+  }
+  if (mowerCo[4] == 0 || mowerCo[4] == 1) {
+    dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
+  }
 }
 void print2() {
   dashboard.home();
@@ -1216,28 +1402,75 @@ void print2() {
   dashboard.printTemp(outDoorTemp);
   dashboard.printHeatPumpTime(heatPumpTime);
   dashboard.printWaterTemp(hotWaterTemp);
-  if (lightCo[4] == 0 || lightCo[4] == 2) { dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]); }
-  if (carCo[4] == 0 || carCo[4] == 2) { dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery, laadpaal_chargingPower, laadpaal_targetCharge); }
-  if (musicCo[4] == 0 || musicCo[4] == 2) { dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]); }
-  if (ventiCo[4] == 0 || ventiCo[4] == 2) { dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]); }
-  if (energyCo[4] == 0 || energyCo[4] == 2) { dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3], energy_state, currentImport); }
-  if (wasteCo[4] == 0 || wasteCo[4] == 2) { dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]); }
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) { dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2], heatPumpCo[3], hotWaterTemp); }
-  if (mowerCo[4] == 0 || mowerCo[4] == 2) { dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]); }
+  if (lightCo[4] == 0 || lightCo[4] == 2) {
+    dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
+  }
+  if (carCo[4] == 0 || carCo[4] == 2) {
+    dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
+                      laadpaal_chargingPower, laadpaal_targetCharge);
+  }
+  if (musicCo[4] == 0 || musicCo[4] == 2) {
+    dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
+  }
+  if (ventiCo[4] == 0 || ventiCo[4] == 2) {
+    dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
+  }
+  if (energyCo[4] == 0 || energyCo[4] == 2) {
+    dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
+                         energy_state, currentImport);
+  }
+  if (wasteCo[4] == 0 || wasteCo[4] == 2) {
+    dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]);
+  }
+  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
+    dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
+                           heatPumpCo[3], hotWaterTemp);
+  }
+  if (mowerCo[4] == 0 || mowerCo[4] == 2) {
+    dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
+  }
   print2Img();
 }
 void print2V() {
-  if (carCo[4] == 0 || carCo[4] == 2) { dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery, laadpaal_chargingPower, laadpaal_targetCharge); }
-  if (energyCo[4] == 0 || energyCo[4] == 2) { dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3], energy_state, currentImport); }
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) { dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2], heatPumpCo[3], hotWaterTemp); }
+  if (carCo[4] == 0 || carCo[4] == 2) {
+    dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
+                       laadpaal_chargingPower, laadpaal_targetCharge);
+  }
+  if (energyCo[4] == 0 || energyCo[4] == 2) {
+    dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
+                          energy_state, currentImport);
+  }
+  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
+    dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
+                            heatPumpCo[3], hotWaterTemp);
+  }
 }
 void print2Img() {
-  if (lightCo[4] == 0 || lightCo[4] == 2) { dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]); }
-  if (carCo[4] == 0 || carCo[4] == 2) { dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]); }
-  if (energyCo[4] == 0 || energyCo[4] == 2) { dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3], energy_state); }
-  if (musicCo[4] == 0 || musicCo[4] == 2) { dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]); }
-  if (ventiCo[4] == 0 || ventiCo[4] == 2) { dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]); }
-  if (wasteCo[4] == 0 || wasteCo[4] == 2) { dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3], wasteType); }
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) { dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2], heatPumpCo[3], compressor); }
-  if (mowerCo[4] == 0 || mowerCo[4] == 2) { dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]); }
+  if (lightCo[4] == 0 || lightCo[4] == 2) {
+    dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
+  }
+  if (carCo[4] == 0 || carCo[4] == 2) {
+    dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]);
+  }
+  if (energyCo[4] == 0 || energyCo[4] == 2) {
+    dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
+                            energy_state);
+  }
+  if (musicCo[4] == 0 || musicCo[4] == 2) {
+    dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
+  }
+  if (ventiCo[4] == 0 || ventiCo[4] == 2) {
+    dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
+  }
+  if (wasteCo[4] == 0 || wasteCo[4] == 2) {
+    dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3],
+                           wasteType);
+  }
+  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
+    dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
+                              heatPumpCo[3], compressor);
+  }
+  if (mowerCo[4] == 0 || mowerCo[4] == 2) {
+    dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
+  }
 }
