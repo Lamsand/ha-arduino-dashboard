@@ -8,7 +8,6 @@ A touch-screen dashboard for **Home Assistant** built on the **Arduino Giga R1 +
 
 <img width="799" height="599" alt="image" src="https://github.com/user-attachments/assets/17791413-fc8b-4f75-a712-d503ec2e6a3b" />
 
-
 ---
 
 ## ✨ Features
@@ -50,9 +49,20 @@ Install these via the Arduino IDE Library Manager:
 
 ## ⚙️ Setup
 
-### 1. Clone or download this repository
+### 1. Download and open the code
 
-### 2. Configure your credentials
+- Go to the [Releases page](../../releases/latest) and download the source code zip
+- Unzip it — you'll get a folder called `ha-arduino-dashboard-1.0`
+- **Rename that folder to `ha-arduino-dashboard`** (Arduino IDE requires the folder and `.ino` file to have the same name)
+- Open `ha-arduino-dashboard.ino` in Arduino IDE
+
+### 2. Download and prepare the SD card
+
+- On the same [Releases page](../../releases/latest), download `sd-assets.zip`
+- Unzip it and copy **all files** to the **root** of your MicroSD card
+- Insert the SD card into the Giga Display Shield
+
+### 3. Configure your credentials
 
 Rename `arduino_secrets_example.h` to `arduino_secrets.h` and fill in your details:
 
@@ -67,7 +77,7 @@ Rename `arduino_secrets_example.h` to `arduino_secrets.h` and fill in your detai
 
 > ⚠️ **Never commit your real `arduino_secrets.h` to Git.** It is listed in `.gitignore` for this reason.
 
-### 3. Set up MQTT in Home Assistant
+### 4. Set up MQTT in Home Assistant
 
 The dashboard subscribes to these MQTT topics — make sure your HA automations or integrations publish to them:
 
@@ -87,7 +97,7 @@ The dashboard subscribes to these MQTT topics — make sure your HA automations 
 
 The dashboard also **publishes** to these topics when you interact with it (e.g. `lights/groteBol → "Switch"`, `music/keuken → "toRadio1"`, `mower/set → "Start"`).
 
-### 4. Flash the sketch
+### 5. Flash the sketch
 
 Open `Home_assistant.ino` in the Arduino IDE, select **Arduino Giga R1 WiFi** as the board, and upload.
 
