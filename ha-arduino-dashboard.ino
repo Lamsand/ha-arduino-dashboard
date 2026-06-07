@@ -1,7 +1,16 @@
 /*
-  ha-arduino-dashboard
-  https://github.com/Lamsand/ha-arduino-dashboard
+  ha-arduino-dashboard.ino - A dashboard for Home Assistant on the Arduino Giga
+  Display
 
+  Created by Sander Lambrechts, June 2026. This code is open source and
+  may be used, modified, and distributed freely. This project is designed to run
+  on the Arduino Giga Display, utilizing its touchscreen capabilities and SD
+  card storage for a dynamic and interactive Home Assistant dashboard. The
+  dashboard displays various home automation data such as energy consumption,
+  music status, lighting, and more, allowing users to interact with their smart
+  home devices directly from the display.
+
+  https://github.com/Lamsand/ha-arduino-dashboard
 */
 
 #include <ArduinoMqttClient.h>
