@@ -1,16 +1,7 @@
 /*
-  ha-arduino-dashboard.ino - A dashboard for Home Assistant on the Arduino Giga
-  Display
-
-  Created by Sander Lambrechts, June 2026. This code is open source and
-  may be used, modified, and distributed freely. This project is designed to run
-  on the Arduino Giga Display, utilizing its touchscreen capabilities and SD
-  card storage for a dynamic and interactive Home Assistant dashboard. The
-  dashboard displays various home automation data such as energy consumption,
-  music status, lighting, and more, allowing users to interact with their smart
-  home devices directly from the display.
-
+  ha-arduino-dashboard
   https://github.com/Lamsand/ha-arduino-dashboard
+
 */
 
 #include <ArduinoMqttClient.h>
@@ -47,7 +38,7 @@ MqttClient mqttClient(wifiClient);
          |                   |                    |
          | 0, 262, 400, 217  | 400, 262, 399, 217 |
          |___________________|____________________|
-    */
+*/
 
 int lightCo[5] = {0, 44, 400, 218, 1};
 int carCo[5] = {400, 44, 399, 218, 1};
@@ -698,6 +689,13 @@ void loop() {
         }
       } else if (!energy_longGraph) {
         energy_roundState = !energy_roundState;
+      } else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 &&
+                 touch_y > 124 + 156 / 2 - 85 && touch_y < 124 + 156 / 2 + 85) {
+        page = "evcc";
+        dashboard.fillScreen(AllBackg);
+        dashboard.homeEmpty(0, 0, 798, 479);
+        dashboard.evcc(currentProduction, currentImport, currentConsumption,
+                       laadpaal_chargingPower);
       } else {
         newEnergyGraph = LOW;
       }
@@ -765,6 +763,14 @@ void loop() {
           mqttClient.print("Start");
           mqttClient.endMessage();
         }
+      }
+    } else if (page == "detailCar") {
+      if (touch_x > 600) {
+        page = "evcc";
+        dashboard.fillScreen(AllBackg);
+        dashboard.homeEmpty(0, 0, 798, 479);
+        dashboard.evcc(currentProduction, currentImport, currentConsumption,
+                       laadpaal_chargingPower);
       }
     }
     lastTouch = millis();
@@ -873,6 +879,10 @@ void loop() {
       if (energyCo[4] == 0 || energyCo[4] == 2) {
         dashboard.bliksem(0 + 399 / 4, 262 + 217 / 2, energy_state);
       }
+    }
+    if (page == "evcc") {
+      dashboard.evcc(currentProduction, currentImport, currentConsumption,
+                     laadpaal_chargingPower);
     }
     newBlxmInfo = LOW;
     newEnergyVal = LOW;

@@ -798,6 +798,45 @@ void Dashboard::bliksem(int xInput, int yInput, int state) {
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
   file.close();
 }
+void Dashboard::evccIcon(int xInput, int yInput, int state) {
+  switch (state) {
+    case 0:
+      if (publicBackg == BLACK) {
+        file = sd.open("sunD.bin");
+      } else {
+        file = sd.open("sunL.bin");
+      }
+      break;
+    case 1:
+      if (publicBackg == BLACK) {
+        file = sd.open("pylonD.bin");
+      } else {
+        file = sd.open("pylonL.bin");
+      }
+      break;
+    case 2:
+      if (publicBackg == BLACK) {
+        file = sd.open("homeD.bin");
+      } else {
+        file = sd.open("homeL.bin");
+      }
+      break;
+  }
+  if (!file) return;
+  file.seek(4);  // Skip the 4-byte header of the file
+  int y = 0;
+  const int h = 30;
+  const int w = 30;
+  int q = buffSize / w;
+  while (y < h / q) {
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    y++;
+  }
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.close();
+}
 // ************************** waste ************************************
 void Dashboard::wasteIcon(int xInput, int yInput, int wasteType) {
   //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4
@@ -1593,158 +1632,256 @@ void Dashboard::detailCar(int battery, float chargingCapacity, int chargingSpeed
   }
   carImageLarge(spacing + (SCREEN_W - powerW - 2 * spacing) / 2, spacing + (SCREEN_H - batteryH - 3 * spacing) / 2);
 }
-void Dashboard::evcc(int PV, int grid, int toGrid, int toHome, float toCar){
-  // ── Layout ────────────────────────────────────────────────
-  const int16_t regX   = 20;
-  const int16_t regY   = 10;
-  const int16_t regW   = SCREEN_W - 40;
- 
-  const int16_t barX   = regX;
-  const int16_t barY   = regY + 68;
-  const int16_t barW   = regW;
-  const int16_t barH   = 44;
-  const int16_t barR   = 6;
- 
-  const int16_t bbotY  = barY + barH;
-  const int16_t bbotH  = 22;
-  const int16_t iconY  = bbotY + bbotH - 8;
- 
-  // ── 0. Background ─────────────────────────────────────────
-  display.fillScreen(publicAllBackg);
-  display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
- 
-  // ── 1. Title ──────────────────────────────────────────────
-  display.setTextColor(WHITE);
+void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
+  int toHome = max(consumption - (int)(toCar * 1000.0f), 0);
+  int selfUse = min(PV, toHome);
+  int gridUse = max(grid, 0);
+  int toGrid = max(-grid, 0);
+
+// ── Layout ────────────────────────────────────────────────
+  const int16_t regX = 20;
+  const int16_t regY = 10;
+  const int16_t regW = SCREEN_W - 40;
+  const int16_t barX = regX;
+  const int16_t barY = regY + 68;
+  const int16_t barW = regW;
+  const int16_t barH = 44;
+  const int16_t barR = 6;
+  const int16_t bbotY = barY + barH;
+  const int16_t bbotH = 16;
+
+// Icon centres: vertically centred on their bracket line
+  const int16_t sunY = barY - bbotH;    // centre of top bracket line
+  const int16_t iconY = bbotY + bbotH;  // centre of bottom bracket line
+
+// Bar pixel widths
+  int total = selfUse + gridUse + toGrid;
+  if (total <= 0) total = 1;
+  int greenW = constrain((int)((long)selfUse * barW / total), 0, barW);
+  int greyW = constrain((int)((long)gridUse * barW / total), 0, barW - greenW);
+  int yellowW = barW - greenW - greyW;
+  // snap rounding remainders to 0
+  if (toGrid == 0) yellowW = 0, greyW = barW - greenW;
+  if (gridUse == 0) greyW = 0, yellowW = barW - greenW;
+
+// ── 0. Background (no fillScreen) ─────────────────────────
+  // display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
+  display.fillRect(regX - 15, regY+35, regW +15, 110, publicBackg);
+
+// ── 1. Title ──────────────────────────────────────────────
+  display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(2);
   display.setCursor(regX, regY + 8);
   display.print("EVCC");
- 
-  // ── 2. Price label (top-right) ────────────────────────────
-  display.setTextColor(GREY);
-  display.setTextSize(1);
-  char priceStr[20];
-  snprintf(priceStr, sizeof(priceStr), "%.1f ct/kWh", 1.5f);
-  int16_t  tx, ty;
+
+// ── 2. PV value (top centre) ──────────────────────────────
+  display.setTextColor(GREY, publicBackg);
+  display.setTextSize(2);
+  char pvStr[16];
+  if (PV < 1000) snprintf(pvStr, sizeof(pvStr), "%d W", PV);
+  else snprintf(pvStr, sizeof(pvStr), "%.1f kW", PV / 1000.0f);
+  int16_t tx, ty;
   uint16_t tw, th;
-  display.getTextBounds(priceStr, 0, 0, &tx, &ty, &tw, &th);
-  display.setCursor(regX + regW - tw - 24, regY + 8);
-  display.print(priceStr);
-  // refresh circle icon
-  int16_t icx = regX + regW - 10, icy = regY + 12;
-  display.drawCircle(icx, icy, 7, GREY);
-  display.drawLine(icx + 5, icy - 5, icx + 7, icy - 7, GREY);
-  display.drawLine(icx + 5, icy - 5, icx + 7, icy - 3, GREY);
- 
-  // ── 3. Sun icon (centred above bar) ───────────────────────
-  {
-    int16_t sx = regX + regW / 2;
-    int16_t sy = regY + 48;
-    display.fillCircle(sx, sy, 5, grey);
-    const int8_t dx[] = { 0,  6,  9,  6,  0, -6, -9, -6};
-    const int8_t dy[] = {-9, -6,  0,  6,  9,  6,  0, -6};
-    for (uint8_t i = 0; i < 8; i++) {
-      display.drawLine(sx + dx[i] * 7 / 9, sy + dy[i] * 7 / 9,
-                       sx + dx[i],          sy + dy[i], grey);
-    }
+  display.getTextBounds(pvStr, 0, 0, &tx, &ty, &tw, &th);
+  display.setCursor(regX + regW / 2 - tw / 2, regY + 8);
+  display.print(pvStr);
+
+// ── 3. Grid value (top right) ─────────────────────────────
+  char gridStr[20];
+  if (grid >= 0) {
+    if (grid < 1000) snprintf(gridStr, sizeof(gridStr), "+%d W", grid);
+    else snprintf(gridStr, sizeof(gridStr), "+%.1f kW", grid / 1000.0f);
+    display.setTextColor(red, publicBackg);
+  } else {
+    if (-grid < 1000) snprintf(gridStr, sizeof(gridStr), "%d W", grid);
+    else snprintf(gridStr, sizeof(gridStr), "%.1f kW", grid / 1000.0f);
+    display.setTextColor(evccGREEN, publicBackg);
   }
- 
-  // ── 4. "In" label (vertical, right edge) ──────────────────
+  display.setTextSize(2);
+  display.getTextBounds(gridStr, 0, 0, &tx, &ty, &tw, &th);
+  display.setCursor(regX + regW - tw, regY + 8);
+  display.print(gridStr);
+
+// ── 4. "In" / "Out" labels (vertical, right edge) ─────────
   display.setTextSize(1);
-  display.setTextColor(GREY);
+  display.setTextColor(GREY, publicBackg);
   display.setCursor(regX + regW + 6, barY);
   display.print("I");
   display.setCursor(regX + regW + 6, barY + 9);
   display.print("n");
- 
-  // ── 5. Top bracket (open-bottom rounded rect) ─────────────
-  display.drawRoundRect(barX, barY - barR - 2, barW, barR + 4, barR, GREY);
-  display.fillRect(barX + 1, barY, barW - 2, barR + 4, publicBackg);
- 
-  // ── 6. Bar split ──────────────────────────────────────────
-  int total  = toHome + toGrid;
-  if (total <= 0) total = 1;
-  int greenW = constrain((int)((long)toHome * barW / total), 0, barW);
-  int yellowW = barW - greenW;
- 
-  // Green segment
-  if (greenW > 0)
-    display.fillRoundRect(barX, barY, greenW, barH, 4, evccGREEN);
- 
-  // Yellow segment
-  if (yellowW > 0) {
-    display.fillRoundRect(barX + greenW, barY, yellowW, barH, 4, YELLOW);
-    if (greenW > 0)
-      display.fillRect(barX + greenW, barY, barR, barH, YELLOW);
-  }
- 
-  // Square off shared inner edge
-  if (greenW > 0 && yellowW > 0)
-    display.fillRect(barX + greenW - barR, barY, barR, barH, evccGREEN);
- 
-  // ── 7. Watt labels ────────────────────────────────────────
-  char wStr[16];
-  display.setTextSize(2);
- 
-  if (greenW > 40) {
-    snprintf(wStr, sizeof(wStr), "%d W", toHome);
-    uint16_t lw, lh; int16_t lx, ly;
-    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
-    display.setTextColor(BLACK);
-    display.setCursor(barX + (greenW - lw) / 2, barY + (barH - lh) / 2);
-    display.print(wStr);
-  }
- 
-  if (yellowW > 40) {
-    snprintf(wStr, sizeof(wStr), "%d W", toGrid);
-    uint16_t lw, lh; int16_t lx, ly;
-    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
-    display.setTextColor(BLACK);
-    display.setCursor(barX + greenW + (yellowW - lw) / 2, barY + (barH - lh) / 2);
-    display.print(wStr);
-  }
- 
-  // ── 8. Bottom bracket (open-top rounded rect) ─────────────
-  display.drawRoundRect(barX, bbotY - 2, barW, barR + bbotH, barR, GREY);
-  display.fillRect(barX + 1, bbotY - 2, barW - 2, barR + 2, publicBackg);
- 
-  // Divider tick at green/yellow split
-  display.drawLine(barX + greenW, bbotY, barX + greenW, bbotY + bbotH - 2, GREY);
- 
-  // ── 9. "Out" label (vertical, right edge) ─────────────────
-  display.setTextSize(1);
-  display.setTextColor(GREY);
   display.setCursor(regX + regW + 6, bbotY + 2);
   display.print("O");
   display.setCursor(regX + regW + 6, bbotY + 11);
   display.print("u");
   display.setCursor(regX + regW + 6, bbotY + 20);
   display.print("t");
- 
-  // ── 10. Home icon (centred under green zone) ───────────────
-  {
-    int16_t hx = barX + greenW / 2;
-    int16_t hy = iconY;
-    display.drawLine(hx - 7, hy - 3, hx,     hy - 9, grey);
-    display.drawLine(hx,     hy - 9, hx + 7, hy - 3, grey);
-    display.drawLine(hx - 7, hy - 3, hx + 7, hy - 3, grey);
-    display.drawRect(hx - 5, hy - 3, 11, 8, grey);
-    display.fillRect(hx - 2, hy + 1,  4, 4, grey);
+
+// ── 5. Top bracket (open-bottom) ──────────────────────────
+  display.drawRoundRect(barX, barY - bbotH, barW, barR + 40, barR, GREY);
+  display.fillRect(barX, barY - 8, barW, 16, publicBackg);
+
+// ── 6. Bottom bracket (open-top) ──────────────────────────
+  display.drawRoundRect(barX, bbotY - 4, barW, barR + bbotH, barR, GREY);
+  display.fillRect(barX, bbotY - 8, barW, 16, publicBackg);
+
+// ── 7. Three-segment bar ───────────────────────────────────
+  if (yellowW > 0)
+    display.fillRoundRect(barX, barY, barW, barH, barR, YELLOW);
+  else if (greyW > 0)
+    display.fillRoundRect(barX, barY, barW, barH, barR, GREY);
+  else
+    display.fillRoundRect(barX, barY, barW, barH, barR, evccGREEN);
+
+  if (greyW > 0 && yellowW > 0) {
+    display.fillRoundRect(barX, barY, greenW + greyW, barH, barR, GREY);
+    display.fillRect(barX + greenW + greyW, barY, barR, barH, GREY);
   }
- 
-  // ── 11. Grid / pylon icon (centred under yellow zone) ──────
-  {
-    int16_t gx = barX + greenW + yellowW / 2;
-    int16_t gy = iconY;
-    display.drawLine(gx,     gy - 10, gx,     gy + 4,  grey);
-    display.drawLine(gx - 7, gy - 8,  gx + 7, gy - 8,  grey);
-    display.drawLine(gx - 7, gy - 8,  gx,     gy - 10, grey);
-    display.drawLine(gx + 7, gy - 8,  gx,     gy - 10, grey);
-    display.drawLine(gx - 5, gy - 3,  gx + 5, gy - 3,  grey);
-    display.drawLine(gx - 5, gy - 3,  gx,     gy - 8,  grey);
-    display.drawLine(gx + 5, gy - 3,  gx,     gy - 8,  grey);
-    display.drawLine(gx,     gy + 4,  gx - 6, gy + 4,  grey);
-    display.drawLine(gx,     gy + 4,  gx + 6, gy + 4,  grey);
+
+  if (greenW > 0) {
+    display.fillRoundRect(barX, barY, greenW, barH, barR, evccGREEN);
+    if (greyW > 0 || yellowW > 0)
+      display.fillRect(barX + greenW, barY, barR, barH,
+                       greyW > 0 ? (uint16_t)GREY : (uint16_t)YELLOW);
   }
+
+// ── 8. Labels inside bars ─────────────────────────────────
+  char wStr[16];
+  display.setTextSize(2);
+
+  if (greenW > 40) {
+    if (selfUse < 1000) snprintf(wStr, sizeof(wStr), "%d W", selfUse);
+    else snprintf(wStr, sizeof(wStr), "%.1f kW", selfUse / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
+    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
+    display.setTextColor(BLACK, publicBackg);
+    display.setCursor(barX + (greenW - lw) / 2, barY + (barH - lh) / 2);
+    display.print(wStr);
+  }
+
+  if (greyW > 40) {
+    if (gridUse < 1000) snprintf(wStr, sizeof(wStr), "%d W", gridUse);
+    else snprintf(wStr, sizeof(wStr), "%.1f kW", gridUse / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
+    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
+    display.setTextColor(publicTEXT);
+    display.setCursor(barX + greenW + (greyW - lw) / 2, barY + (barH - lh) / 2);
+    display.print(wStr);
+  }
+
+  if (yellowW > 40) {
+    if (toGrid < 1000) snprintf(wStr, sizeof(wStr), "%d W", toGrid);
+    else snprintf(wStr, sizeof(wStr), "%.1f kW", toGrid / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
+    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
+    display.setTextColor(BLACK);
+    display.setCursor(barX + greenW + greyW + (yellowW - lw) / 2, barY + (barH - lh) / 2);
+    display.print(wStr);
+  }
+
+// ── 9. Divider ticks ──────────────────────────────────────
+  if (greyW > 1)
+    display.drawLine(barX + greenW, bbotY + 4, barX + greenW, bbotY + bbotH - 4, GREY);
+  if (yellowW > 1)
+    display.drawLine(barX + greenW + greyW, bbotY + 4, barX + greenW + greyW, bbotY + bbotH - 4, GREY);
+
+// ── 10. Sun icon — centred on top bracket line, black box ──
+  if (greenW + yellowW > 1){
+    const int16_t sx = regX + (greenW + yellowW) / 2;
+    const int16_t sy = sunY;
+    evccIcon(sx, sy, 0);
+  }
+
+// Pylon on top bracket, centred in the grey (import) zone
+  if (greyW > 0) {
+    const int16_t gx = barX + greenW + greyW / 2;
+    const int16_t gy = sunY;
+    evccIcon(gx, gy, 1);
+  }
+
+// ── 11. Home icon — centred on bottom bracket line, black box
+  {
+    const int16_t hx = barX + (greenW + greyW) / 2;
+    const int16_t hy = iconY;
+    const int16_t pad = 18;
+    display.fillRect(hx - pad * 5 / 6, hy - pad * 5 / 6, pad * 2 * 5 / 6, pad * 2 * 5 / 6, BLACK);
+    // roof
+    display.drawLine(hx - 14 * 5 / 6, hy - 2 * 5 / 6, hx, hy - 16 * 5 / 6, grey);
+    display.drawLine(hx, hy - 16 * 5 / 6, hx + 14 * 5 / 6, hy - 2 * 5 / 6, grey);
+    display.drawLine(hx - 14 * 5 / 6, hy - 2 * 5 / 6, hx + 14 * 5 / 6, hy - 2 * 5 / 6, grey);
+    // walls
+    display.drawRect(hx - 10 * 5 / 6, hy - 2 * 5 / 6, 21 * 5 / 6, 14 * 5 / 6, grey);
+    // door
+    display.fillRect(hx - 4 * 5 / 6, hy + 4 * 5 / 6, 8 * 5 / 6, 8 * 5 / 6, grey);
+  }
+
+// ── 12. Pylon icon — centred on bottom bracket line, black box
+  if (yellowW > 0) {
+    const int16_t gx = barX + greenW + greyW + yellowW / 2;
+    const int16_t gy = iconY;
+    const int16_t pad = 18;
+    display.fillRect(gx - pad * 5 / 6, gy - pad * 5 / 6, pad * 2 * 5 / 6, pad * 2 * 5 / 6, BLACK);
+    display.drawLine(gx, gy - 18 * 5 / 6, gx, gy + 6 * 5 / 6, grey);
+    display.drawLine(gx - 14 * 5 / 6, gy - 14 * 5 / 6, gx + 14 * 5 / 6, gy - 14 * 5 / 6, grey);
+    display.drawLine(gx - 14 * 5 / 6, gy - 14 * 5 / 6, gx, gy - 18 * 5 / 6, grey);
+    display.drawLine(gx + 14 * 5 / 6, gy - 14 * 5 / 6, gx, gy - 18 * 5 / 6, grey);
+    display.drawLine(gx - 10 * 5 / 6, gy - 6 * 5 / 6, gx + 10 * 5 / 6, gy - 6 * 5 / 6, grey);
+    display.drawLine(gx - 10 * 5 / 6, gy - 6 * 5 / 6, gx, gy - 14 * 5 / 6, grey);
+    display.drawLine(gx + 10 * 5 / 6, gy - 6 * 5 / 6, gx, gy - 14 * 5 / 6, grey);
+    display.drawLine(gx, gy + 6 * 5 / 6, gx - 12 * 5 / 6, gy + 6 * 5 / 6, grey);
+    display.drawLine(gx, gy + 6 * 5 / 6, gx + 12 * 5 / 6, gy + 6 * 5 / 6, grey);
+  }
+
+// ── 13. Car charging section ───────────────────────────────
+  if (toCar > 0.0f) {
+    const int16_t carY = bbotY + bbotH + 20;
+    const int16_t carBarH = 44;
+    const int16_t carBarW = barW;
+    const float maxCar = 11.0f;
+    const int16_t cbbotY = carY + carBarH;
+    int carFill = constrain((int)(toCar / maxCar * carBarW), 0, carBarW);
+
+    display.drawRoundRect(barX, carY - bbotH, carBarW, barR + 40, barR, GREY);
+    display.fillRect(barX, carY - 8, carBarW, 16, publicBackg);
+    display.drawRoundRect(barX, cbbotY - 4, carBarW, barR + bbotH, barR, GREY);
+    display.fillRect(barX, cbbotY - 8, carBarW, 16, publicBackg);
+
+    if (carFill > 0)
+      display.fillRoundRect(barX, carY, carFill, carBarH, barR, HABlue);
+    if (carFill < carBarW)
+      display.fillRoundRect(barX + carFill, carY, carBarW - carFill, carBarH, barR, GREY);
+    if (carFill > 0 && carFill < carBarW) {
+      display.fillRect(barX + carFill, carY, barR, carBarH, GREY);
+      display.fillRect(barX + carFill - barR, carY, barR, carBarH, HABlue);
+    }
+
+    char carStr[16];
+    if (toCar < 1.0f) snprintf(carStr, sizeof(carStr), "%.0f W", toCar * 1000.0f);
+    else snprintf(carStr, sizeof(carStr), "%.1f kW", toCar);
+    uint16_t lw, lh;
+    int16_t lx, ly;
+    display.setTextSize(2);
+    display.getTextBounds(carStr, 0, 0, &lx, &ly, &lw, &lh);
+    if (carFill > (int)lw + 8) {
+      display.setTextColor(publicTEXT, publicBackg);
+      display.setCursor(barX + (carFill - lw) / 2, carY + (carBarH - lh) / 2);
+    } else {
+      display.setTextColor(publicTEXT, publicBackg);
+      display.setCursor(barX + carFill + 6, carY + (carBarH - lh) / 2);
+    }
+    display.print(carStr);
+
+    // Car icon with black box, centred on bottom bracket line
+    const int16_t carIconY = cbbotY + bbotH / 2;
+    const int16_t carIconX = barX + carBarW / 2;
+    display.fillRect(carIconX - 18, carIconY - 18, 36, 36, BLACK);
+    car(carIconX, carIconY, 60, grey);
+  }
+// display.setCursor(300, 300);
+// display.setTextColor(WHITE);
+// display.print(yellowW);
 }
 
 // ** lights **
