@@ -1638,7 +1638,7 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   int gridUse = max(grid, 0);
   int toGrid = max(-grid, 0);
 
-// ── Layout ────────────────────────────────────────────────
+  // ── Layout ────────────────────────────────────────────────
   const int16_t regX = 20;
   const int16_t regY = 10;
   const int16_t regW = SCREEN_W - 40;
@@ -1650,11 +1650,11 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   const int16_t bbotY = barY + barH;
   const int16_t bbotH = 16;
 
-// Icon centres: vertically centred on their bracket line
+  // Icon centres: vertically centred on their bracket line
   const int16_t sunY = barY - bbotH;    // centre of top bracket line
   const int16_t iconY = bbotY + bbotH;  // centre of bottom bracket line
 
-// Bar pixel widths
+  // Bar pixel widths
   int total = selfUse + gridUse + toGrid;
   if (total <= 0) total = 1;
   int greenW = constrain((int)((long)selfUse * barW / total), 0, barW);
@@ -1664,17 +1664,17 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   if (toGrid == 0) yellowW = 0, greyW = barW - greenW;
   if (gridUse == 0) greyW = 0, yellowW = barW - greenW;
 
-// ── 0. Background (no fillScreen) ─────────────────────────
+  // ── 0. Background (no fillScreen) ─────────────────────────
   // display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
-  display.fillRect(regX - 15, regY+35, regW +15, 110, publicBackg);
+  display.fillRect(regX - 15, regY + 35, regW + 15, 110, publicBackg);
 
-// ── 1. Title ──────────────────────────────────────────────
+  // ── 1. Title ──────────────────────────────────────────────
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(2);
   display.setCursor(regX, regY + 8);
   display.print("EVCC");
 
-// ── 2. PV value (top centre) ──────────────────────────────
+  // ── 2. PV value (top centre) ──────────────────────────────
   display.setTextColor(GREY, publicBackg);
   display.setTextSize(2);
   char pvStr[16];
@@ -1686,7 +1686,7 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   display.setCursor(regX + regW / 2 - tw / 2, regY + 8);
   display.print(pvStr);
 
-// ── 3. Grid value (top right) ─────────────────────────────
+  // ── 3. Grid value (top right) ─────────────────────────────
   char gridStr[20];
   if (grid >= 0) {
     if (grid < 1000) snprintf(gridStr, sizeof(gridStr), "+%d W", grid);
@@ -1702,7 +1702,7 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   display.setCursor(regX + regW - tw, regY + 8);
   display.print(gridStr);
 
-// ── 4. "In" / "Out" labels (vertical, right edge) ─────────
+  // ── 4. "In" / "Out" labels (vertical, right edge) ─────────
   display.setTextSize(1);
   display.setTextColor(GREY, publicBackg);
   display.setCursor(regX + regW + 6, barY);
@@ -1716,15 +1716,15 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   display.setCursor(regX + regW + 6, bbotY + 20);
   display.print("t");
 
-// ── 5. Top bracket (open-bottom) ──────────────────────────
+  // ── 5. Top bracket (open-bottom) ──────────────────────────
   display.drawRoundRect(barX, barY - bbotH, barW, barR + 40, barR, GREY);
   display.fillRect(barX, barY - 8, barW, 16, publicBackg);
 
-// ── 6. Bottom bracket (open-top) ──────────────────────────
+  // ── 6. Bottom bracket (open-top) ──────────────────────────
   display.drawRoundRect(barX, bbotY - 4, barW, barR + bbotH, barR, GREY);
   display.fillRect(barX, bbotY - 8, barW, 16, publicBackg);
 
-// ── 7. Three-segment bar ───────────────────────────────────
+  // ── 7. Three-segment bar ───────────────────────────────────
   if (yellowW > 0)
     display.fillRoundRect(barX, barY, barW, barH, barR, YELLOW);
   else if (greyW > 0)
@@ -1744,7 +1744,7 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
                        greyW > 0 ? (uint16_t)GREY : (uint16_t)YELLOW);
   }
 
-// ── 8. Labels inside bars ─────────────────────────────────
+  // ── 8. Labels inside bars ─────────────────────────────────
   char wStr[16];
   display.setTextSize(2);
 
@@ -1781,60 +1781,41 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
     display.print(wStr);
   }
 
-// ── 9. Divider ticks ──────────────────────────────────────
+  // ── 9. Divider ticks ──────────────────────────────────────
   if (greyW > 1)
     display.drawLine(barX + greenW, bbotY + 4, barX + greenW, bbotY + bbotH - 4, GREY);
   if (yellowW > 1)
     display.drawLine(barX + greenW + greyW, bbotY + 4, barX + greenW + greyW, bbotY + bbotH - 4, GREY);
 
-// ── 10. Sun icon — centred on top bracket line, black box ──
-  if (greenW + yellowW > 1){
+  // ── 10. Sun icon — centred on top bracket line, black box ──
+  if (greenW + yellowW > 1) {
     const int16_t sx = regX + (greenW + yellowW) / 2;
     const int16_t sy = sunY;
     evccIcon(sx, sy, 0);
   }
 
-// Pylon on top bracket, centred in the grey (import) zone
+  // Pylon on top bracket, centred in the grey (import) zone
   if (greyW > 0) {
     const int16_t gx = barX + greenW + greyW / 2;
     const int16_t gy = sunY;
     evccIcon(gx, gy, 1);
   }
 
-// ── 11. Home icon — centred on bottom bracket line, black box
+  // ── 11. Home icon — centred on bottom bracket line, black box
   {
     const int16_t hx = barX + (greenW + greyW) / 2;
     const int16_t hy = iconY;
-    const int16_t pad = 18;
-    display.fillRect(hx - pad * 5 / 6, hy - pad * 5 / 6, pad * 2 * 5 / 6, pad * 2 * 5 / 6, BLACK);
-    // roof
-    display.drawLine(hx - 14 * 5 / 6, hy - 2 * 5 / 6, hx, hy - 16 * 5 / 6, grey);
-    display.drawLine(hx, hy - 16 * 5 / 6, hx + 14 * 5 / 6, hy - 2 * 5 / 6, grey);
-    display.drawLine(hx - 14 * 5 / 6, hy - 2 * 5 / 6, hx + 14 * 5 / 6, hy - 2 * 5 / 6, grey);
-    // walls
-    display.drawRect(hx - 10 * 5 / 6, hy - 2 * 5 / 6, 21 * 5 / 6, 14 * 5 / 6, grey);
-    // door
-    display.fillRect(hx - 4 * 5 / 6, hy + 4 * 5 / 6, 8 * 5 / 6, 8 * 5 / 6, grey);
+    evccIcon(hx, hy, 2);
   }
 
-// ── 12. Pylon icon — centred on bottom bracket line, black box
+  // ── 12. Pylon icon — centred on bottom bracket line, black box
   if (yellowW > 0) {
     const int16_t gx = barX + greenW + greyW + yellowW / 2;
     const int16_t gy = iconY;
-    const int16_t pad = 18;
-    display.fillRect(gx - pad * 5 / 6, gy - pad * 5 / 6, pad * 2 * 5 / 6, pad * 2 * 5 / 6, BLACK);
-    display.drawLine(gx, gy - 18 * 5 / 6, gx, gy + 6 * 5 / 6, grey);
-    display.drawLine(gx - 14 * 5 / 6, gy - 14 * 5 / 6, gx + 14 * 5 / 6, gy - 14 * 5 / 6, grey);
-    display.drawLine(gx - 14 * 5 / 6, gy - 14 * 5 / 6, gx, gy - 18 * 5 / 6, grey);
-    display.drawLine(gx + 14 * 5 / 6, gy - 14 * 5 / 6, gx, gy - 18 * 5 / 6, grey);
-    display.drawLine(gx - 10 * 5 / 6, gy - 6 * 5 / 6, gx + 10 * 5 / 6, gy - 6 * 5 / 6, grey);
-    display.drawLine(gx - 10 * 5 / 6, gy - 6 * 5 / 6, gx, gy - 14 * 5 / 6, grey);
-    display.drawLine(gx + 10 * 5 / 6, gy - 6 * 5 / 6, gx, gy - 14 * 5 / 6, grey);
-    display.drawLine(gx, gy + 6 * 5 / 6, gx - 12 * 5 / 6, gy + 6 * 5 / 6, grey);
-    display.drawLine(gx, gy + 6 * 5 / 6, gx + 12 * 5 / 6, gy + 6 * 5 / 6, grey);
+    evccIcon(gx, gy, 1);
   }
 
-// ── 13. Car charging section ───────────────────────────────
+  // ── 13. Car charging section ───────────────────────────────
   if (toCar > 0.0f) {
     const int16_t carY = bbotY + bbotH + 20;
     const int16_t carBarH = 44;
@@ -1879,9 +1860,9 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
     display.fillRect(carIconX - 18, carIconY - 18, 36, 36, BLACK);
     car(carIconX, carIconY, 60, grey);
   }
-// display.setCursor(300, 300);
-// display.setTextColor(WHITE);
-// display.print(yellowW);
+  // display.setCursor(300, 300);
+  // display.setTextColor(WHITE);
+  // display.print(yellowW);
 }
 
 // ** lights **
