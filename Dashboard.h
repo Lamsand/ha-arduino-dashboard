@@ -2,7 +2,6 @@
 #define Dashboard_h
 
 #include "Arduino.h"
-// #include "SD.h"
 
 class Dashboard {
 public:
@@ -56,6 +55,7 @@ public:
   void pause(int xInput, int yInput);
   // ** energy **
   void bliksem(int xInput, int yInput, int state);
+  void evccIcon(int xInput, int yInput, int state);
   // ** waste **
   void wasteIcon(int xInput, int yInput, int wasteType);
   // ** ventilation **
@@ -102,7 +102,7 @@ public:
   void settings(bool theme, const String& time);
   // ** car **
   void detailCar(int battery, float chargingCapacity, int chargingSpeed, int target, int range);
-  void evcc(int PV, int grid, int toGrid, int toHome, float toCar);
+  void evcc(int PV, int grid, int consumption, float toCar);
   // ** lights **
   void detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol, bool berging, bool maanlamp, bool raamversiering);
   void lightBr(int br);

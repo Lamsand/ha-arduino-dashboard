@@ -1,5 +1,6 @@
-#include "Arduino.h"
 #include "Dashboard.h"
+
+#include "Arduino.h"
 #include "Arduino_GigaDisplay_GFX.h"
 #include "Colors.h"
 #include "SdFat.h"
@@ -19,7 +20,9 @@ uint16_t rowBuffer[150000];
 // int Dashboard::Backg = BLACK;
 // int Dashboard::AllBackg = WHITE;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////// BASICS ////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// BASICS
+///////////////////////////////////////////////////////////////////////////
 bool Dashboard::begin() {
   display.begin();
   display.setRotation(3);
@@ -35,9 +38,11 @@ bool Dashboard::begin() {
   display.cp437(true);
   return true;
 }
-int Dashboard::fillArc(int x, int y, int start_angle, int seg_count, int r, int w, unsigned int colour) {
+int Dashboard::fillArc(int x, int y, int start_angle, int seg_count, int r,
+                       int w, unsigned int colour) {
   byte seg = 3;  // Segments are 3 degrees wide = 120 segments for 360 degrees
-  byte inc = 3;  // Draw segments every 3 degrees, increase to 6 for segmented ring
+  byte inc =
+      3;  // Draw segments every 3 degrees, increase to 6 for segmented ring
   // Calculate first pair of coordinates for segment start
   float sx = cos((start_angle - 90) / 57.2957795);
   float sy = sin((start_angle - 90) / 57.2957795);
@@ -72,13 +77,13 @@ void Dashboard::home() {
   // WiFiIcon(142, 22, 40);
   settingsLogo(768, 22, 24, publicTEXT);
 }
-void Dashboard::printTime(const String &time) {
+void Dashboard::printTime(const String& time) {
   display.setCursor(20, 12);
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(3);
   display.print(time);
 }
-void Dashboard::printHeatPumpTime(const String &time) {
+void Dashboard::printHeatPumpTime(const String& time) {
   display.setCursor(624, 12);
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(3);
@@ -134,17 +139,20 @@ void Dashboard::HASetUp() {
   display.setCursor(159, 410);
   display.print("Connected to Home Assistant");
 }
-void Dashboard::fillScreen(int color) {
-  display.fillScreen(color);
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// LOGOS ////////////////////////////////////////////////////////////////////
+void Dashboard::fillScreen(int color) { display.fillScreen(color); }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// LOGOS ////////////////////////////////////////////////////////////////////
 void Dashboard::settingsLogo(int x, int y, int size, int color) {
   const int nodeSize = size / 10;
   const int barSize = size / 15;
-  display.fillRoundRect(x - size / 2, y - size / 2, size, size, 2 * barSize, color);
-  display.fillRoundRect(x - 2 * size / 5, y - size / 4 - barSize / 2, 4 * size / 5, barSize, barSize / 2, publicBackg);
-  display.fillRoundRect(x - 2 * size / 5, y - barSize / 2, 4 * size / 5, barSize, barSize / 2, publicBackg);
-  display.fillRoundRect(x - 2 * size / 5, y + size / 4 - barSize / 2, 4 * size / 5, barSize, barSize / 2, publicBackg);
+  display.fillRoundRect(x - size / 2, y - size / 2, size, size, 2 * barSize,
+                        color);
+  display.fillRoundRect(x - 2 * size / 5, y - size / 4 - barSize / 2,
+                        4 * size / 5, barSize, barSize / 2, publicBackg);
+  display.fillRoundRect(x - 2 * size / 5, y - barSize / 2, 4 * size / 5,
+                        barSize, barSize / 2, publicBackg);
+  display.fillRoundRect(x - 2 * size / 5, y + size / 4 - barSize / 2,
+                        4 * size / 5, barSize, barSize / 2, publicBackg);
   // nodes
   display.fillCircle(x, y - size / 4, nodeSize, publicBackg);
   display.fillCircle(x + 3 * size / 16, y, nodeSize, publicBackg);
@@ -166,23 +174,32 @@ void Dashboard::bulb(int x, int y, int size, bool state) {
   display.fillCircle(x, y - size / 6, size / 3, color);
   fillArc(x + size / 4, y + 2 * size / 9, -90, 20, size / 4, size / 8, color);
   fillArc(x - size / 4, y + 2 * size / 9, 30, 20, size / 4, size / 8, color);
-  display.fillRect(x - 3 * size / 40, y - size / 6, size / 40, 3 * size / 6, wire);
+  display.fillRect(x - 3 * size / 40, y - size / 6, size / 40, 3 * size / 6,
+                   wire);
   display.fillRect(x + size / 20, y - size / 6, size / 40, 3 * size / 6, wire);
-  fillArc(x - size / 20 - wireloop, y - size / 6, -180, 90, wireloop, size / 40, wire);
-  fillArc(x + size / 20 + wireloop, y - size / 6, -90, 90, wireloop, size / 40, wire);
-  display.fillRect(x - size / 20 - wireloop, y - size / 6 + size / 40, size / 5, size / 40, wire);
+  fillArc(x - size / 20 - wireloop, y - size / 6, -180, 90, wireloop, size / 40,
+          wire);
+  fillArc(x + size / 20 + wireloop, y - size / 6, -90, 90, wireloop, size / 40,
+          wire);
+  display.fillRect(x - size / 20 - wireloop, y - size / 6 + size / 40, size / 5,
+                   size / 40, wire);
 }
 void Dashboard::car(int x, int y, int size, int color) {
   // chassis
   display.fillRoundRect(x - size / 2, y, size, size / 4, size / 16, color);
   // roof
-  display.fillRoundRect(x - size / 4, y - 3 * size / 16, 5 * size / 8, size / 2, 3 * size / 16, color);
-  display.fillRect(x - size / 4, y + size / 4, 5 * size / 8, size / 12, publicBackg);
+  display.fillRoundRect(x - size / 4, y - 3 * size / 16, 5 * size / 8, size / 2,
+                        3 * size / 16, color);
+  display.fillRect(x - size / 4, y + size / 4, 5 * size / 8, size / 12,
+                   publicBackg);
   // windows
-  fillArc(x - size / 4 + 3 * size / 16, y, -90, 30, size / 8, size / 8, publicBackg);
-  display.fillRect(x - size / 4 + size / 4, y - size / 8, 3 * size / 16, size / 8 + 1, publicBackg);
+  fillArc(x - size / 4 + 3 * size / 16, y, -90, 30, size / 8, size / 8,
+          publicBackg);
+  display.fillRect(x - size / 4 + size / 4, y - size / 8, 3 * size / 16,
+                   size / 8 + 1, publicBackg);
   fillArc(x + 3 * size / 16, y, 0, 30, size / 8, size / 8, publicBackg);
-  display.fillRect(x + 3 * size / 16, y - size / 8, size / 16, size / 8 + 1, color);
+  display.fillRect(x + 3 * size / 16, y - size / 8, size / 16, size / 8 + 1,
+                   color);
   // wheels
   display.fillCircle(x - size / 4, y + size / 4, size / 12, publicBackg);
   display.fillCircle(x + size / 4, y + size / 4, size / 12, publicBackg);
@@ -192,22 +209,28 @@ void Dashboard::car(int x, int y, int size, int color) {
 void Dashboard::warmtePomp(int x, int y, int size, int color) {
   const int pipeCurve = size / 20;
   // wall
-  display.fillRect(x - 2 * size / 9, y - size / 3, 4 * size / 9, size / 3, color);
+  display.fillRect(x - 2 * size / 9, y - size / 3, 4 * size / 9, size / 3,
+                   color);
   // door
-  display.fillRect(x - size / 9, y - size / 5, size / 10, size / 5, publicBackg);
+  display.fillRect(x - size / 9, y - size / 5, size / 10, size / 5,
+                   publicBackg);
   // roof
-  display.fillTriangle(x, y - size / 2, x - size / 3, y - size / 3, x + size / 3, y - size / 3, color);
+  display.fillTriangle(x, y - size / 2, x - size / 3, y - size / 3,
+                       x + size / 3, y - size / 3, color);
   // pipes
   display.fillRect(x + size / 15, y, size / 30, size / 2 - pipeCurve, RED);
-  display.fillRect(x + size / 15 + 2 * pipeCurve - size / 30, y, size / 30, size / 2 - pipeCurve, HABlue);
-  fillArc(x + size / 15 + pipeCurve, y + size / 2 - pipeCurve, -180, 30, pipeCurve, size / 30, RED);
-  fillArc(x + size / 15 + pipeCurve, y + size / 2 - pipeCurve, 90, 30, pipeCurve, size / 30, HABlue);
+  display.fillRect(x + size / 15 + 2 * pipeCurve - size / 30, y, size / 30,
+                   size / 2 - pipeCurve, HABlue);
+  fillArc(x + size / 15 + pipeCurve, y + size / 2 - pipeCurve, -180, 30,
+          pipeCurve, size / 30, RED);
+  fillArc(x + size / 15 + pipeCurve, y + size / 2 - pipeCurve, 90, 30,
+          pipeCurve, size / 30, HABlue);
 }
 void Dashboard::HALogo(int x, int y, int size, int color, int backg) {
   size = size / 2;
   x -= size;
   y -= size;
-  //draw house
+  // draw house
   const int roundRadius = size / 4;
   const int nodeRadius = size / 5;
   const int lineWidth = size / 6;
@@ -220,11 +243,15 @@ void Dashboard::HALogo(int x, int y, int size, int color, int backg) {
   const int rNy = y + size;
   // display.drawRect(x, y, 2*size, 2*size, BLACK);
   y -= 9 * roundRadius / 16;
-  display.fillRoundRect(x, y + 1 * size, size * 2, size + 9 * roundRadius / 16, roundRadius, color);
+  display.fillRoundRect(x, y + 1 * size, size * 2, size + 9 * roundRadius / 16,
+                        roundRadius, color);
   // draw roof
-  display.fillTriangle(x + size, y, x + roundRadius / 4, y + size + roundRadius / 3, x + size * 2 - roundRadius / 4, y + size + roundRadius / 3, color);
-  //round roof
-  display.fillRect(x + size - roundRadius, y, 2 * roundRadius, 9 * roundRadius / 10, backg);
+  display.fillTriangle(
+      x + size, y, x + roundRadius / 4, y + size + roundRadius / 3,
+      x + size * 2 - roundRadius / 4, y + size + roundRadius / 3, color);
+  // round roof
+  display.fillRect(x + size - roundRadius, y, 2 * roundRadius,
+                   9 * roundRadius / 10, backg);
   display.fillCircle(x + size, y + 100 * roundRadius / 64, roundRadius, color);
   y += 9 * roundRadius / 16;
   // draw nodes
@@ -236,16 +263,20 @@ void Dashboard::HALogo(int x, int y, int size, int color, int backg) {
   int Lx = lNx + pythLineWidth / 2;
   int Ly = lNy - pythLineWidth / 2;
   for (int i = 0; i < pythLineWidth; i++) {
-    display.drawLine(Lx, Ly, mNx + (Lx - lNx), y + 2 * size - (Lx - lNx), backg);
-    display.drawLine(Lx, Ly + 1, mNx + (Lx - lNx) - 1, y + 2 * size - (Lx - lNx), backg);
+    display.drawLine(Lx, Ly, mNx + (Lx - lNx), y + 2 * size - (Lx - lNx),
+                     backg);
+    display.drawLine(Lx, Ly + 1, mNx + (Lx - lNx) - 1,
+                     y + 2 * size - (Lx - lNx), backg);
     Lx--;
     Ly++;
   }
   Lx = rNx - pythLineWidth / 2;
   Ly = rNy - pythLineWidth / 2;
   for (int i = 0; i < pythLineWidth; i++) {
-    display.drawLine(Lx, Ly, mNx + (Lx - rNx), y + 1.5 * size + (Lx - rNx), backg);
-    display.drawLine(Lx, Ly + 1, mNx + (Lx - rNx) + 1, y + 1.5 * size + (Lx - rNx), backg);
+    display.drawLine(Lx, Ly, mNx + (Lx - rNx), y + 1.5 * size + (Lx - rNx),
+                     backg);
+    display.drawLine(Lx, Ly + 1, mNx + (Lx - rNx) + 1,
+                     y + 1.5 * size + (Lx - rNx), backg);
     Lx++;
     Ly++;
   }
@@ -286,8 +317,9 @@ void Dashboard::WiFiIcon(int x, int y, int size, int color) {
   fillArc(x, y, -45, 30, 8 * size, 2 * size, color);
   display.fillCircle(x, y, 2 * size, color);
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// IMAGES /////////////////////////////////////////////////////////////////
-void readLarge(FsFile &f, uint8_t *buf, uint32_t len) {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// IMAGES /////////////////////////////////////////////////////////////////
+void readLarge(FsFile& f, uint8_t* buf, uint32_t len) {
   uint32_t pos = 0;
   while (pos < len) {
     uint16_t chunk = (len - pos > 32000) ? 32000 : (len - pos);
@@ -320,12 +352,14 @@ void Dashboard::moonlampImg(int xInput, int yInput, bool state) {
   const int w = 162;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::bolImg(int xInput, int yInput, bool state) {
@@ -349,12 +383,14 @@ void Dashboard::bolImg(int xInput, int yInput, bool state) {
   const int w = 100;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::bergingImg(int xInput, int yInput, bool state) {
@@ -378,12 +414,14 @@ void Dashboard::bergingImg(int xInput, int yInput, bool state) {
   const int w = 156;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::sfeerlichtjesImg(int xInput, int yInput, bool state) {
@@ -407,12 +445,14 @@ void Dashboard::sfeerlichtjesImg(int xInput, int yInput, bool state) {
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 // **************************** car ********************************
@@ -429,12 +469,14 @@ void Dashboard::carImageMini(int xInput, int yInput) {
   const int w = 300;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::carImageLarge(int xInput, int yInput) {
@@ -452,12 +494,14 @@ void Dashboard::carImageLarge(int xInput, int yInput) {
   int y = 0;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 // ************************** music *********************************
@@ -474,12 +518,14 @@ void Dashboard::radio1(int xInput, int yInput) {
   const int w = 300;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::radio2(int xInput, int yInput) {
@@ -495,12 +541,14 @@ void Dashboard::radio2(int xInput, int yInput) {
   const int w = 300;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::vuurland(int xInput, int yInput) {
@@ -516,12 +564,14 @@ void Dashboard::vuurland(int xInput, int yInput) {
   const int w = 300;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::vrtnws(int xInput, int yInput) {
@@ -537,12 +587,14 @@ void Dashboard::vrtnws(int xInput, int yInput) {
   const int w = 300;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::spotify(int xInput, int yInput) {
@@ -558,12 +610,14 @@ void Dashboard::spotify(int xInput, int yInput) {
   const int w = 210;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::musicIcon(int xInput, int yInput) {
@@ -579,12 +633,14 @@ void Dashboard::musicIcon(int xInput, int yInput) {
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::radio1S(int xInput, int yInput) {
@@ -600,12 +656,14 @@ void Dashboard::radio1S(int xInput, int yInput) {
   const int w = 210;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::radio2S(int xInput, int yInput) {
@@ -621,12 +679,14 @@ void Dashboard::radio2S(int xInput, int yInput) {
   const int w = 210;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::vuurlandS(int xInput, int yInput) {
@@ -642,12 +702,14 @@ void Dashboard::vuurlandS(int xInput, int yInput) {
   const int w = 210;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::vrtnwsS(int xInput, int yInput) {
@@ -663,12 +725,14 @@ void Dashboard::vrtnwsS(int xInput, int yInput) {
   const int w = 210;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::PommS(int xInput, int yInput) {
@@ -684,12 +748,14 @@ void Dashboard::PommS(int xInput, int yInput) {
   const int w = 210;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::play(int xInput, int yInput) {
@@ -701,7 +767,7 @@ void Dashboard::play(int xInput, int yInput) {
   const int w = 92;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
     display.startWrite();
     for (int i = 0; i < w * q; i++) {
       if (rowBuffer[i] != 0xf81f) {
@@ -713,7 +779,7 @@ void Dashboard::play(int xInput, int yInput) {
     display.endWrite();
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
   display.startWrite();
   for (int i = 0; i < w * (h % q); i++) {
     if (rowBuffer[i] != 0xf81f) {
@@ -734,7 +800,7 @@ void Dashboard::pause(int xInput, int yInput) {
   const int w = 92;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
     display.startWrite();
     for (int i = 0; i < w * q; i++) {
       if (rowBuffer[i] != 0xf81f) {
@@ -746,7 +812,7 @@ void Dashboard::pause(int xInput, int yInput) {
     display.endWrite();
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
   display.startWrite();
   for (int i = 0; i < w * (h % q); i++) {
     if (rowBuffer[i] != 0xf81f) {
@@ -790,12 +856,62 @@ void Dashboard::bliksem(int xInput, int yInput, int state) {
   const int w = 132;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
+  file.close();
+}
+void Dashboard::evccIcon(int xInput, int yInput, int state) {
+  switch (state) {
+    case 0:
+      if (publicBackg == BLACK) {
+        file = sd.open("sunD.bin");
+      } else {
+        file = sd.open("sunL.bin");
+      }
+      break;
+    case 1:
+      if (publicBackg == BLACK) {
+        file = sd.open("pylonD.bin");
+      } else {
+        file = sd.open("pylonL.bin");
+      }
+      break;
+    case 2:
+      if (publicBackg == BLACK) {
+        file = sd.open("homeD.bin");
+      } else {
+        file = sd.open("homeL.bin");
+      }
+      break;
+    case 3:
+      if (publicBackg == BLACK) {
+        file = sd.open("carD.bin");
+      } else {
+        file = sd.open("carL.bin");
+      }
+      break;
+  }
+  if (!file) return;
+  file.seek(4);  // Skip the 4-byte header of the file
+  int y = 0;
+  const int h = 30;
+  const int w = 30;
+  int q = buffSize / w;
+  while (y < h / q) {
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
+    y++;
+  }
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 // ************************** waste ************************************
@@ -846,12 +962,14 @@ void Dashboard::wasteIcon(int xInput, int yInput, int wasteType) {
   const int h = 134;
   uint32_t q = buffSize / w;
   while (y < h / q) {
-    readLarge(file, (uint8_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);
+    readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);
     y++;
   }
-  readLarge(file, (uint8_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);
+  readLarge(file, (uint8_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);
   file.close();
 }
 // ************************** ventilation ******************************
@@ -876,12 +994,14 @@ void Dashboard::ventiIcon(int xInput, int yInput, bool state) {
   const int w = 130;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::ventiIconLarge(int xInput, int yInput, bool state) {
@@ -905,12 +1025,14 @@ void Dashboard::ventiIconLarge(int xInput, int yInput, bool state) {
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::clockIcon(int xInput, int yInput, int hours) {
@@ -934,12 +1056,14 @@ void Dashboard::clockIcon(int xInput, int yInput, int hours) {
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::ventiStopIcon(int xInput, int yInput) {
@@ -955,12 +1079,14 @@ void Dashboard::ventiStopIcon(int xInput, int yInput) {
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 // ************************** heat pump ********************************
@@ -985,12 +1111,14 @@ void Dashboard::heatPumpIcon(int xInput, int yInput, bool state) {
   const int w = 120;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::heatPumpIconSmall(int xInput, int yInput) {
@@ -1006,12 +1134,14 @@ void Dashboard::heatPumpIconSmall(int xInput, int yInput) {
   const int w = 15;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::heatPumpIconLarge(int xInput, int yInput, bool state) {
@@ -1035,12 +1165,14 @@ void Dashboard::heatPumpIconLarge(int xInput, int yInput, bool state) {
   const int w = 250;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::WaterTempIcon(int xInput, int yInput) {
@@ -1056,12 +1188,14 @@ void Dashboard::WaterTempIcon(int xInput, int yInput) {
   const int w = 80;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::WaterTempIconSmall(int xInput, int yInput) {
@@ -1077,12 +1211,14 @@ void Dashboard::WaterTempIconSmall(int xInput, int yInput) {
   const int w = 29;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 // ************************** mower ***********************************
@@ -1099,12 +1235,14 @@ void Dashboard::mowerIconLarge(int xInput, int yInput) {
   const int w = 424;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::mowerIcon(int xInput, int yInput) {
@@ -1120,12 +1258,14 @@ void Dashboard::mowerIcon(int xInput, int yInput) {
   const int w = 270;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::mdi_play(int xInput, int yInput, bool inverted) {
@@ -1149,12 +1289,14 @@ void Dashboard::mdi_play(int xInput, int yInput, bool inverted) {
   const int w = 80;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::mdi_pause(int xInput, int yInput, bool inverted) {
@@ -1178,12 +1320,14 @@ void Dashboard::mdi_pause(int xInput, int yInput, bool inverted) {
   const int w = 80;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
 void Dashboard::mdi_returnHome(int xInput, int yInput, bool inverted) {
@@ -1207,15 +1351,18 @@ void Dashboard::mdi_returnHome(int xInput, int yInput, bool inverted) {
   const int w = 80;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t *)rowBuffer, w * 2 * q);
-    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, q);  // Draw one row at a time
+    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                          q);  // Draw one row at a time
     y++;
   }
-  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
-  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w, h % q);  // Draw one row at a time
+  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
+                        h % q);  // Draw one row at a time
   file.close();
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// HOME ///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// HOME ///////////////////////////////////////////////////////////////////
 void Dashboard::homeEnergy(int x, int y, int w, int h, int state, int value) {
   display.fillRoundRect(x + 1, y + 1, w - 1, h - 1, 10, publicBackg);
   // bliksem(x + w / 4, y + h / 2, state);
@@ -1229,35 +1376,50 @@ void Dashboard::homeEnergy(int x, int y, int w, int h, int state, int value) {
   display.print(value);
   display.print("W");
 }
-void Dashboard::homeCar(int x, int y, int w, int h, int battery, float chargingCapacity, int target) {
+void Dashboard::homeCar(int x, int y, int w, int h, int battery,
+                        float chargingCapacity, int target) {
   display.fillRoundRect(x + 1, y + 1, w - 1, h - 1, 10, publicBackg);
   // int carsize = w - w / 8 - w / 24 - w / 12;
   // if ((h - h / 12 - 3 * w / 24) * 2 < carsize) {
   //   carsize = (h - h / 12 - 3 * w / 24) * 2;
   // }
-  // car(x + (w - w / 8 - w / 24) / 2, y + w / 24 + (h - h / 12 - 4 * w / 24) / 2, carsize, publicTEXT);
-  // battery percentage
-  display.drawRoundRect(x + w / 24 - 1, y + h - h / 12 - w / 24 - 1, 3 * w / 4 + 2, h / 12 + 2, h / 24 + 1, publicBackg);
-  display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12, h / 24, BLACK);
+  // car(x + (w - w / 8 - w / 24) / 2, y + w / 24 + (h - h / 12 - 4 * w / 24) /
+  // 2, carsize, publicTEXT); battery percentage
+  display.drawRoundRect(x + w / 24 - 1, y + h - h / 12 - w / 24 - 1,
+                        3 * w / 4 + 2, h / 12 + 2, h / 24 + 1, publicBackg);
+  display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12,
+                        h / 24, BLACK);
   if (chargingCapacity > 0.0) {
     for (int i = 0; i < target * 3 * w / 400 - h / 12; i = i + 10) {
-      display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24, target * 3 * w / 400 - i, h / 12, h / 24, HABlue);
+      display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                            target * 3 * w / 400 - i, h / 12, h / 24, HABlue);
     }
     if (battery > 20) {
-      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, battery * 3 * w / 400, h / 12, h / 24, evccGREEN);
+      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                            battery * 3 * w / 400, h / 12, h / 24, evccGREEN);
     } else {
-      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, battery * 3 * w / 400, h / 12, h / 24, RED);
+      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                            battery * 3 * w / 400, h / 12, h / 24, RED);
     }
   } else {
-    display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, battery * 3 * w / 400, h / 12, h / 24, grey);
+    display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                          battery * 3 * w / 400, h / 12, h / 24, grey);
   }
-  display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12, h / 24, publicTEXT);
+  display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12,
+                        h / 24, publicTEXT);
   // charging power
-  display.drawRoundRect(x + w - w / 8 - w / 24 - 1, y + w / 24 - 1, w / 8 + 2, h - 2 * w / 24 + 2, h / 24 + 1, publicBackg);
-  display.fillRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8, h - 2 * w / 24, h / 24, BLACK);
-  display.fillRoundRect(x + w - w / 8 - w / 24, y + w / 24 + (11 - chargingCapacity) * (h - 2 * w / 24) / 11 + 1, w / 8, chargingCapacity * (h - 2 * w / 24) / 11, h / 24, HABlue);
-  display.drawRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8, h - 2 * w / 24, h / 24, publicTEXT);
-  // carImageMini(x + (w - w / 8 - w / 24) / 2, y + w / 24 + (h - h / 12 - 4 * w / 24) / 2);
+  display.drawRoundRect(x + w - w / 8 - w / 24 - 1, y + w / 24 - 1, w / 8 + 2,
+                        h - 2 * w / 24 + 2, h / 24 + 1, publicBackg);
+  display.fillRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8,
+                        h - 2 * w / 24, h / 24, BLACK);
+  display.fillRoundRect(
+      x + w - w / 8 - w / 24,
+      y + w / 24 + (11 - chargingCapacity) * (h - 2 * w / 24) / 11 + 1, w / 8,
+      chargingCapacity * (h - 2 * w / 24) / 11, h / 24, HABlue);
+  display.drawRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8,
+                        h - 2 * w / 24, h / 24, publicTEXT);
+  // carImageMini(x + (w - w / 8 - w / 24) / 2, y + w / 24 + (h - h / 12 - 4 * w
+  // / 24) / 2);
 }
 void Dashboard::homeEmpty(int x, int y, int w, int h) {
   display.fillRoundRect(x + 1, y + 1, w - 1, h - 1, 10, publicBackg);
@@ -1287,29 +1449,43 @@ void Dashboard::homeEnergyV(int x, int y, int w, int h, int state, int value) {
   display.print(value);
   display.print("W");
 }
-void Dashboard::homeCarV(int x, int y, int w, int h, int battery, float chargingCapacity, int target) {
-  display.drawRoundRect(x + w / 24 - 1, y + h - h / 12 - w / 24 - 1, 3 * w / 4 + 2, h / 12 + 2, h / 24 + 1, publicBackg);
-  display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12, h / 24, BLACK);
+void Dashboard::homeCarV(int x, int y, int w, int h, int battery,
+                         float chargingCapacity, int target) {
+  display.drawRoundRect(x + w / 24 - 1, y + h - h / 12 - w / 24 - 1,
+                        3 * w / 4 + 2, h / 12 + 2, h / 24 + 1, publicBackg);
+  display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12,
+                        h / 24, BLACK);
   if (chargingCapacity > 0.0) {
     for (int i = 0; i < target * 3 * w / 400 - h / 12; i = i + 10) {
-      display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24, target * 3 * w / 400 - i, h / 12, h / 24, HABlue);
+      display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                            target * 3 * w / 400 - i, h / 12, h / 24, HABlue);
     }
     if (battery > 20) {
-      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, battery * 3 * w / 400, h / 12, h / 24, evccGREEN);
+      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                            battery * 3 * w / 400, h / 12, h / 24, evccGREEN);
     } else {
-      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, battery * 3 * w / 400, h / 12, h / 24, RED);
+      display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                            battery * 3 * w / 400, h / 12, h / 24, RED);
     }
   } else {
-    display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24, battery * 3 * w / 400, h / 12, h / 24, grey);
+    display.fillRoundRect(x + w / 24, y + h - h / 12 - w / 24,
+                          battery * 3 * w / 400, h / 12, h / 24, grey);
   }
-  display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12, h / 24, publicTEXT);
+  display.drawRoundRect(x + w / 24, y + h - h / 12 - w / 24, 3 * w / 4, h / 12,
+                        h / 24, publicTEXT);
   // charging power
-  display.drawRoundRect(x + w - w / 8 - w / 24 - 1, y + w / 24 - 1, w / 8 + 2, h - 2 * w / 24 + 2, h / 24 + 1, publicBackg);
-  display.fillRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8, h - 2 * w / 24, h / 24, BLACK);
+  display.drawRoundRect(x + w - w / 8 - w / 24 - 1, y + w / 24 - 1, w / 8 + 2,
+                        h - 2 * w / 24 + 2, h / 24 + 1, publicBackg);
+  display.fillRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8,
+                        h - 2 * w / 24, h / 24, BLACK);
   if (chargingCapacity > 0.0) {
-    display.fillRoundRect(x + w - w / 8 - w / 24, y + w / 24 + (11 - chargingCapacity) * (h - 2 * w / 24) / 11 + 1, w / 8, chargingCapacity * (h - 2 * w / 24) / 11, h / 24, HABlue);
+    display.fillRoundRect(
+        x + w - w / 8 - w / 24,
+        y + w / 24 + (11 - chargingCapacity) * (h - 2 * w / 24) / 11 + 1, w / 8,
+        chargingCapacity * (h - 2 * w / 24) / 11, h / 24, HABlue);
   }
-  display.drawRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8, h - 2 * w / 24, h / 24, publicTEXT);
+  display.drawRoundRect(x + w - w / 8 - w / 24, y + w / 24, w / 8,
+                        h - 2 * w / 24, h / 24, publicTEXT);
 }
 void Dashboard::homeHeatPumpV(int x, int y, int w, int h, int DHWtemp) {
   display.setCursor(x + w / 2, y + h / 2 - 24);
@@ -1344,9 +1520,10 @@ void Dashboard::homeHeatPumpImg(int x, int y, int w, int h, bool state) {
 void Dashboard::homeMowerImg(int x, int y, int w, int h) {
   mowerIcon(x + w / 2, y + h / 2);
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// DETAILS //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// DETAILS //////////////////////////////////////////////////
 // ** energy **
-int median(int *arr, int i, int range) {
+int median(int* arr, int i, int range) {
   int buf[range * 2 + 1];
   int count = 0;
   for (int j = i - range; j <= i + range; j++) {
@@ -1362,13 +1539,24 @@ int median(int *arr, int i, int range) {
       }
   return buf[count / 2];
 }
-void Dashboard::energy(int *import, int *prod, int *cons, int *longImport, int *longProd, int *longCons, int currentImport, int currentProduction, int currentConsumption, int *TIME, int *LONGTIME, int state, bool longGraph, bool rounded, bool drawImport, bool drawProduction, bool drawConsumption) {
+void Dashboard::energy(int* import, int* prod, int* cons, int* longImport,
+                       int* longProd, int* longCons, int currentImport,
+                       int currentProduction, int currentConsumption, int* TIME,
+                       int* LONGTIME, int state, bool longGraph, bool rounded,
+                       bool drawImport, bool drawProduction,
+                       bool drawConsumption) {
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
   energyV(currentImport, currentProduction, currentConsumption);
-  energyGraph(import, prod, cons, longImport, longProd, longCons, TIME, LONGTIME, longGraph, rounded, drawImport, drawProduction, drawConsumption);
+  energyGraph(import, prod, cons, longImport, longProd, longCons, TIME,
+              LONGTIME, longGraph, rounded, drawImport, drawProduction,
+              drawConsumption);
   bliksem(450 + 340 / 4, 124 + 156 / 2, state);
 }
-void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport, int *longProd, int *longCons, int *TIME, int *LONGTIME, bool longGraph, bool rounded, bool drawImport, bool drawProduction, bool drawConsumption) {
+void Dashboard::energyGraph(int* import, int* prod, int* cons, int* longImport,
+                            int* longProd, int* longCons, int* TIME,
+                            int* LONGTIME, bool longGraph, bool rounded,
+                            bool drawImport, bool drawProduction,
+                            bool drawConsumption) {
   if (drawConsumption) {
     display.fillCircle(460, 330, 10, HABlue);
   } else {
@@ -1399,7 +1587,9 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport, 
     display.setCursor(687, 50);
     display.print("3u");
     for (int i = -1; i < 11; i++) {
-      if (i != 10 && i != -1) { display.drawFastHLine(60, 400 - i * 36, 360, GREY); }
+      if (i != 10 && i != -1) {
+        display.drawFastHLine(60, 400 - i * 36, 360, GREY);
+      }
       display.setTextColor(GREY);
       display.setTextSize(1);
       display.setCursor(15, 396 - i * 36);
@@ -1407,9 +1597,22 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport, 
       display.print(" kW");
     }
     for (int i = 0; i < 359; i++) {
-      if (drawConsumption) { display.drawLine(60 + i, 400 - map(median(longCons, i, 3), 0, 10000, 0, 360), 61 + i, 400 - map(median(longCons, i + 1, 3), 0, 10000, 0, 360), HABlue); }
-      if (drawImport) { display.drawLine(60 + i, 400 - map(median(longImport, i, 3), 0, 10000, 0, 360), 61 + i, 400 - map(median(longImport, i + 1, 3), 0, 10000, 0, 360), ORANGE); }
-      if (drawProduction) { display.drawLine(60 + i, 400 - map(median(longProd, i, 3), 0, 10000, 0, 360), 61 + i, 400 - map(median(longProd, i + 1, 3), 0, 10000, 0, 360), evccGREEN); }
+      if (drawConsumption) {
+        display.drawLine(
+            60 + i, 400 - map(median(longCons, i, 3), 0, 10000, 0, 360), 61 + i,
+            400 - map(median(longCons, i + 1, 3), 0, 10000, 0, 360), HABlue);
+      }
+      if (drawImport) {
+        display.drawLine(
+            60 + i, 400 - map(median(longImport, i, 3), 0, 10000, 0, 360),
+            61 + i, 400 - map(median(longImport, i + 1, 3), 0, 10000, 0, 360),
+            ORANGE);
+      }
+      if (drawProduction) {
+        display.drawLine(
+            60 + i, 400 - map(median(longProd, i, 3), 0, 10000, 0, 360), 61 + i,
+            400 - map(median(longProd, i + 1, 3), 0, 10000, 0, 360), evccGREEN);
+      }
     }
     display.fillRect(50, 444, 390, 20, publicBackg);
     for (int i = 0; i < 359; i++) {
@@ -1438,7 +1641,9 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport, 
     display.setCursor(687, 50);
     display.print("3u");
     for (int i = -1; i < 11; i++) {
-      if (i != 10 && i != -1) { display.drawFastHLine(60, 400 - i * 36, 360, GREY); }
+      if (i != 10 && i != -1) {
+        display.drawFastHLine(60, 400 - i * 36, 360, GREY);
+      }
       display.setTextColor(GREY);
       display.setTextSize(1);
       display.setCursor(15, 396 - i * 36);
@@ -1447,15 +1652,37 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport, 
     }
     if (rounded) {
       for (int i = 0; i < 359; i++) {
-        if (drawConsumption) { display.drawLine(60 + i, 400 - map(median(cons, i, 6), 0, 10000, 0, 360), 61 + i, 400 - map(median(cons, i + 1, 6), 0, 10000, 0, 360), HABlue); }
-        if (drawImport) { display.drawLine(60 + i, 400 - map(median(import, i, 6), 0, 10000, 0, 360), 61 + i, 400 - map(median(import, i + 1, 6), 0, 10000, 0, 360), ORANGE); }
-        if (drawProduction) { display.drawLine(60 + i, 400 - map(median(prod, i, 6), 0, 10000, 0, 360), 61 + i, 400 - map(median(prod, i + 1, 6), 0, 10000, 0, 360), evccGREEN); }
+        if (drawConsumption) {
+          display.drawLine(
+              60 + i, 400 - map(median(cons, i, 6), 0, 10000, 0, 360), 61 + i,
+              400 - map(median(cons, i + 1, 6), 0, 10000, 0, 360), HABlue);
+        }
+        if (drawImport) {
+          display.drawLine(
+              60 + i, 400 - map(median(import, i, 6), 0, 10000, 0, 360), 61 + i,
+              400 - map(median(import, i + 1, 6), 0, 10000, 0, 360), ORANGE);
+        }
+        if (drawProduction) {
+          display.drawLine(
+              60 + i, 400 - map(median(prod, i, 6), 0, 10000, 0, 360), 61 + i,
+              400 - map(median(prod, i + 1, 6), 0, 10000, 0, 360), evccGREEN);
+        }
       }
     } else {
       for (int i = 0; i < 359; i++) {
-        if (drawConsumption) { display.drawLine(60 + i, 400 - map(cons[i], 0, 10000, 0, 360), 61 + i, 400 - map(cons[i + 1], 0, 10000, 0, 360), HABlue); }
-        if (drawImport) { display.drawLine(60 + i, 400 - map(import[i], 0, 10000, 0, 360), 61 + i, 400 - map(import[i + 1], 0, 10000, 0, 360), ORANGE); }
-        if (drawProduction) { display.drawLine(60 + i, 400 - map(prod[i], 0, 10000, 0, 360), 61 + i, 400 - map(prod[i + 1], 0, 10000, 0, 360), evccGREEN); }
+        if (drawConsumption) {
+          display.drawLine(60 + i, 400 - map(cons[i], 0, 10000, 0, 360), 61 + i,
+                           400 - map(cons[i + 1], 0, 10000, 0, 360), HABlue);
+        }
+        if (drawImport) {
+          display.drawLine(60 + i, 400 - map(import[i], 0, 10000, 0, 360),
+                           61 + i, 400 - map(import[i + 1], 0, 10000, 0, 360),
+                           ORANGE);
+        }
+        if (drawProduction) {
+          display.drawLine(60 + i, 400 - map(prod[i], 0, 10000, 0, 360), 61 + i,
+                           400 - map(prod[i + 1], 0, 10000, 0, 360), evccGREEN);
+        }
       }
     }
     display.fillRect(50, 444, 390, 20, publicBackg);
@@ -1478,7 +1705,8 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport, 
   }
   display.drawRoundRect(60, 40, 360, 400, 10, publicTEXT);
 }
-void Dashboard::energyV(int currentImport, int currentProduction, int currentConsumption) {
+void Dashboard::energyV(int currentImport, int currentProduction,
+                        int currentConsumption) {
   display.setTextSize(3);
   display.setTextColor(publicTEXT, publicBackg);
   display.setCursor(480, 320);
@@ -1507,7 +1735,7 @@ void Dashboard::energyV(int currentImport, int currentProduction, int currentCon
   display.fillRect(799, 0, 2, 480, WHITE);
 }
 
-void Dashboard::settings(bool darkMode, const String &time) {
+void Dashboard::settings(bool darkMode, const String& time) {
   display.fillScreen(publicAllBackg);
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
   settingsLogo(56, 56, 56, publicTEXT);
@@ -1535,47 +1763,81 @@ void Dashboard::settings(bool darkMode, const String &time) {
 }
 
 // ** car **
-void Dashboard::detailCar(int battery, float chargingCapacity, int chargingSpeed, int target, int range) {
+void Dashboard::detailCar(int battery, float chargingCapacity,
+                          int chargingSpeed, int target, int range) {
   const int spacing = 33;
   const int batteryH = 60;
   const int powerW = 150;
   // const int carsize = SCREEN_W - powerW - 3 * spacing;
   display.fillScreen(publicAllBackg);
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
-  // car((SCREEN_W - powerW - spacing) / 2, (SCREEN_H - batteryH - 3 * spacing) / 2, carsize);
-  // battery percentage
-  display.drawRoundRect(spacing - 1, SCREEN_H - batteryH - spacing - 1, SCREEN_W - 3 * spacing - powerW + 2, batteryH + 2, batteryH / 2 + 1, publicBackg);
-  display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing, SCREEN_W - 3 * spacing - powerW, batteryH, batteryH / 2, BLACK);
+  // car((SCREEN_W - powerW - spacing) / 2, (SCREEN_H - batteryH - 3 * spacing)
+  // / 2, carsize); battery percentage
+  display.drawRoundRect(spacing - 1, SCREEN_H - batteryH - spacing - 1,
+                        SCREEN_W - 3 * spacing - powerW + 2, batteryH + 2,
+                        batteryH / 2 + 1, publicBackg);
+  display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing,
+                        SCREEN_W - 3 * spacing - powerW, batteryH, batteryH / 2,
+                        BLACK);
   if (chargingCapacity > 0.0) {
-    for (int i = 0; i < target * (SCREEN_W - 3 * spacing - powerW) / 100 - batteryH; i = i + 20) {
-      display.drawRoundRect(spacing, SCREEN_H - batteryH - spacing, target * (SCREEN_W - 3 * spacing - powerW) / 100 - i, batteryH, batteryH / 2, HABlue);
+    for (int i = 0;
+         i < target * (SCREEN_W - 3 * spacing - powerW) / 100 - batteryH;
+         i = i + 20) {
+      display.drawRoundRect(
+          spacing, SCREEN_H - batteryH - spacing,
+          target * (SCREEN_W - 3 * spacing - powerW) / 100 - i, batteryH,
+          batteryH / 2, HABlue);
     }
     if (battery > 20) {
-      display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing, battery * (SCREEN_W - 3 * spacing - powerW) / 100, batteryH, batteryH / 2, evccGREEN);
+      display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing,
+                            battery * (SCREEN_W - 3 * spacing - powerW) / 100,
+                            batteryH, batteryH / 2, evccGREEN);
     } else {
-      display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing, battery * (SCREEN_W - 3 * spacing - powerW) / 100, batteryH, batteryH / 2, RED);
+      display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing,
+                            battery * (SCREEN_W - 3 * spacing - powerW) / 100,
+                            batteryH, batteryH / 2, RED);
     }
   } else {
-    display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing, battery * (SCREEN_W - 3 * spacing - powerW) / 100, batteryH, batteryH / 2, grey);
+    display.fillRoundRect(spacing, SCREEN_H - batteryH - spacing,
+                          battery * (SCREEN_W - 3 * spacing - powerW) / 100,
+                          batteryH, batteryH / 2, grey);
   }
-  display.drawRoundRect(spacing, SCREEN_H - batteryH - spacing, SCREEN_W - 3 * spacing - powerW, batteryH, batteryH / 2, publicTEXT);
+  display.drawRoundRect(spacing, SCREEN_H - batteryH - spacing,
+                        SCREEN_W - 3 * spacing - powerW, batteryH, batteryH / 2,
+                        publicTEXT);
   // charging power
-  display.drawRoundRect(SCREEN_W - powerW - spacing - 1, spacing - 1, powerW + 2, SCREEN_H - 2 * spacing + 2, batteryH / 2 + 1, publicBackg);
-  display.fillRoundRect(SCREEN_W - powerW - spacing, spacing, powerW, SCREEN_H - 2 * spacing, batteryH / 2, BLACK);
-  display.fillRoundRect(SCREEN_W - powerW - spacing, spacing + (11 - chargingCapacity) * (SCREEN_H - 2 * spacing) / 11 + 1, powerW, chargingCapacity * (SCREEN_H - 2 * spacing) / 11, batteryH / 2, HABlue);
-  display.drawRoundRect(SCREEN_W - powerW - spacing, spacing, powerW, SCREEN_H - 2 * spacing, batteryH / 2, publicTEXT);
+  display.drawRoundRect(SCREEN_W - powerW - spacing - 1, spacing - 1,
+                        powerW + 2, SCREEN_H - 2 * spacing + 2,
+                        batteryH / 2 + 1, publicBackg);
+  display.fillRoundRect(SCREEN_W - powerW - spacing, spacing, powerW,
+                        SCREEN_H - 2 * spacing, batteryH / 2, BLACK);
+  display.fillRoundRect(
+      SCREEN_W - powerW - spacing,
+      spacing + (11 - chargingCapacity) * (SCREEN_H - 2 * spacing) / 11 + 1,
+      powerW, chargingCapacity * (SCREEN_H - 2 * spacing) / 11, batteryH / 2,
+      HABlue);
+  display.drawRoundRect(SCREEN_W - powerW - spacing, spacing, powerW,
+                        SCREEN_H - 2 * spacing, batteryH / 2, publicTEXT);
 
   // Values
-  const String batteryText = String(String(battery) + "% " + String(range) + "km");
+  const String batteryText =
+      String(String(battery) + "% " + String(range) + "km");
   const int batteryTextW = batteryText.length() * 18 - 3;
   display.setTextSize(3);
   display.setTextColor(BLACK);
   if (battery > 30) {
-    display.setCursor(spacing + (battery * (SCREEN_W - 3 * spacing - powerW) / 100) / 2 - batteryTextW / 2, SCREEN_H - batteryH / 2 - spacing - 13);
+    display.setCursor(
+        spacing + (battery * (SCREEN_W - 3 * spacing - powerW) / 100) / 2 -
+            batteryTextW / 2,
+        SCREEN_H - batteryH / 2 - spacing - 13);
     display.print(batteryText);
   } else {
     display.setTextColor(WHITE);
-    display.setCursor(SCREEN_W - 2 * spacing - powerW - ((100 - battery) * (SCREEN_W - 3 * spacing - powerW) / 100) / 2 - batteryTextW / 2, SCREEN_H - batteryH / 2 - spacing - 13);
+    display.setCursor(
+        SCREEN_W - 2 * spacing - powerW -
+            ((100 - battery) * (SCREEN_W - 3 * spacing - powerW) / 100) / 2 -
+            batteryTextW / 2,
+        SCREEN_H - batteryH / 2 - spacing - 13);
     display.print(batteryText);
   }
 
@@ -1584,173 +1846,257 @@ void Dashboard::detailCar(int battery, float chargingCapacity, int chargingSpeed
   display.setTextSize(3);
   if (chargingCapacity > 1.5) {
     display.setTextColor(BLACK);
-    display.setCursor(SCREEN_W - spacing - powerW / 2 - powerTextW / 2, SCREEN_H - spacing - (chargingCapacity * (SCREEN_H - 2 * spacing) / 11) / 2 - 12);
+    display.setCursor(
+        SCREEN_W - spacing - powerW / 2 - powerTextW / 2,
+        SCREEN_H - spacing -
+            (chargingCapacity * (SCREEN_H - 2 * spacing) / 11) / 2 - 12);
     display.print(powerText);
   } else {
     display.setTextColor(WHITE);
-    display.setCursor(SCREEN_W - spacing - powerW / 2 - powerTextW / 2, spacing + ((11 - chargingCapacity) * (SCREEN_H - 2 * spacing) / 11) / 2 - 12);
+    display.setCursor(
+        SCREEN_W - spacing - powerW / 2 - powerTextW / 2,
+        spacing +
+            ((11 - chargingCapacity) * (SCREEN_H - 2 * spacing) / 11) / 2 - 12);
     display.print(powerText);
   }
-  carImageLarge(spacing + (SCREEN_W - powerW - 2 * spacing) / 2, spacing + (SCREEN_H - batteryH - 3 * spacing) / 2);
+  carImageLarge(spacing + (SCREEN_W - powerW - 2 * spacing) / 2,
+                spacing + (SCREEN_H - batteryH - 3 * spacing) / 2);
 }
-void Dashboard::evcc(int PV, int grid, int toGrid, int toHome, float toCar){
+void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
+  int toHome = max(consumption - (int)(toCar * 1000.0f), 0);
+  int selfUse = min(PV, toHome);
+  int gridUse = max(grid, 0);
+  int toGrid = max(-grid, 0);
+
   // ── Layout ────────────────────────────────────────────────
-  const int16_t regX   = 20;
-  const int16_t regY   = 10;
-  const int16_t regW   = SCREEN_W - 40;
- 
-  const int16_t barX   = regX;
-  const int16_t barY   = regY + 68;
-  const int16_t barW   = regW;
-  const int16_t barH   = 44;
-  const int16_t barR   = 6;
- 
-  const int16_t bbotY  = barY + barH;
-  const int16_t bbotH  = 22;
-  const int16_t iconY  = bbotY + bbotH - 8;
- 
-  // ── 0. Background ─────────────────────────────────────────
-  display.fillScreen(publicAllBackg);
-  display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
- 
+  const int16_t regX = 20;
+  const int16_t regY = 10;
+  const int16_t regW = SCREEN_W - 40;
+  const int16_t barX = regX;
+  const int16_t barY = regY + 68;
+  const int16_t barW = regW;
+  const int16_t barH = 44;
+  const int16_t barR = 6;
+  const int16_t bbotY = barY + barH;
+  const int16_t bbotH = 16;
+
+  // Icon centres: vertically centred on their bracket line
+  const int16_t sunY = barY - bbotH;    // centre of top bracket line
+  const int16_t iconY = bbotY + bbotH;  // centre of bottom bracket line
+
+  // Bar pixel widths
+  int total = selfUse + gridUse + toGrid;
+  if (total <= 0) total = 1;
+  int greenW = constrain((int)((long)selfUse * barW / total), 0, barW);
+  int greyW = constrain((int)((long)gridUse * barW / total), 0, barW - greenW);
+  int yellowW = barW - greenW - greyW;
+  // snap rounding remainders to 0
+  if (toGrid == 0) yellowW = 0, greyW = barW - greenW;
+  if (gridUse == 0) greyW = 0, yellowW = barW - greenW;
+
+  // ── 0. Background (no fillScreen) ─────────────────────────
+  // display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
+  display.fillRect(regX - 15, regY + 35, regW + 15, 110, publicBackg);
+
   // ── 1. Title ──────────────────────────────────────────────
-  display.setTextColor(WHITE);
+  display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(2);
   display.setCursor(regX, regY + 8);
   display.print("EVCC");
- 
-  // ── 2. Price label (top-right) ────────────────────────────
-  display.setTextColor(GREY);
-  display.setTextSize(1);
-  char priceStr[20];
-  snprintf(priceStr, sizeof(priceStr), "%.1f ct/kWh", 1.5f);
-  int16_t  tx, ty;
+
+  // ── 2. PV value (top centre) ──────────────────────────────
+  display.setTextColor(GREY, publicBackg);
+  display.setTextSize(2);
+  char pvStr[16];
+  if (PV < 1000)
+    snprintf(pvStr, sizeof(pvStr), "%d W", PV);
+  else
+    snprintf(pvStr, sizeof(pvStr), "%.1f kW", PV / 1000.0f);
+  int16_t tx, ty;
   uint16_t tw, th;
-  display.getTextBounds(priceStr, 0, 0, &tx, &ty, &tw, &th);
-  display.setCursor(regX + regW - tw - 24, regY + 8);
-  display.print(priceStr);
-  // refresh circle icon
-  int16_t icx = regX + regW - 10, icy = regY + 12;
-  display.drawCircle(icx, icy, 7, GREY);
-  display.drawLine(icx + 5, icy - 5, icx + 7, icy - 7, GREY);
-  display.drawLine(icx + 5, icy - 5, icx + 7, icy - 3, GREY);
- 
-  // ── 3. Sun icon (centred above bar) ───────────────────────
-  {
-    int16_t sx = regX + regW / 2;
-    int16_t sy = regY + 48;
-    display.fillCircle(sx, sy, 5, grey);
-    const int8_t dx[] = { 0,  6,  9,  6,  0, -6, -9, -6};
-    const int8_t dy[] = {-9, -6,  0,  6,  9,  6,  0, -6};
-    for (uint8_t i = 0; i < 8; i++) {
-      display.drawLine(sx + dx[i] * 7 / 9, sy + dy[i] * 7 / 9,
-                       sx + dx[i],          sy + dy[i], grey);
-    }
+  display.getTextBounds(pvStr, 0, 0, &tx, &ty, &tw, &th);
+  display.setCursor(regX + regW / 2 - tw / 2, regY + 8);
+  display.print(pvStr);
+
+  // ── 3. Grid value (top right) ─────────────────────────────
+  char gridStr[20];
+  if (grid >= 0) {
+    if (grid < 1000)
+      snprintf(gridStr, sizeof(gridStr), "+%d W", grid);
+    else
+      snprintf(gridStr, sizeof(gridStr), "+%.1f kW", grid / 1000.0f);
+    display.setTextColor(red, publicBackg);
+  } else {
+    if (-grid < 1000)
+      snprintf(gridStr, sizeof(gridStr), "%d W", grid);
+    else
+      snprintf(gridStr, sizeof(gridStr), "%.1f kW", grid / 1000.0f);
+    display.setTextColor(evccGREEN, publicBackg);
   }
- 
-  // ── 4. "In" label (vertical, right edge) ──────────────────
+  display.setTextSize(2);
+  display.getTextBounds(gridStr, 0, 0, &tx, &ty, &tw, &th);
+  display.setCursor(regX + regW - tw, regY + 8);
+  display.print(gridStr);
+
+  // ── 4. "In" / "Out" labels (vertical, right edge) ─────────
   display.setTextSize(1);
-  display.setTextColor(GREY);
+  display.setTextColor(GREY, publicBackg);
   display.setCursor(regX + regW + 6, barY);
   display.print("I");
   display.setCursor(regX + regW + 6, barY + 9);
   display.print("n");
- 
-  // ── 5. Top bracket (open-bottom rounded rect) ─────────────
-  display.drawRoundRect(barX, barY - barR - 2, barW, barR + 4, barR, GREY);
-  display.fillRect(barX + 1, barY, barW - 2, barR + 4, publicBackg);
- 
-  // ── 6. Bar split ──────────────────────────────────────────
-  int total  = toHome + toGrid;
-  if (total <= 0) total = 1;
-  int greenW = constrain((int)((long)toHome * barW / total), 0, barW);
-  int yellowW = barW - greenW;
- 
-  // Green segment
-  if (greenW > 0)
-    display.fillRoundRect(barX, barY, greenW, barH, 4, evccGREEN);
- 
-  // Yellow segment
-  if (yellowW > 0) {
-    display.fillRoundRect(barX + greenW, barY, yellowW, barH, 4, YELLOW);
-    if (greenW > 0)
-      display.fillRect(barX + greenW, barY, barR, barH, YELLOW);
-  }
- 
-  // Square off shared inner edge
-  if (greenW > 0 && yellowW > 0)
-    display.fillRect(barX + greenW - barR, barY, barR, barH, evccGREEN);
- 
-  // ── 7. Watt labels ────────────────────────────────────────
-  char wStr[16];
-  display.setTextSize(2);
- 
-  if (greenW > 40) {
-    snprintf(wStr, sizeof(wStr), "%d W", toHome);
-    uint16_t lw, lh; int16_t lx, ly;
-    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
-    display.setTextColor(BLACK);
-    display.setCursor(barX + (greenW - lw) / 2, barY + (barH - lh) / 2);
-    display.print(wStr);
-  }
- 
-  if (yellowW > 40) {
-    snprintf(wStr, sizeof(wStr), "%d W", toGrid);
-    uint16_t lw, lh; int16_t lx, ly;
-    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
-    display.setTextColor(BLACK);
-    display.setCursor(barX + greenW + (yellowW - lw) / 2, barY + (barH - lh) / 2);
-    display.print(wStr);
-  }
- 
-  // ── 8. Bottom bracket (open-top rounded rect) ─────────────
-  display.drawRoundRect(barX, bbotY - 2, barW, barR + bbotH, barR, GREY);
-  display.fillRect(barX + 1, bbotY - 2, barW - 2, barR + 2, publicBackg);
- 
-  // Divider tick at green/yellow split
-  display.drawLine(barX + greenW, bbotY, barX + greenW, bbotY + bbotH - 2, GREY);
- 
-  // ── 9. "Out" label (vertical, right edge) ─────────────────
-  display.setTextSize(1);
-  display.setTextColor(GREY);
   display.setCursor(regX + regW + 6, bbotY + 2);
   display.print("O");
   display.setCursor(regX + regW + 6, bbotY + 11);
   display.print("u");
   display.setCursor(regX + regW + 6, bbotY + 20);
   display.print("t");
- 
-  // ── 10. Home icon (centred under green zone) ───────────────
-  {
-    int16_t hx = barX + greenW / 2;
-    int16_t hy = iconY;
-    display.drawLine(hx - 7, hy - 3, hx,     hy - 9, grey);
-    display.drawLine(hx,     hy - 9, hx + 7, hy - 3, grey);
-    display.drawLine(hx - 7, hy - 3, hx + 7, hy - 3, grey);
-    display.drawRect(hx - 5, hy - 3, 11, 8, grey);
-    display.fillRect(hx - 2, hy + 1,  4, 4, grey);
+
+  // ── 5. Top bracket (open-bottom) ──────────────────────────
+  display.drawRoundRect(barX, barY - bbotH, barW, barR + 40, barR, GREY);
+  display.fillRect(barX, barY - 8, barW, 16, publicBackg);
+
+  // ── 6. Bottom bracket (open-top) ──────────────────────────
+  display.drawRoundRect(barX, bbotY - 4, barW, barR + bbotH, barR, GREY);
+  display.fillRect(barX, bbotY - 8, barW, 16, publicBackg);
+
+  // ── 7. Three-segment bar ───────────────────────────────────
+  if (yellowW > 0)
+    display.fillRoundRect(barX, barY, barW, barH, barR, YELLOW);
+  else if (greyW > 0)
+    display.fillRoundRect(barX, barY, barW, barH, barR, GREY);
+  else
+    display.fillRoundRect(barX, barY, barW, barH, barR, evccGREEN);
+
+  if (greyW > 0 && yellowW > 0) {
+    display.fillRoundRect(barX, barY, greenW + greyW, barH, barR, GREY);
+    display.fillRect(barX + greenW + greyW, barY, barR, barH, GREY);
   }
- 
-  // ── 11. Grid / pylon icon (centred under yellow zone) ──────
-  {
-    int16_t gx = barX + greenW + yellowW / 2;
-    int16_t gy = iconY;
-    display.drawLine(gx,     gy - 10, gx,     gy + 4,  grey);
-    display.drawLine(gx - 7, gy - 8,  gx + 7, gy - 8,  grey);
-    display.drawLine(gx - 7, gy - 8,  gx,     gy - 10, grey);
-    display.drawLine(gx + 7, gy - 8,  gx,     gy - 10, grey);
-    display.drawLine(gx - 5, gy - 3,  gx + 5, gy - 3,  grey);
-    display.drawLine(gx - 5, gy - 3,  gx,     gy - 8,  grey);
-    display.drawLine(gx + 5, gy - 3,  gx,     gy - 8,  grey);
-    display.drawLine(gx,     gy + 4,  gx - 6, gy + 4,  grey);
-    display.drawLine(gx,     gy + 4,  gx + 6, gy + 4,  grey);
+
+  if (greenW > 0) {
+    display.fillRoundRect(barX, barY, greenW, barH, barR, evccGREEN);
+    if (greyW > 0 || yellowW > 0)
+      display.fillRect(barX + greenW, barY, barR, barH,
+                       greyW > 0 ? (uint16_t)GREY : (uint16_t)YELLOW);
   }
+
+  // ── 8. Labels inside bars ─────────────────────────────────
+  char wStr[16];
+  display.setTextSize(2);
+
+  if (greenW > 40) {
+    if (selfUse < 1000)
+      snprintf(wStr, sizeof(wStr), "%d W", selfUse);
+    else
+      snprintf(wStr, sizeof(wStr), "%.1f kW", selfUse / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
+    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
+    display.setTextColor(BLACK, publicBackg);
+    display.setCursor(barX + (greenW - lw) / 2, barY + (barH - lh) / 2);
+    display.print(wStr);
+  }
+
+  if (greyW > 40) {
+    if (gridUse < 1000)
+      snprintf(wStr, sizeof(wStr), "%d W", gridUse);
+    else
+      snprintf(wStr, sizeof(wStr), "%.1f kW", gridUse / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
+    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
+    display.setTextColor(publicTEXT);
+    display.setCursor(barX + greenW + (greyW - lw) / 2, barY + (barH - lh) / 2);
+    display.print(wStr);
+  }
+
+  if (yellowW > 40) {
+    if (toGrid < 1000)
+      snprintf(wStr, sizeof(wStr), "%d W", toGrid);
+    else
+      snprintf(wStr, sizeof(wStr), "%.1f kW", toGrid / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
+    display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
+    display.setTextColor(BLACK);
+    display.setCursor(barX + greenW + greyW + (yellowW - lw) / 2,
+                      barY + (barH - lh) / 2);
+    display.print(wStr);
+  }
+
+  // ── 9. Divider ticks ──────────────────────────────────────
+  if (greyW > 1)
+    display.drawLine(barX + greenW, sunY + 4, barX + greenW, sunY + 12, GREY);
+  if (yellowW > 1)
+    display.drawLine(barX + greenW + greyW, bbotY + 4, barX + greenW + greyW,
+                     bbotY + bbotH - 4, GREY);
+
+  // ── 10. Sun icon — centred on top bracket line, black box ──
+  if (greenW + yellowW > 1) {
+    const int16_t sx = regX + (greenW + yellowW) / 2;
+    const int16_t sy = sunY;
+    evccIcon(sx, sy, 0);
+  }
+
+  // Pylon on top bracket, centred in the grey (import) zone
+  if (greyW > 0) {
+    const int16_t gx = barX + greenW + greyW / 2;
+    const int16_t gy = sunY;
+    evccIcon(gx, gy, 1);
+  }
+
+  // // ── 11. Home icon — centred on bottom bracket line, black box
+  // {
+  //   const int16_t hx = barX + (greenW + greyW) / 2;
+  //   const int16_t hy = iconY;
+  //   evccIcon(hx, hy, 2);
+  // }
+
+  // ── 12. Pylon icon — centred on bottom bracket line, black box
+  if (yellowW > 0) {
+    const int16_t gx = barX + greenW + greyW + yellowW / 2;
+    const int16_t gy = iconY;
+    evccIcon(gx, gy, 1);
+  }
+
+  // ── 13. Car zone on bottom bracket ────────────────────────
+  // The bottom bracket has up to 3 zones: home | car | grid(export)
+  // Car zone width derived from toCar relative to total consumption
+  int carW = 0;
+  if (toCar > 0.0f) {
+    int carWatts = (int)(toCar * 1000.0f);
+    int botTotal = toHome + (yellowW > 0 ? toGrid : 0);
+    if (botTotal <= 0) botTotal = 1;
+    carW = constrain((int)((long)carWatts * barW / botTotal), 0, barW - 10);
+  }
+
+  // home zone = greenW + greyW - carW, car zone = carW, grid zone = yellowW
+  // home icon: centred in home zone
+  {
+    const int16_t hx = barX + (greenW + greyW - carW) / 2;
+    const int16_t hy = iconY;
+    evccIcon(hx, hy, 2);
+  }
+
+  // car icon: centred in car zone (right of home, left of grid)
+  if (carW > 0) {
+    // divider tick between home and car
+    display.drawLine(barX + greenW + greyW - carW, bbotY + 4,
+                     barX + greenW + greyW - carW, bbotY + bbotH - 4, GREY);
+    const int16_t cx = barX + greenW + greyW - carW + carW / 2;
+    evccIcon(cx, iconY, 3);
+  }
+  // display.setCursor(300, 300);
+  // display.setTextColor(WHITE);
+  // display.print(yellowW);
 }
 
 // ** lights **
-void Dashboard::detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol, bool berging, bool maanlamp, bool raamversiering) {
+void Dashboard::detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol,
+                             bool berging, bool maanlamp, bool raamversiering) {
   // Sfeerlichtjes
-  display.fillRoundRect(1, 1, SCREEN_W / 3 - 1, SCREEN_H / 2 - 1, 10, publicBackg);
+  display.fillRoundRect(1, 1, SCREEN_W / 3 - 1, SCREEN_H / 2 - 1, 10,
+                        publicBackg);
   // bulb(SCREEN_W / 6, SCREEN_H / 4 + 16, 170, sfeerlichtjes);
   display.setTextColor(publicTEXT);
   display.setTextSize(2);
@@ -1758,7 +2104,8 @@ void Dashboard::detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol, 
   display.print("Sfeerlichtjes");
   // sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16, sfeerlichtjes);
   // Grote bol
-  display.fillRoundRect(SCREEN_W / 3 + 1, 1, SCREEN_W / 3 - 1, SCREEN_H / 2 - 1, 10, publicBackg);
+  display.fillRoundRect(SCREEN_W / 3 + 1, 1, SCREEN_W / 3 - 1, SCREEN_H / 2 - 1,
+                        10, publicBackg);
   // bulb(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, 170, groteBol);
   display.setTextColor(publicTEXT);
   display.setTextSize(2);
@@ -1766,7 +2113,8 @@ void Dashboard::detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol, 
   display.print("Grote bol");
   // bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, groteBol);
   // Glazen bol
-  display.fillRoundRect(2 * SCREEN_W / 3, 1, SCREEN_W / 3, SCREEN_H / 2 - 1, 10, publicBackg);
+  display.fillRoundRect(2 * SCREEN_W / 3, 1, SCREEN_W / 3, SCREEN_H / 2 - 1, 10,
+                        publicBackg);
   // bulb(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, 170, glazenBol);
   display.setTextColor(publicTEXT);
   display.setTextSize(2);
@@ -1774,7 +2122,8 @@ void Dashboard::detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol, 
   display.print("Glazen bol");
   // bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, glazenBol);
   // Berging
-  display.fillRoundRect(1, SCREEN_H / 2 + 1, SCREEN_W / 2 - 1, SCREEN_H / 2 - 2, 10, publicBackg);
+  display.fillRoundRect(1, SCREEN_H / 2 + 1, SCREEN_W / 2 - 1, SCREEN_H / 2 - 2,
+                        10, publicBackg);
   // bulb(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, 170, berging);
   display.setTextColor(publicTEXT);
   display.setTextSize(2);
@@ -1782,7 +2131,8 @@ void Dashboard::detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol, 
   display.print("Maanlamp");
   // moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16, maanlamp);
   // Maanlamp
-  display.fillRoundRect(SCREEN_W / 2 + 1, SCREEN_H / 2 + 1, SCREEN_W / 2 - 2, SCREEN_H / 2 - 2, 10, publicBackg);
+  display.fillRoundRect(SCREEN_W / 2 + 1, SCREEN_H / 2 + 1, SCREEN_W / 2 - 2,
+                        SCREEN_H / 2 - 2, 10, publicBackg);
   display.setTextColor(publicTEXT);
   display.setTextSize(2);
   display.setCursor(21 + SCREEN_W / 2, 260);
@@ -1793,10 +2143,13 @@ void Dashboard::lightBr(int br) {
   display.drawRoundRect(299, 39, 202, 282, 51, publicTEXT);
   display.fillRoundRect(300, 40, 200, 280, 50, publicBackg);
   if (br > 33) {
-    display.fillRoundRect(305, 40 + 275 - 270 * br / 100, 190, 270 * br / 100, 45, YELLOW);
+    display.fillRoundRect(305, 40 + 275 - 270 * br / 100, 190, 270 * br / 100,
+                          45, YELLOW);
   } else if (br != 0) {
-    display.fillRoundRect(305, 40 + 275 - 270 * 33 / 100, 190, 270 * 33 / 100, 45, YELLOW);
-    display.fillRoundRect(305, 45, 190, 270 * (100 - br) / 100, 45, publicBackg);
+    display.fillRoundRect(305, 40 + 275 - 270 * 33 / 100, 190, 270 * 33 / 100,
+                          45, YELLOW);
+    display.fillRoundRect(305, 45, 190, 270 * (100 - br) / 100, 45,
+                          publicBackg);
   }
   display.setTextSize(3);
   if (br < 30) {
@@ -1825,14 +2178,17 @@ void Dashboard::lightSw() {
   display.fillRoundRect(397, 355, 6, 30, 2, publicTEXT);
 }
 // ** music **
-void Dashboard::music(const String &k_kanaal, const String &k_title, bool k_state, const String &s_kanaal, const String &s_title, bool s_state) {
+void Dashboard::music(const String& k_kanaal, const String& k_title,
+                      bool k_state, const String& s_kanaal,
+                      const String& s_title, bool s_state) {
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
   String displayName = k_kanaal;
   //******************* Keuken ************************
   if (k_kanaal == "VRT Radio 1" || k_kanaal == "Radio 1") {
     radio1(200, 200);
     displayName = "Radio 1";
-  } else if (k_kanaal == "VRT Studio Brussel Vuurland" || k_kanaal == "Studio Brussel Vuurland" || k_kanaal == "Vuurland") {
+  } else if (k_kanaal == "VRT Studio Brussel Vuurland" ||
+             k_kanaal == "Studio Brussel Vuurland" || k_kanaal == "Vuurland") {
     vuurland(200, 200);
     displayName = "Vuurland";
   } else if (k_kanaal == "VRT NWS") {
@@ -1840,7 +2196,8 @@ void Dashboard::music(const String &k_kanaal, const String &k_title, bool k_stat
   } else if (k_kanaal == "Radio 2 vlaams-brabant" || k_kanaal == "Radio 2") {
     radio2(200, 200);
     displayName = "Radio 2";
-  } else if (k_kanaal == "Spotify Connect" || k_kanaal == "" || k_kanaal == "Spotify") {
+  } else if (k_kanaal == "Spotify Connect" || k_kanaal == "" ||
+             k_kanaal == "Spotify") {
     spotify(200, 200);
     displayName = "Spotify";
   }
@@ -1860,7 +2217,8 @@ void Dashboard::music(const String &k_kanaal, const String &k_title, bool k_stat
   displayName = s_kanaal;
   if (s_kanaal == "Radio 1" || s_kanaal == "Radio 1") {
     radio1(600, 200);
-  } else if (s_kanaal == "VRT Studio Brussel Vuurland" || s_kanaal == "Studio Brussel Vuurland" || s_kanaal == "Vuurland") {
+  } else if (s_kanaal == "VRT Studio Brussel Vuurland" ||
+             s_kanaal == "Studio Brussel Vuurland" || s_kanaal == "Vuurland") {
     vuurland(600, 200);
     displayName = "Vuurland";
   } else if (s_kanaal == "VRT NWS") {
@@ -1868,7 +2226,8 @@ void Dashboard::music(const String &k_kanaal, const String &k_title, bool k_stat
   } else if (s_kanaal == "Radio 2 vlaams-brabant" || s_kanaal == "Radio 2") {
     radio2(600, 200);
     displayName = "Radio 2";
-  } else if (s_kanaal == "Spotify Connect" || s_kanaal == "" || s_kanaal == "Spotify") {
+  } else if (s_kanaal == "Spotify Connect" || s_kanaal == "" ||
+             s_kanaal == "Spotify") {
     spotify(600, 200);
     displayName = "Spotify";
   }
@@ -1885,7 +2244,8 @@ void Dashboard::music(const String &k_kanaal, const String &k_title, bool k_stat
   display.setCursor(450, 394);
   display.print(trimTitle(s_title, 20));
 }
-void Dashboard::musicV(const String &k_kanaal, const String &k_title, const String &s_kanaal, const String &s_title) {
+void Dashboard::musicV(const String& k_kanaal, const String& k_title,
+                       const String& s_kanaal, const String& s_title) {
   //******************* Keuken ************************
   // display.fillRect(50, 355, 380, 50, publicBackg);
   // Clear
@@ -1928,12 +2288,13 @@ void Dashboard::musicV(const String &k_kanaal, const String &k_title, const Stri
   display.setCursor(450, 394);
   display.print(trimTitle(s_title, 20));
 }
-void Dashboard::k_kanaal(const String &k_kanaal, bool k_state) {
+void Dashboard::k_kanaal(const String& k_kanaal, bool k_state) {
   String displayName = k_kanaal;
   if (k_kanaal == "VRT Radio 1" || k_kanaal == "Radio 1") {
     radio1(200, 200);
     displayName = "Radio 1";
-  } else if (k_kanaal == "VRT Studio Brussel Vuurland" || k_kanaal == "Studio Brussel Vuurland" || k_kanaal == "Vuurland") {
+  } else if (k_kanaal == "VRT Studio Brussel Vuurland" ||
+             k_kanaal == "Studio Brussel Vuurland" || k_kanaal == "Vuurland") {
     vuurland(200, 200);
     displayName = "Vuurland";
   } else if (k_kanaal == "VRT NWS") {
@@ -1941,7 +2302,8 @@ void Dashboard::k_kanaal(const String &k_kanaal, bool k_state) {
   } else if (k_kanaal == "Radio 2 vlaams-brabant" || k_kanaal == "Radio 2") {
     radio2(200, 200);
     displayName = "Radio 2";
-  } else if (k_kanaal == "Spotify Connect" || k_kanaal == "" || k_kanaal == "Spotify") {
+  } else if (k_kanaal == "Spotify Connect" || k_kanaal == "" ||
+             k_kanaal == "Spotify") {
     spotify(200, 200);
     displayName = "Spotify";
   }
@@ -1951,11 +2313,12 @@ void Dashboard::k_kanaal(const String &k_kanaal, bool k_state) {
     pause(300, 350);
   }
 }
-void Dashboard::s_kanaal(const String &s_kanaal, bool s_state) {
+void Dashboard::s_kanaal(const String& s_kanaal, bool s_state) {
   String displayName = s_kanaal;
   if (s_kanaal == "Radio 1" || s_kanaal == "Radio 1") {
     radio1(600, 200);
-  } else if (s_kanaal == "VRT Studio Brussel Vuurland" || s_kanaal == "Studio Brussel Vuurland" || s_kanaal == "Vuurland") {
+  } else if (s_kanaal == "VRT Studio Brussel Vuurland" ||
+             s_kanaal == "Studio Brussel Vuurland" || s_kanaal == "Vuurland") {
     vuurland(600, 200);
     displayName = "Vuurland";
   } else if (s_kanaal == "VRT NWS") {
@@ -1963,7 +2326,8 @@ void Dashboard::s_kanaal(const String &s_kanaal, bool s_state) {
   } else if (s_kanaal == "Radio 2 vlaams-brabant" || s_kanaal == "Radio 2") {
     radio2(600, 200);
     displayName = "Radio 2";
-  } else if (s_kanaal == "Spotify Connect" || s_kanaal == "" || s_kanaal == "Spotify") {
+  } else if (s_kanaal == "Spotify Connect" || s_kanaal == "" ||
+             s_kanaal == "Spotify") {
     spotify(600, 200);
     displayName = "Spotify";
   }
@@ -1987,7 +2351,7 @@ void Dashboard::s_state(bool s_state) {
     pause(700, 350);
   }
 }
-String Dashboard::trimTitle(const String &title, int maxChars) {
+String Dashboard::trimTitle(const String& title, int maxChars) {
   if (title.length() > maxChars) {
     return title.substring(0, maxChars - 3) + "...";
   }
@@ -2002,11 +2366,12 @@ void Dashboard::chooseChannel() {
   vuurlandS(525, 363);
 }
 // ** ventilation **
-void Dashboard::ventilationV(bool k_state, bool b_state, int k_CO2, int b_VOC, int k_hum, int b_hum, int k_qua, int b_qua, int k_time, int b_time) {
-  // display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H / 2 - 2, 10, publicBackg);
-  // display.fillRoundRect(1, SCREEN_H / 2 + 1, SCREEN_W - 2, SCREEN_H / 2 - 2, 10, publicBackg);
-  // Keuken
-  // ventiIcon(100, 140, k_state);
+void Dashboard::ventilationV(bool k_state, bool b_state, int k_CO2, int b_VOC,
+                             int k_hum, int b_hum, int k_qua, int b_qua,
+                             int k_time, int b_time) {
+  // display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H / 2 - 2, 10,
+  // publicBackg); display.fillRoundRect(1, SCREEN_H / 2 + 1, SCREEN_W - 2,
+  // SCREEN_H / 2 - 2, 10, publicBackg); Keuken ventiIcon(100, 140, k_state);
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(4);
   display.setCursor(35, 22);
