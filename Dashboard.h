@@ -2,7 +2,6 @@
 #define Dashboard_h
 
 #include "Arduino.h"
-// #include "SD.h"
 
 class Dashboard {
 public:
