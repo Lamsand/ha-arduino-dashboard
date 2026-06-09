@@ -696,8 +696,6 @@ void loop() {
         } else if (touch_y > 400 && touch_y < 440) {
           drawProduction = !drawProduction;
         }
-      } else if (!energy_longGraph) {
-        energy_roundState = !energy_roundState;
       } else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 &&
                  touch_y > 124 + 156 / 2 - 85 && touch_y < 124 + 156 / 2 + 85) {
         page = "evcc";
@@ -705,7 +703,9 @@ void loop() {
         dashboard.homeEmpty(0, 0, 798, 479);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
                        laadpaal_chargingPower);
-      } else {
+      }  else if (!energy_longGraph) {
+        energy_roundState = !energy_roundState;
+      }  else {
         newEnergyGraph = LOW;
       }
     } else if (page == "venti") {
