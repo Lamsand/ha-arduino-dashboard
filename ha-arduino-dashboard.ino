@@ -47,6 +47,9 @@ MqttClient mqttClient(wifiClient);
          |                   |                    |
          | 0, 262, 400, 217  | 400, 262, 399, 217 |
          |___________________|____________________|
+
+  co[4]: 0 = every homepage, 1 = only first homepage, 2 = only second homepage,
+  3 = hide
 */
 #ifdef ENABLE_LIGHTS
 int lightCo[5] = {0, 44, 400, 218, 1};
@@ -61,7 +64,7 @@ int energyCo[5] = {0, 262, 400, 217, 0};
 int musicCo[5] = {400, 262, 399, 217, 1};
 #endif
 #ifdef ENABLE_WASTE
-int wasteCo[5] = {900, 262, 199, 217, 1};
+int wasteCo[5] = {600, 262, 199, 217, 3};
 #endif
 #ifdef ENABLE_VENTILATION
 int ventiCo[5] = {400, 262, 399, 217, 2};
@@ -1051,8 +1054,8 @@ void onMqttMessage(int messageSize) {
   }
   ///////////////////////////////////////////////////////// home/#
   if (topic == "home/time") {
-    message += "L";
-    message.replace(":00L", "");
+    // message += "L";
+    // message.replace(":00L", "");
     realTime = message;
     message.replace(":", "");
     realTimeInt = message.toInt();
@@ -1346,8 +1349,10 @@ void onMqttMessage(int messageSize) {
   if (topic.startsWith("afval")) {
     //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4;
     //   None = 5
-    musicCo[2] = 199;  // { 400, 262, 199, 217 };
-    wasteCo[0] = 600;  // { 600, 262, 199, 217 };
+    #ifdef ENABLE_MUSIC
+    musicCo[2] = 199;
+    #endif
+    wasteCo[4] = 1;
     if (message.indexOf("GFT") != -1) {
       if (message.indexOf("Restafval") != -1 ||
           message.indexOf("restafval") != -1) {
@@ -1365,8 +1370,10 @@ void onMqttMessage(int messageSize) {
       wasteType = 3;
     } else {
       wasteType = 5;
+      #ifdef ENABLE_MUSIC
       musicCo[2] = 399;  // { 400, 262, 399, 217 };
-      wasteCo[0] = 900;  // { 900, 262, 199, 217 };
+      #endif
+      wasteCo[4] = 3;  // { 900, 262, 199, 217 };
     }
     print();
     printImg();

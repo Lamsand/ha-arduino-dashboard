@@ -14,7 +14,7 @@ A touch-screen dashboard for **Home Assistant** built on the **Arduino Giga R1 +
 
 | Module | What you can see / do |
 |---|---|
-| ⚡ **Energy** | Real-time import, production & consumption with scrolling graph (short & long view) |
+| ⚡ **Energy** | Real-time import, production & consumption with scrolling graph (short (30min) & long view (3h)) |
 | 🚗 **Car** | Battery %, charging power, target charge, cruising range + EVCC detail view |
 | 💡 **Lights** | Toggle sfeerlichtjes, grote bol, glazen bol, maanlamp, raamversiering — tap to switch, hold for brightness |
 | 🎵 **Music** | Control keuken & speelkamer speakers; switch between Radio 1, Radio 2, Vuurland, VRT NWS, Spotify |
@@ -24,7 +24,28 @@ A touch-screen dashboard for **Home Assistant** built on the **Arduino Giga R1 +
 | 🗑️ **Waste** | Today's waste collection type (Rest, GFT, PMD, Papier) |
 | ⚙️ **Settings** | Toggle dark/light mode, last reset time, manual reset button |
 
-The dashboard has two home screens (swipe right) so you can arrange which modules appear on which page.
+The dashboard has two home screens (click right) so you can arrange which modules appear on which page.
+
+---
+
+## 🧩 Modularity & Customization
+
+You can customize the dashboard layout by enabling or disabling specific modules to match your exact home setup. 
+
+Open `Dashboard.h` and locate the **App Toggles** section. Simply comment out (`//`) any modules you do not use, or uncomment them to turn them back on:
+
+```cpp
+// --- App Toggles ---
+#define ENABLE_MOWER
+#define ENABLE_CAR
+#define ENABLE_VENTILATION
+#define ENABLE_HEAT_PUMP
+#define ENABLE_MUSIC
+#define ENABLE_WASTE
+#define ENABLE_LIGHTS
+#define ENABLE_ENERGY
+#define ENABLE_evcc
+```
 
 ---
 
@@ -32,6 +53,7 @@ The dashboard has two home screens (swipe right) so you can arrange which module
 
 - **Arduino Giga R1 WiFi**
 - **Arduino Giga Display Shield** (800×480 touch display)
+- MicroSD reader module (connected via SPI pins)
 - MicroSD card (for image assets used by `Dashboard.cpp`)
 
 ---
@@ -43,7 +65,7 @@ Install these via the Arduino IDE Library Manager:
 - `WiFi` (built-in for Giga R1)
 - `ArduinoMqttClient`
 - `Arduino_GigaDisplayTouch`
-- `Arduino_GigaDisplay_GFX` *(or whichever GFX library Dashboard.cpp uses)*
+- `Arduino_GigaDisplay_GFX`
 
 ---
 
@@ -60,7 +82,7 @@ Install these via the Arduino IDE Library Manager:
 
 - On the same [Releases page](../../releases/latest), download `sd-assets.zip`
 - Unzip it and copy **all files** to the **root** of your MicroSD card
-- Insert the SD card into the Giga Display Shield
+- Insert the SD card into the MicroSD module
 
 ### 3. Configure your credentials
 
@@ -83,10 +105,10 @@ The dashboard subscribes to these MQTT topics — make sure your HA automations 
 
 | Topic prefix | Data |
 |---|---|
-| `home/time` | Current time as `HH:MM:SS` |
+| `home/time` | Current time as `HH:MM` |
 | `home/temp` | Outdoor temperature (integer °C) |
-| `energy/currentImport`, `currentProduction`, `currentConsumption` | Watts |
-| `energy/newValue` | `Short` or `Long` to trigger graph update |
+| `energy/currentImport`, `energy/currentProduction`, `energy/currentConsumption` | Watts |
+| `energy/newValue` | `Short` or `Long` to trigger graph update (every 5/ 30 seconds) |
 | `laadpaal/battery`, `chargingPower`, `targetCharge`, `cruisingRange` | Car/charger data |
 | `lights/sfeerlichtjes`, `groteBol`, `glazenBol`, `maanlamp`, `raamversiering`, `berging` | `on` / `off` / brightness (0-255) |
 | `music/keuken/...` & `music/speelkamer/...` | `title`, `channel`, `state`, `volume` |
@@ -107,8 +129,15 @@ Open `Home_assistant.ino` in the Arduino IDE, select **Arduino Giga R1 WiFi** as
 
 ```
 ├── Home_assistant.ino        # Main sketch: WiFi, MQTT, touch handling, page routing
-├── Dashboard.cpp             # All drawing logic (screens, icons, graphs, images)
-├── Dashboard.h               # Dashboard class declaration
+├── Dashboard.h               # Dashboard class declaration (includes app toggles)
+├── Dashboard.cpp             # Base dashboard setup and core drawing logic
+├── car.cpp                   # Car UI & data handling
+├── evcc.cpp                  # EVCC charging detail view logic
+├── energy.cpp                # Energy monitoring & graphing logic
+├── heatPump.cpp              # Heat pump state & temperature UI
+├── lights.cpp                # Light toggles & brightness sliders
+├── mower.cpp                 # Lawnmower control & status logic
+├── music.cpp                 # Speaker & media player controls
 ├── Colors.h                  # Colour definitions (RGB565)
 ├── arduino_secrets_example.h # Credential template — rename to arduino_secrets.h
 └── .gitignore                # Excludes arduino_secrets.h from version control
