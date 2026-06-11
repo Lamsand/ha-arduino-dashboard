@@ -48,20 +48,35 @@ MqttClient mqttClient(wifiClient);
          | 0, 262, 400, 217  | 400, 262, 399, 217 |
          |___________________|____________________|
 */
-
+#ifdef ENABLE_LIGHTS
 int lightCo[5] = {0, 44, 400, 218, 1};
+#endif
+#ifdef ENABLE_CAR
 int carCo[5] = {400, 44, 399, 218, 1};
+#endif
+#ifdef ENABLE_ENERGY
 int energyCo[5] = {0, 262, 400, 217, 0};
+#endif
+#ifdef ENABLE_MUSIC
 int musicCo[5] = {400, 262, 399, 217, 1};
+#endif
+#ifdef ENABLE_WASTE
 int wasteCo[5] = {900, 262, 199, 217, 1};
+#endif
+#ifdef ENABLE_VENTILATION
 int ventiCo[5] = {400, 262, 399, 217, 2};
+#endif
+#ifdef ENABLE_HEAT_PUMP
 int heatPumpCo[5] = {400, 44, 399, 218, 2};
+#endif
+#ifdef ENABLE_MOWER
 int mowerCo[5] = {0, 44, 400, 218, 2};
+#endif
 
-// waste
+#ifdef ENABLE_WASTE
 int wasteType = 4;
-
-// lights
+#endif
+#ifdef ENABLE_LIGHTS
 bool lights_sfeerlichtjes = LOW;
 bool lights_glazenBol = LOW;
 int lights_glazenBol_br = 0;
@@ -72,25 +87,25 @@ int lights_berging_br = 0;
 bool lights_maanlamp = LOW;
 int lights_maanlamp_br = 0;
 bool lights_raamversiering = LOW;
-
-// laadpaal
+#endif
+#ifdef ENABLE_CAR
 int laadpaal_battery = 0;
 float laadpaal_chargingPower = 0;
 int laadpaal_chargingSpeed = 0;
 int laadpaal_cruisingRange = 0;
 int laadpaal_targetCharge = 0;
-
-// heat pump
+#endif
+#ifdef ENABLE_HEAT_PUMP
 bool compressor = LOW;
 int hotWaterTemp = 0;
 int XDHW = 0;
 String heatPumpTime = "00:00";
-
-// mower
+#endif
+#ifdef ENABLE_MOWER
 int mowerBattery = 0;
 bool mowerState = LOW;
-
-// venti
+#endif
+#ifdef ENABLE_VENTILATION
 int keuken_CO2 = 0;
 int keuken_humidity = 0;
 int keuken_quality = 0;
@@ -101,8 +116,8 @@ int kelder_humidity = 0;
 int kelder_quality = 0;
 int kelder_boostRemaining = 210;
 bool kelder_boost = HIGH;
-
-// energy
+#endif
+#ifdef ENABLE_ENERGY
 int importArr[360];
 int currentImport = 0;
 int consumptionArr[360];
@@ -122,8 +137,8 @@ bool energy_longGraph = LOW;
 bool drawImport = HIGH;
 bool drawProduction = HIGH;
 bool drawConsumption = HIGH;
-
-// music
+#endif
+#ifdef ENABLE_MUSIC
 String keuken_title = "";
 String keuken_channel = "Spotify";
 int keuken_volume = 0;
@@ -132,8 +147,8 @@ String speelkamer_title = "";
 String speelkamer_channel = "Spotify";
 int speelkamer_volume = 0;
 bool speelkamer_state = LOW;
+#endif
 
-// general
 String realTime = "Default";
 int realTimeInt = 0;
 int nightStart = 2000;
@@ -153,28 +168,33 @@ bool darkMode = HIGH;
 ////////////// new info /////////////
 // ** home **
 bool newHomeInfo = LOW;
-// ** energy **
+#ifdef ENABLE_ENERGY
 bool newEnergyGraph = LOW;
 bool newEnergyVal = LOW;
 bool newBlxmInfo = LOW;
-// ** car **
+#endif
+#ifdef ENABLE_CAR
 bool newCarInfo = LOW;
-// ** music **
+#endif
+#ifdef ENABLE_MUSIC
 bool newKeukenChan = LOW;
 bool newSpeelkamerChan = LOW;
 bool newKeuken = LOW;
 bool newSpeelkamer = LOW;
 bool newMusic = LOW;
-// ** lights **
+#endif
+#ifdef ENABLE_LIGHTS
 bool maanlampChange = LOW;
 bool bergingChange = LOW;
 bool sfeerlichtjesChange = LOW;
 bool raamversieringChange = LOW;
 bool groteBolChange = LOW;
 bool glazenBolChange = LOW;
-// ** venti **
+#endif
+#ifdef ENABLE_VENTILATION
 bool newVentiV = LOW;
 bool newVentiImg = LOW;
+#endif
 
 int loopCount = 0;
 
@@ -244,14 +264,31 @@ void setup() {
   mqttClient.onMessage(onMqttMessage);
   // subscribe to a topic
   mqttClient.subscribe("home/#");
+#ifdef ENABLE_LIGHTS
   mqttClient.subscribe("lights/#");
+#endif
+#ifdef ENABLE_CAR
   mqttClient.subscribe("laadpaal/#");
+#endif
+#ifdef ENABLE_ENERGY
   mqttClient.subscribe("energy/#");
+#endif
+#ifdef ENABLE_MUSIC
   mqttClient.subscribe("music/#");
+#endif
+#ifdef ENABLE_WASTE
   mqttClient.subscribe("afval/#");
+#endif
+#ifdef ENABLE_VENTILATION
   mqttClient.subscribe("ventilation/#");
+#endif
+#ifdef ENABLE_HEAT_PUMP
   mqttClient.subscribe("heatPump/#");
+#endif
+#ifdef ENABLE_MOWER
   mqttClient.subscribe("mower/#");
+#endif
+
   delay(2000);
   // topics can be unsubscribed using:
   // mqttClient.unsubscribe("home/connection");
@@ -288,19 +325,25 @@ void loop() {
       print();
       // printImg();
     } else if (page == "home") {
-      if (touch_x > 700 && touch_y > 40) {
+      if (touch_x > 700 && touch_y > 40) {  // to home2
         page = "home2";
         print2();
-      } else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
-                 touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
-                 (carCo[4] == 0 || carCo[4] == 1)) {  // Car clicked
+      }
+
+#ifdef ENABLE_CAR
+      else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
+               touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
+               (carCo[4] == 0 || carCo[4] == 1)) {  // Car clicked
         page = "detailCar";
         dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
                             laadpaal_chargingSpeed, laadpaal_targetCharge,
                             laadpaal_cruisingRange);
-      } else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
-                 touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
-                 (lightCo[4] == 0 || lightCo[4] == 1)) {  // Lights clicked
+      }
+#endif
+#ifdef ENABLE_LIGHTS
+      else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
+               touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
+               (lightCo[4] == 0 || lightCo[4] == 1)) {  // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
         dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
@@ -314,9 +357,12 @@ void loop() {
                               lights_maanlamp);
         dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                                    lights_raamversiering);
-      } else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
-                 touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
-                 (energyCo[4] == 0 || energyCo[4] == 1)) {  // Energy clicked
+      }
+#endif
+#ifdef ENABLE_ENERGY
+      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
+               touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
+               (energyCo[4] == 0 || energyCo[4] == 1)) {  // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
         dashboard.energy(importArr, productionArr, consumptionArr,
@@ -325,30 +371,42 @@ void loop() {
                          timeArr, longTimeArr, energy_state, energy_longGraph,
                          energy_roundState, drawImport, drawProduction,
                          drawConsumption);
-      } else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
-                 touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
-                 (musicCo[4] == 0 || musicCo[4] == 1)) {  // Music clicked
+      }
+#endif
+#ifdef ENABLE_MUSIC
+      else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
+               touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
+               (musicCo[4] == 0 || musicCo[4] == 1)) {  // Music clicked
         page = "music";
         dashboard.fillScreen(AllBackg);
         dashboard.music(keuken_channel, keuken_title, keuken_state,
                         speelkamer_channel, speelkamer_title, speelkamer_state);
-      } else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
-                 touch_y > heatPumpCo[1] &&
-                 touch_x < heatPumpCo[0] + heatPumpCo[2] &&
-                 touch_x > heatPumpCo[0] &&
-                 (heatPumpCo[4] == 0 || heatPumpCo[4] == 1)) {  // Music clicked
+      }
+#endif
+#ifdef ENABLE_HEAT_PUMP
+      else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
+               touch_y > heatPumpCo[1] &&
+               touch_x < heatPumpCo[0] + heatPumpCo[2] &&
+               touch_x > heatPumpCo[0] &&
+               (heatPumpCo[4] == 0 || heatPumpCo[4] == 1)) {  // Music clicked
         page = "heatPump";
         dashboard.fillScreen(AllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
-      } else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
-                 touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
-                 (mowerCo[4] == 0 || mowerCo[4] == 1)) {  // Music clicked
+      }
+#endif
+#ifdef ENABLE_MOWER
+      else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
+               touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
+               (mowerCo[4] == 0 || mowerCo[4] == 1)) {  // Music clicked
         page = "mower";
         dashboard.fillScreen(AllBackg);
         dashboard.mower(mowerBattery, mowerState);
-      } else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
-                 touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
-                 (ventiCo[4] == 0 || ventiCo[4] == 1)) {  // Ventilation clicked
+      }
+#endif
+#ifdef ENABLE_VENTILATION
+      else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
+               touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
+               (ventiCo[4] == 0 || ventiCo[4] == 1)) {  // Ventilation clicked
         page = "venti";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 239);
@@ -358,22 +416,30 @@ void loop() {
                                keuken_quality, kelder_quality,
                                keuken_boostRemaining, kelder_boostRemaining);
         dashboard.ventilationImg(keuken_boost, kelder_boost);
-      } else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
-                 touch_y < 44) {  // Settings clicked
+      }
+#endif
+      else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
+               touch_y < 44) {  // Settings clicked
         page = "settings";
         dashboard.settings(darkMode, lastReset);
       }
     } else if (page == "home2") {
-      if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
-          touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
-          (carCo[4] == 0 || carCo[4] == 2)) {  // Car clicked
+      if (0) {
+      }
+#ifdef ENABLE_CAR
+      else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
+               touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
+               (carCo[4] == 0 || carCo[4] == 2)) {  // Car clicked
         page = "detailCar";
         dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
                             laadpaal_chargingSpeed, laadpaal_targetCharge,
                             laadpaal_cruisingRange);
-      } else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
-                 touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
-                 (lightCo[4] == 0 || lightCo[4] == 2)) {  // Lights clicked
+      }
+#endif
+#ifdef ENABLE_LIGHTS
+      else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
+               touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
+               (lightCo[4] == 0 || lightCo[4] == 2)) {  // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
         dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
@@ -387,9 +453,12 @@ void loop() {
                               lights_maanlamp);
         dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                                    lights_raamversiering);
-      } else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
-                 touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
-                 (energyCo[4] == 0 || energyCo[4] == 2)) {  // Energy clicked
+      }
+#endif
+#ifdef ENABLE_ENERGY
+      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
+               touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
+               (energyCo[4] == 0 || energyCo[4] == 2)) {  // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
         dashboard.energy(importArr, productionArr, consumptionArr,
@@ -398,30 +467,42 @@ void loop() {
                          timeArr, longTimeArr, energy_state, energy_longGraph,
                          energy_roundState, drawImport, drawProduction,
                          drawConsumption);
-      } else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
-                 touch_y > heatPumpCo[1] &&
-                 touch_x < heatPumpCo[0] + heatPumpCo[2] &&
-                 touch_x > heatPumpCo[0] &&
-                 (heatPumpCo[4] == 0 || heatPumpCo[4] == 2)) {  // Music clicked
+      }
+#endif
+#ifdef ENABLE_HEAT_PUMP
+      else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
+               touch_y > heatPumpCo[1] &&
+               touch_x < heatPumpCo[0] + heatPumpCo[2] &&
+               touch_x > heatPumpCo[0] &&
+               (heatPumpCo[4] == 0 || heatPumpCo[4] == 2)) {  // Music clicked
         page = "heatPump";
         dashboard.fillScreen(AllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
-      } else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
-                 touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
-                 (mowerCo[4] == 0 || mowerCo[4] == 2)) {  // Music clicked
+      }
+#endif
+#ifdef ENABLE_MOWER
+      else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
+               touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
+               (mowerCo[4] == 0 || mowerCo[4] == 2)) {  // Music clicked
         page = "mower";
         dashboard.fillScreen(AllBackg);
         dashboard.mower(mowerBattery, mowerState);
-      } else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
-                 touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
-                 (musicCo[4] == 0 || musicCo[4] == 2)) {  // Music clicked
+      }
+#endif
+#ifdef ENABLE_MUSIC
+      else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
+               touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
+               (musicCo[4] == 0 || musicCo[4] == 2)) {  // Music clicked
         page = "music";
         dashboard.fillScreen(AllBackg);
         dashboard.music(keuken_channel, keuken_title, keuken_state,
                         speelkamer_channel, speelkamer_title, speelkamer_state);
-      } else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
-                 touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
-                 (ventiCo[4] == 0 || ventiCo[4] == 2)) {  // Ventilation clicked
+      }
+#endif
+#ifdef ENABLE_VENTILATION
+      else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
+               touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
+               (ventiCo[4] == 0 || ventiCo[4] == 2)) {  // Ventilation clicked
         page = "venti";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 799, 239);
@@ -431,12 +512,41 @@ void loop() {
                                keuken_quality, kelder_quality,
                                keuken_boostRemaining, kelder_boostRemaining);
         dashboard.ventilationImg(keuken_boost, kelder_boost);
-      } else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
-                 touch_y < 44) {  // Settings clicked
+      }
+#endif
+      else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
+               touch_y < 44) {  // Settings clicked
         page = "settings";
         dashboard.settings(darkMode, lastReset);
       }
-    } else if (page == "detailLights") {
+    } else if (page == "settings") {
+      if (touch_x < 360 && touch_x > 285 && touch_y < 140 &&
+          touch_y > 109) {  // darkMode clicked
+        darkMode = !darkMode;
+        if (darkMode) {
+          BACKG = BLACK;
+          TEXT = WHITE;
+          AllBackg = WHITE;
+          dashboard.publicTEXT = TEXT;
+          dashboard.publicBackg = BACKG;
+          dashboard.publicAllBackg = AllBackg;
+        } else {
+          BACKG = WHITE;
+          TEXT = BLACK;
+          AllBackg = BLACK;
+          dashboard.publicTEXT = TEXT;
+          dashboard.publicBackg = BACKG;
+          dashboard.publicAllBackg = AllBackg;
+        }
+        dashboard.settings(darkMode, lastReset);
+      } else if (touch_x < 170 && touch_x > 130 && touch_y < 462 &&
+                 touch_y > 422) {
+        Serial.println("RESET!!!!!");
+        NVIC_SystemReset();
+      }
+    }
+#ifdef ENABLE_LIGHTS
+    else if (page == "detailLights") {
       if (touch_x < 267 && touch_x > 100 && touch_y < 262 &&
           touch_y > 44) {  // Sfeerlichtjes
         mqttClient.beginMessage("lights/sfeerlichtjes");
@@ -550,31 +660,6 @@ void loop() {
         mqttClient.endMessage();
       }
 
-    } else if (page == "settings") {
-      if (touch_x < 360 && touch_x > 285 && touch_y < 140 &&
-          touch_y > 109) {  // darkMode clicked
-        darkMode = !darkMode;
-        if (darkMode) {
-          BACKG = BLACK;
-          TEXT = WHITE;
-          AllBackg = WHITE;
-          dashboard.publicTEXT = TEXT;
-          dashboard.publicBackg = BACKG;
-          dashboard.publicAllBackg = AllBackg;
-        } else {
-          BACKG = WHITE;
-          TEXT = BLACK;
-          AllBackg = BLACK;
-          dashboard.publicTEXT = TEXT;
-          dashboard.publicBackg = BACKG;
-          dashboard.publicAllBackg = AllBackg;
-        }
-        dashboard.settings(darkMode, lastReset);
-      } else if (touch_x < 170 && touch_x > 130 && touch_y < 462 &&
-                 touch_y > 422) {
-        Serial.println("RESET!!!!!");
-        NVIC_SystemReset();
-      }
     } else if (page.startsWith("detailLights/") == HIGH) {
       String k = page;
       k.replace("detailLights/", "");
@@ -605,7 +690,10 @@ void loop() {
         mqttClient.print("Switch");
         mqttClient.endMessage();
       }
-    } else if (page.startsWith("music")) {
+    }
+#endif
+#ifdef ENABLE_MUSIC
+    else if (page.startsWith("music")) {
       if (page == "music") {
         if (touch_x < 350 && touch_x > 50 && touch_y < 350 && touch_y > 50 &&
             (touch_x < 250 || touch_x > 350 || touch_y < 300 ||
@@ -684,7 +772,10 @@ void loop() {
         dashboard.music(keuken_channel, keuken_title, keuken_state,
                         speelkamer_channel, speelkamer_title, speelkamer_state);
       }
-    } else if (page == "energy") {
+    }
+#endif
+#ifdef ENABLE_ENERGY
+    else if (page == "energy") {
       newEnergyGraph = HIGH;
       if (touch_x > 440 && touch_x < 800 && touch_y > 30 && touch_y < 94) {
         energy_longGraph = !energy_longGraph;
@@ -703,12 +794,15 @@ void loop() {
         dashboard.homeEmpty(0, 0, 798, 479);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
                        laadpaal_chargingPower);
-      }  else if (!energy_longGraph) {
+      } else if (!energy_longGraph) {
         energy_roundState = !energy_roundState;
-      }  else {
+      } else {
         newEnergyGraph = LOW;
       }
-    } else if (page == "venti") {
+    }
+#endif
+#ifdef ENABLE_VENTILATION
+    else if (page == "venti") {
       if (keuken_boost) {
         if (touch_x > 595 && touch_x < 765 && touch_y > 35 &&
             touch_y < 205) {  // Keuken 1u
@@ -751,7 +845,10 @@ void loop() {
           mqttClient.endMessage();
         }
       }
-    } else if (page == "mower") {
+    }
+#endif
+#ifdef ENABLE_MOWER
+    else if (page == "mower") {
       if (mowerState) {
         if (touch_x > 264 && touch_x < 464 && touch_y > 360 &&
             touch_y < 440) {  // Return
@@ -773,7 +870,10 @@ void loop() {
           mqttClient.endMessage();
         }
       }
-    } else if (page == "detailCar") {
+    }
+#endif
+#ifdef ENABLE_CAR
+    else if (page == "detailCar") {
       if (touch_x > 600) {
         page = "evcc";
         dashboard.fillScreen(AllBackg);
@@ -782,8 +882,21 @@ void loop() {
                        laadpaal_chargingPower);
       }
     }
+#endif
+
     lastTouch = millis();
   }
+
+  if (newHomeInfo) {
+    if (page == "home") {
+      printV();
+      // Serial.println("Refresh");
+    } else if (page == "home2") {
+      print2V();
+    }
+    newHomeInfo = LOW;
+  }
+#ifdef ENABLE_LIGHTS
   if (sfeerlichtjesChange || groteBolChange || glazenBolChange ||
       maanlampChange || bergingChange || raamversieringChange) {
     if (page.startsWith("detailLights")) {
@@ -826,15 +939,8 @@ void loop() {
     bergingChange = LOW;
     raamversieringChange = LOW;
   }
-  if (newHomeInfo) {
-    if (page == "home") {
-      printV();
-      // Serial.println("Refresh");
-    } else if (page == "home2") {
-      print2V();
-    }
-    newHomeInfo = LOW;
-  }
+#endif
+#ifdef ENABLE_MUSIC
   if (newMusic || newKeukenChan || newSpeelkamerChan || newSpeelkamer ||
       newKeuken) {
     if (page == "music") {
@@ -863,6 +969,8 @@ void loop() {
     newSpeelkamer = LOW;
     newKeuken = LOW;
   }
+#endif
+#ifdef ENABLE_ENERGY
   if (newEnergyVal || newEnergyGraph || newBlxmInfo) {
     if (page == "energy") {
       if (newEnergyVal) {
@@ -897,6 +1005,8 @@ void loop() {
     newEnergyVal = LOW;
     newEnergyGraph = LOW;
   }
+#endif
+#ifdef ENABLE_VENTILATION
   if (newVentiV || newVentiImg) {
     if (page == "venti") {
       if (newVentiV) {
@@ -912,6 +1022,8 @@ void loop() {
     newVentiV = LOW;
     newVentiImg = LOW;
   }
+#endif
+
   if (WiFi.status() != WL_CONNECTED || lastEnergyNewValue + 15000 < millis()) {
     NVIC_SystemReset();
   }
@@ -964,6 +1076,7 @@ void onMqttMessage(int messageSize) {
       dashboard.printTemp(outDoorTemp);
     }
   }
+#ifdef ENABLE_CAR
   //////////////////////////////////////////////////////// laadpaal/#
   if (topic.startsWith("laadpaal/") == HIGH) {
     if (topic == "laadpaal/battery") {
@@ -985,6 +1098,9 @@ void onMqttMessage(int messageSize) {
       newHomeInfo = HIGH;
     }
   }
+#endif  // ENABLE_CAR
+
+#ifdef ENABLE_LIGHTS
   /////////////////////////////////////////////////////// lights/#
   if (topic.startsWith("lights/") == HIGH) {
     if (message != "Switch") {
@@ -1046,6 +1162,9 @@ void onMqttMessage(int messageSize) {
       }
     }
   }
+#endif  // ENABLE_LIGHTS
+
+#ifdef ENABLE_ENERGY
   /////////////////////////////////////////////////////// energy/#
   if (topic.startsWith("energy/") == HIGH) {
     if (topic == "energy/currentImport") {
@@ -1146,6 +1265,9 @@ void onMqttMessage(int messageSize) {
     }
     lastEnergyNewValue = millis();
   }
+#endif  // ENABLE_ENERGY
+
+#ifdef ENABLE_MUSIC
   if (topic.startsWith("music/") && message != "Switch" && message != "Up" &&
       message != "Down" && message != "Next" && message != "Last") {
     newMusic = HIGH;
@@ -1218,6 +1340,9 @@ void onMqttMessage(int messageSize) {
       }
     }
   }
+#endif  // ENABLE_MUSIC
+
+#ifdef ENABLE_WASTE
   if (topic.startsWith("afval")) {
     //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4;
     //   None = 5
@@ -1246,6 +1371,9 @@ void onMqttMessage(int messageSize) {
     print();
     printImg();
   }
+#endif  // ENABLE_WASTE
+
+#ifdef ENABLE_VENTILATION
   if (topic.startsWith("ventilation/")) {
     newVentiV = HIGH;
     if (topic.startsWith("ventilation/keuken")) {
@@ -1300,6 +1428,9 @@ void onMqttMessage(int messageSize) {
       }
     }
   }
+#endif  // ENABLE_VENTILATION
+
+#ifdef ENABLE_HEAT_PUMP
   if (topic.startsWith("heatPump")) {
     if (topic == "heatPump/compressor") {
       if (message == "off") {
@@ -1323,6 +1454,9 @@ void onMqttMessage(int messageSize) {
       }
     }
   }
+#endif  // ENABLE_HEAT_PUMP
+
+#ifdef ENABLE_MOWER
   if (topic.startsWith("mower/")) {
     if (topic == "mower/battery") {
       mowerBattery = message.toInt();
@@ -1336,160 +1470,241 @@ void onMqttMessage(int messageSize) {
       }
     }
   }
+#endif  // ENABLE_MOWER
 }
 void print() {
   dashboard.home();
   dashboard.printTime(realTime);
   dashboard.printTemp(outDoorTemp);
+#ifdef ENABLE_HEAT_PUMP
   dashboard.printHeatPumpTime(heatPumpTime);
   dashboard.printWaterTemp(hotWaterTemp);
+#endif
+#ifdef ENABLE_LIGHTS
   if (lightCo[4] == 0 || lightCo[4] == 1) {
     dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
   }
+#endif
+#ifdef ENABLE_CAR
   if (carCo[4] == 0 || carCo[4] == 1) {
     dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
                       laadpaal_chargingPower, laadpaal_targetCharge);
   }
+#endif
+#ifdef ENABLE_MUSIC
   if (musicCo[4] == 0 || musicCo[4] == 1) {
     dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
   }
+#endif
+#ifdef ENABLE_VENTILATION
   if (ventiCo[4] == 0 || ventiCo[4] == 1) {
     dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
   }
+#endif
+#ifdef ENABLE_ENERGY
   if (energyCo[4] == 0 || energyCo[4] == 1) {
     dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                          energy_state, currentImport);
   }
+#endif
+#ifdef ENABLE_WASTE
   if (wasteCo[4] == 0 || wasteCo[4] == 1) {
     dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]);
   }
+#endif
+#ifdef ENABLE_HEAT_PUMP
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
     dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                            heatPumpCo[3], hotWaterTemp);
   }
+#endif
+#ifdef ENABLE_MOWER
   if (mowerCo[4] == 0 || mowerCo[4] == 1) {
     dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
+#endif
   printImg();
 }
 void printV() {
+#ifdef ENABLE_CAR
   if (carCo[4] == 0 || carCo[4] == 1) {
     dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
                        laadpaal_chargingPower, laadpaal_targetCharge);
   }
+#endif
+#ifdef ENABLE_ENERGY
   if (energyCo[4] == 0 || energyCo[4] == 1) {
     dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                           energy_state, currentImport);
   }
+#endif
+#ifdef ENABLE_HEAT_PUMP
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
     dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                             heatPumpCo[3], hotWaterTemp);
   }
+#endif
 }
 void printImg() {
+#ifdef ENABLE_LIGHTS
   if (lightCo[4] == 0 || lightCo[4] == 1) {
     dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
   }
+#endif
+#ifdef ENABLE_CAR
   if (carCo[4] == 0 || carCo[4] == 1) {
     dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]);
   }
+#endif
+#ifdef ENABLE_ENERGY
   if (energyCo[4] == 0 || energyCo[4] == 1) {
     dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                             energy_state);
   }
+#endif
+#ifdef ENABLE_MUSIC
   if (musicCo[4] == 0 || musicCo[4] == 1) {
     dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
   }
+#endif
+#ifdef ENABLE_VENTILATION
   if (ventiCo[4] == 0 || ventiCo[4] == 1) {
     dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
   }
+#endif
+#ifdef ENABLE_WASTE
   if (wasteCo[4] == 0 || wasteCo[4] == 1) {
     dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3],
                            wasteType);
   }
+#endif
+#ifdef ENABLE_HEAT_PUMP
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
     dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                               heatPumpCo[3], compressor);
   }
+#endif
+#ifdef ENABLE_MOWER
   if (mowerCo[4] == 0 || mowerCo[4] == 1) {
     dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
+#endif
 }
 void print2() {
   dashboard.home();
   dashboard.printTime(realTime);
   dashboard.printTemp(outDoorTemp);
+#ifdef ENABLE_HEAT_PUMP
   dashboard.printHeatPumpTime(heatPumpTime);
   dashboard.printWaterTemp(hotWaterTemp);
+#endif
+#ifdef ENABLE_LIGHTS
   if (lightCo[4] == 0 || lightCo[4] == 2) {
     dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
   }
+#endif
+#ifdef ENABLE_CAR
   if (carCo[4] == 0 || carCo[4] == 2) {
     dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
                       laadpaal_chargingPower, laadpaal_targetCharge);
   }
+#endif
+#ifdef ENABLE_MUSIC
   if (musicCo[4] == 0 || musicCo[4] == 2) {
     dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
   }
+#endif
+#ifdef ENABLE_VENTILATION
   if (ventiCo[4] == 0 || ventiCo[4] == 2) {
     dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
   }
+#endif
+#ifdef ENABLE_ENERGY
   if (energyCo[4] == 0 || energyCo[4] == 2) {
     dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                          energy_state, currentImport);
   }
+#endif
+#ifdef ENABLE_WASTE
   if (wasteCo[4] == 0 || wasteCo[4] == 2) {
     dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]);
   }
+#endif
+#ifdef ENABLE_HEAT_PUMP
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
     dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                            heatPumpCo[3], hotWaterTemp);
   }
+#endif
+#ifdef ENABLE_MOWER
   if (mowerCo[4] == 0 || mowerCo[4] == 2) {
     dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
-  print2Img();
+#endif
+  printImg();
 }
 void print2V() {
+#ifdef ENABLE_CAR
   if (carCo[4] == 0 || carCo[4] == 2) {
     dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
                        laadpaal_chargingPower, laadpaal_targetCharge);
   }
+#endif
+#ifdef ENABLE_ENERGY
   if (energyCo[4] == 0 || energyCo[4] == 2) {
     dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                           energy_state, currentImport);
   }
+#endif
+#ifdef ENABLE_HEAT_PUMP
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
     dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                             heatPumpCo[3], hotWaterTemp);
   }
+#endif
 }
 void print2Img() {
+#ifdef ENABLE_LIGHTS
   if (lightCo[4] == 0 || lightCo[4] == 2) {
     dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
   }
+#endif
+#ifdef ENABLE_CAR
   if (carCo[4] == 0 || carCo[4] == 2) {
     dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]);
   }
+#endif
+#ifdef ENABLE_ENERGY
   if (energyCo[4] == 0 || energyCo[4] == 2) {
     dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                             energy_state);
   }
+#endif
+#ifdef ENABLE_MUSIC
   if (musicCo[4] == 0 || musicCo[4] == 2) {
     dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
   }
+#endif
+#ifdef ENABLE_VENTILATION
   if (ventiCo[4] == 0 || ventiCo[4] == 2) {
     dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
   }
+#endif
+#ifdef ENABLE_WASTE
   if (wasteCo[4] == 0 || wasteCo[4] == 2) {
     dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3],
                            wasteType);
   }
+#endif
+#ifdef ENABLE_HEAT_PUMP
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
     dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                               heatPumpCo[3], compressor);
   }
+#endif
+#ifdef ENABLE_MOWER
   if (mowerCo[4] == 0 || mowerCo[4] == 2) {
     dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
+#endif
 }

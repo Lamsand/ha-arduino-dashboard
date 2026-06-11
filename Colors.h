@@ -2,7 +2,7 @@
 #define WHITE 0xffff
 #define HABlue 0x1dfe
 #define RED 0xf800
-#define red 0xfd13
+#define lightRed 0xfd13
 #define ORANGE 0xe3e4
 #define GREY 0x8410
 #define grey 0xe71c
