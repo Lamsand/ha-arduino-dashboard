@@ -5,9 +5,9 @@
 #ifdef ENABLE_CAR
 void Dashboard::carImageMini(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("cDC.bin");
+    file = sd.open("Car/cDC.bin");
   } else {
-    file = sd.open("cLC.bin");
+    file = sd.open("Car/cLC.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -30,11 +30,11 @@ void Dashboard::carImageLarge(int xInput, int yInput) {
   int h = 267;
   int w = 550;
   if (publicBackg == BLACK) {
-    file = sd.open("cDL.bin");
+    file = sd.open("Car/cDL.bin");
     int h = 267;
     int w = 550;
   } else {
-    file = sd.open("cLL.bin");
+    file = sd.open("Car/cLL.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file

@@ -5,9 +5,9 @@
 #ifdef ENABLE_MOWER
 void Dashboard::mowerIconLarge(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("JorisD.bin");
+    file = sd.open("Mower/mowerD.bin");
   } else {
-    file = sd.open("JorisL.bin");
+    file = sd.open("Mower/mowerL.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -28,9 +28,9 @@ void Dashboard::mowerIconLarge(int xInput, int yInput) {
 }
 void Dashboard::mowerIcon(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("JorisDS.bin");
+    file = sd.open("Mower/mowerDS.bin");
   } else {
-    file = sd.open("JorisLS.bin");
+    file = sd.open("Mower/mowerLS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -52,15 +52,15 @@ void Dashboard::mowerIcon(int xInput, int yInput) {
 void Dashboard::mdi_play(int xInput, int yInput, bool inverted) {
   if (inverted) {
     if (publicBackg == BLACK) {
-      file = sd.open("playL.bin");
+      file = sd.open("Mower/Controls/playL.bin");
     } else {
-      file = sd.open("playD.bin");
+      file = sd.open("Mower/Controls/playD.bin");
     }
   } else {
     if (publicBackg == BLACK) {
-      file = sd.open("playD.bin");
+      file = sd.open("Mower/Controls/playD.bin");
     } else {
-      file = sd.open("playL.bin");
+      file = sd.open("Mower/Controls/playL.bin");
     }
   }
   if (!file) return;
@@ -83,15 +83,15 @@ void Dashboard::mdi_play(int xInput, int yInput, bool inverted) {
 void Dashboard::mdi_pause(int xInput, int yInput, bool inverted) {
   if (inverted) {
     if (publicBackg == BLACK) {
-      file = sd.open("pauseL.bin");
+      file = sd.open("Mower/Controls/pauseL.bin");
     } else {
-      file = sd.open("pauseD.bin");
+      file = sd.open("Mower/Controls/pauseD.bin");
     }
   } else {
     if (publicBackg == BLACK) {
-      file = sd.open("pauseD.bin");
+      file = sd.open("Mower/Controls/pauseD.bin");
     } else {
-      file = sd.open("pauseL.bin");
+      file = sd.open("Mower/Controls/pauseL.bin");
     }
   }
   if (!file) return;
@@ -114,15 +114,15 @@ void Dashboard::mdi_pause(int xInput, int yInput, bool inverted) {
 void Dashboard::mdi_returnHome(int xInput, int yInput, bool inverted) {
   if (inverted) {
     if (publicBackg == BLACK) {
-      file = sd.open("returnHomeL.bin");
+      file = sd.open("Mower/Controls/returnHomeL.bin");
     } else {
-      file = sd.open("returnHomeD.bin");
+      file = sd.open("Mower/Controls/returnHomeD.bin");
     }
   } else {
     if (publicBackg == BLACK) {
-      file = sd.open("returnHomeD.bin");
+      file = sd.open("Mower/Controls/returnHomeD.bin");
     } else {
-      file = sd.open("returnHomeL.bin");
+      file = sd.open("Mower/Controls/returnHomeL.bin");
     }
   }
   if (!file) return;
