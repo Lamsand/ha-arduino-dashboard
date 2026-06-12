@@ -7,23 +7,23 @@ void Dashboard::bliksem(int xInput, int yInput, int state) {
   switch (state) {
     case 0:
       if (publicBackg == BLACK) {
-        file = sd.open("blxmGD.bin");
+        file = sd.open("Energy/blxmGD.bin");
       } else {
-        file = sd.open("blxmGL.bin");
+        file = sd.open("Energy/blxmGL.bin");
       }
       break;
     case 1:
       if (publicBackg == BLACK) {
-        file = sd.open("blxmOD.bin");
+        file = sd.open("Energy/blxmOD.bin");
       } else {
-        file = sd.open("blxmOL.bin");
+        file = sd.open("Energy/blxmOL.bin");
       }
       break;
     case 2:
       if (publicBackg == BLACK) {
-        file = sd.open("blxmRD.bin");
+        file = sd.open("Energy/blxmRD.bin");
       } else {
-        file = sd.open("blxmRL.bin");
+        file = sd.open("Energy/blxmRL.bin");
       }
       break;
   }

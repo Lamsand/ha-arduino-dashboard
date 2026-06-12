@@ -1370,8 +1370,7 @@ void onMqttMessage(int messageSize) {
       } else if (message.indexOf("Papier") != -1 ||
                  message.indexOf("papier") != -1) {
         wasteType = 6;
-      }
-      {
+      } else {
         wasteType = 1;
       }
     } else if (message.indexOf("Restafval") != -1 ||
@@ -1662,7 +1661,7 @@ void print2() {
     dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
 #endif
-  printImg();
+  print2Img();
 }
 void print2V() {
 #ifdef ENABLE_CAR

@@ -5,9 +5,9 @@
 #ifdef ENABLE_MUSIC
 void Dashboard::radio1(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("rd1D.bin");
+    file = sd.open("Music/rd1D.bin");
   } else {
-    file = sd.open("rd1L.bin");
+    file = sd.open("Music/rd1L.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -28,9 +28,9 @@ void Dashboard::radio1(int xInput, int yInput) {
 }
 void Dashboard::radio2(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("rd2D.bin");
+    file = sd.open("Music/rd2D.bin");
   } else {
-    file = sd.open("rd2L.bin");
+    file = sd.open("Music/rd2L.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -51,9 +51,9 @@ void Dashboard::radio2(int xInput, int yInput) {
 }
 void Dashboard::vuurland(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("vrlD.bin");
+    file = sd.open("Music/vrlD.bin");
   } else {
-    file = sd.open("vrlL.bin");
+    file = sd.open("Music/vrlL.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -74,9 +74,9 @@ void Dashboard::vuurland(int xInput, int yInput) {
 }
 void Dashboard::vrtnws(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("nwsD.bin");
+    file = sd.open("Music/nwsD.bin");
   } else {
-    file = sd.open("nwsL.bin");
+    file = sd.open("Music/nwsL.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -97,15 +97,15 @@ void Dashboard::vrtnws(int xInput, int yInput) {
 }
 void Dashboard::spotify(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("sptfD.bin");
+    file = sd.open("Music/sptfD.bin");
   } else {
-    file = sd.open("sptfL.bin");
+    file = sd.open("Music/sptfL.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
   int y = 0;
-  const int h = 210;
-  const int w = 210;
+  const int h = 300;
+  const int w = 300;
   uint32_t q = buffSize / w;
   while (y < h / q) {
     readLarge(file, (uint8_t*)rowBuffer, w * 2 * q);
@@ -120,9 +120,9 @@ void Dashboard::spotify(int xInput, int yInput) {
 }
 void Dashboard::musicIcon(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("mcD.bin");
+    file = sd.open("Music/mcD.bin");
   } else {
-    file = sd.open("mcL.bin");
+    file = sd.open("Music/mcL.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -143,9 +143,9 @@ void Dashboard::musicIcon(int xInput, int yInput) {
 }
 void Dashboard::radio1S(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("rd1DS.bin");
+    file = sd.open("Music/rd1DS.bin");
   } else {
-    file = sd.open("rd1LS.bin");
+    file = sd.open("Music/rd1LS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -166,9 +166,9 @@ void Dashboard::radio1S(int xInput, int yInput) {
 }
 void Dashboard::radio2S(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("rd2DS.bin");
+    file = sd.open("Music/rd2DS.bin");
   } else {
-    file = sd.open("rd2LS.bin");
+    file = sd.open("Music/rd2LS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -189,9 +189,9 @@ void Dashboard::radio2S(int xInput, int yInput) {
 }
 void Dashboard::vuurlandS(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("vrlDS.bin");
+    file = sd.open("Music/vrlDS.bin");
   } else {
-    file = sd.open("vrlLS.bin");
+    file = sd.open("Music/vrlLS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -212,9 +212,9 @@ void Dashboard::vuurlandS(int xInput, int yInput) {
 }
 void Dashboard::vrtnwsS(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("nwsDS.bin");
+    file = sd.open("Music/nwsDS.bin");
   } else {
-    file = sd.open("nwsLS.bin");
+    file = sd.open("Music/nwsLS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -235,9 +235,9 @@ void Dashboard::vrtnwsS(int xInput, int yInput) {
 }
 void Dashboard::PommS(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("PommDS.bin");
+    file = sd.open("Music/PommDS.bin");
   } else {
-    file = sd.open("PommLS.bin");
+    file = sd.open("Music/PommLS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -257,7 +257,7 @@ void Dashboard::PommS(int xInput, int yInput) {
   file.close();
 }
 void Dashboard::play(int xInput, int yInput) {
-  file = sd.open("play.bin");
+  file = sd.open("Music/Buttons/play.bin");
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
   int y = 0;
@@ -290,7 +290,7 @@ void Dashboard::play(int xInput, int yInput) {
   file.close();
 }
 void Dashboard::pause(int xInput, int yInput) {
-  file = sd.open("pau.bin");
+  file = sd.open("Music/Buttons/pause.bin");
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
   int y = 0;

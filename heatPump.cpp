@@ -23,15 +23,15 @@ void Dashboard::printWaterTemp(int temp) {
 void Dashboard::heatPumpIcon(int xInput, int yInput, bool state) {
   if (publicBackg == BLACK) {
     if (state) {
-      file = sd.open("heatPumpDH.bin");
+      file = sd.open("Heat pump/heatPumpDH.bin");
     } else {
-      file = sd.open("heatPumpDL.bin");
+      file = sd.open("Heat pump/heatPumpDL.bin");
     }
   } else {
     if (state) {
-      file = sd.open("heatPumpLH.bin");
+      file = sd.open("Heat pump/heatPumpLH.bin");
     } else {
-      file = sd.open("heatPumpLL.bin");
+      file = sd.open("Heat pump/heatPumpLL.bin");
     }
   }
   if (!file) return;
@@ -53,9 +53,9 @@ void Dashboard::heatPumpIcon(int xInput, int yInput, bool state) {
 }
 void Dashboard::heatPumpIconSmall(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("heatPumpDLS.bin");
+    file = sd.open("Heat pump/Small/heatPumpDLS.bin");
   } else {
-    file = sd.open("heatPumpLLS.bin");
+    file = sd.open("Heat pump/Small/heatPumpLLS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -77,15 +77,15 @@ void Dashboard::heatPumpIconSmall(int xInput, int yInput) {
 void Dashboard::heatPumpIconLarge(int xInput, int yInput, bool state) {
   if (publicBackg == BLACK) {
     if (state) {
-      file = sd.open("heatPumpDHL.bin");
+      file = sd.open("Heat pump/Large/heatPumpDHL.bin");
     } else {
-      file = sd.open("heatPumpDLL.bin");
+      file = sd.open("Heat pump/Large/heatPumpDLL.bin");
     }
   } else {
     if (state) {
-      file = sd.open("heatPumpLHL.bin");
+      file = sd.open("Heat pump/Large/heatPumpLHL.bin");
     } else {
-      file = sd.open("heatPumpLLL.bin");
+      file = sd.open("Heat pump/Large/heatPumpLLL.bin");
     }
   }
   if (!file) return;
@@ -107,9 +107,9 @@ void Dashboard::heatPumpIconLarge(int xInput, int yInput, bool state) {
 }
 void Dashboard::WaterTempIcon(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("WaterTempD.bin");
+    file = sd.open("Heat pump/Watertemp/WaterTempD.bin");
   } else {
-    file = sd.open("WaterTempL.bin");
+    file = sd.open("Heat pump/Watertemp/WaterTempL.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file
@@ -130,9 +130,9 @@ void Dashboard::WaterTempIcon(int xInput, int yInput) {
 }
 void Dashboard::WaterTempIconSmall(int xInput, int yInput) {
   if (publicBackg == BLACK) {
-    file = sd.open("WaterTempDS.bin");
+    file = sd.open("Heat pump/Watertemp/WaterTempDS.bin");
   } else {
-    file = sd.open("WaterTempLS.bin");
+    file = sd.open("Heat pump/Watertemp/WaterTempLS.bin");
   }
   if (!file) return;
   file.seek(4);  // Skip the 4-byte header of the file

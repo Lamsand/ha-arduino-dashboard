@@ -8,50 +8,50 @@ void Dashboard::wasteIcon(int xInput, int yInput, int wasteType) {
   if (publicBackg == BLACK) {
     switch (wasteType) {
       case 0:
-        file = sd.open("RestD.bin");
+        file = sd.open("Waste/RestD.bin");
         break;
       case 1:
-        file = sd.open("GFTD.bin");
+        file = sd.open("Waste/GFTD.bin");
         break;
       case 2:
-        file = sd.open("PMDD.bin");
+        file = sd.open("Waste/PMDD.bin");
         break;
       case 3:
-        file = sd.open("PaperD.bin");
+        file = sd.open("Waste/PaperD.bin");
         break;
       case 4:
-        file = sd.open("GFTRestD.bin");
+        file = sd.open("Waste/GFTRestD.bin");
         break;
       case 5:
-        file = sd.open("GFTPMDD.bin");
+        file = sd.open("Waste/GFTPMDD.bin");
         break;
       case 6:
-        file = sd.open("GFTPaperD.bin");
+        file = sd.open("Waste/GFTPaperD.bin");
         break;     
     }
 
   } else {
     switch (wasteType) {
       case 0:
-        file = sd.open("RestL.bin");
+        file = sd.open("Waste/RestL.bin");
         break;
       case 1:
-        file = sd.open("GFTL.bin");
+        file = sd.open("Waste/GFTL.bin");
         break;
       case 2:
-        file = sd.open("PMDL.bin");
+        file = sd.open("Waste/PMDD.bin");
         break;
       case 3:
-        file = sd.open("PaperL.bin");
+        file = sd.open("Waste/PaperL.bin");
         break;
       case 4:
-        file = sd.open("GFTRestL.bin");
+        file = sd.open("Waste/GFTRestL.bin");
         break;
       case 5:
-        file = sd.open("GFTPMDL.bin");
+        file = sd.open("Waste/GFTPMDD.bin");
         break;
       case 6:
-        file = sd.open("GFTPaperL.bin");
+        file = sd.open("Waste/GFTPaperL.bin");
         break;
     }
   }

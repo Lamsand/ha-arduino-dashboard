@@ -254,30 +254,30 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   switch (state) {
     case 0:
       if (publicBackg == BLACK) {
-        file = sd.open("sunD.bin");
+        file = sd.open("evcc/sunD.bin");
       } else {
-        file = sd.open("sunL.bin");
+        file = sd.open("evcc/sunL.bin");
       }
       break;
     case 1:
       if (publicBackg == BLACK) {
-        file = sd.open("pylonD.bin");
+        file = sd.open("evcc/pylonD.bin");
       } else {
-        file = sd.open("pylonL.bin");
+        file = sd.open("evcc/pylonL.bin");
       }
       break;
     case 2:
       if (publicBackg == BLACK) {
-        file = sd.open("homeD.bin");
+        file = sd.open("evcc/homeD.bin");
       } else {
-        file = sd.open("homeL.bin");
+        file = sd.open("evcc/homeL.bin");
       }
       break;
     case 3:
       if (publicBackg == BLACK) {
-        file = sd.open("carD.bin");
+        file = sd.open("evcc/carD.bin");
       } else {
-        file = sd.open("carL.bin");
+        file = sd.open("evcc/carL.bin");
       }
       break;
   }

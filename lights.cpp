@@ -6,15 +6,15 @@
 void Dashboard::moonlampImg(int xInput, int yInput, bool state) {
   if (state == HIGH) {
     if (publicBackg == BLACK) {
-      file = sd.open("mlHD.bin");
+      file = sd.open("Lights/Moonlamp/moonlampHD.bin");
     } else {
-      file = sd.open("mlHL.bin");
+      file = sd.open("Lights/Moonlamp/moonlampHL.bin");
     }
   } else {
     if (publicBackg == BLACK) {
-      file = sd.open("mlLD.bin");
+      file = sd.open("Lights/Moonlamp/moonlampLD.bin");
     } else {
-      file = sd.open("mlLL.bin");
+      file = sd.open("Lights/Moonlamp/moonlampLL.bin");
     }
   }
   if (!file) return;
@@ -37,15 +37,15 @@ void Dashboard::moonlampImg(int xInput, int yInput, bool state) {
 void Dashboard::bolImg(int xInput, int yInput, bool state) {
   if (state == HIGH) {
     if (publicBackg == BLACK) {
-      file = sd.open("bHD.bin");
+      file = sd.open("Lights/Globe lamp/globeHD.bin");
     } else {
-      file = sd.open("bHL.bin");
+      file = sd.open("Lights/Globe lamp/globeHL.bin");
     }
   } else {
     if (publicBackg == BLACK) {
-      file = sd.open("bLD.bin");
+      file = sd.open("Lights/Globe lamp/globeLD.bin");
     } else {
-      file = sd.open("bLL.bin");
+      file = sd.open("Lights/Globe lamp/globeLL.bin");
     }
   }
   if (!file) return;
@@ -68,15 +68,15 @@ void Dashboard::bolImg(int xInput, int yInput, bool state) {
 void Dashboard::bergingImg(int xInput, int yInput, bool state) {
   if (state == HIGH) {
     if (publicBackg == BLACK) {
-      file = sd.open("bgHD.bin");
+      file = sd.open("Lights/Philips Hue/PhilipsHueHD.bin");
     } else {
-      file = sd.open("bgHL.bin");
+      file = sd.open("Lights/Philips Hue/PhilipsHueHL.bin");
     }
   } else {
     if (publicBackg == BLACK) {
-      file = sd.open("bgLD.bin");
+      file = sd.open("Lights/Philips Hue/PhilipsHueLD.bin");
     } else {
-      file = sd.open("bgLL.bin");
+      file = sd.open("Lights/Philips Hue/PhilipsHueLL.bin");
     }
   }
   if (!file) return;
@@ -99,15 +99,15 @@ void Dashboard::bergingImg(int xInput, int yInput, bool state) {
 void Dashboard::sfeerlichtjesImg(int xInput, int yInput, bool state) {
   if (state == HIGH) {
     if (publicBackg == BLACK) {
-      file = sd.open("sfHD.bin");
+      file = sd.open("Lights/Christmas lights/christmasLightsHD.bin");
     } else {
-      file = sd.open("sfHL.bin");
+      file = sd.open("Lights/Christmas lights/christmasLightsHL.bin");
     }
   } else {
     if (publicBackg == BLACK) {
-      file = sd.open("sfLD.bin");
+      file = sd.open("Lights/Christmas lights/christmasLightsLD.bin");
     } else {
-      file = sd.open("sfLL.bin");
+      file = sd.open("Lights/Christmas lights/christmasLightsLL.bin");
     }
   }
   if (!file) return;
