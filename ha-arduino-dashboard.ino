@@ -1347,8 +1347,7 @@ void onMqttMessage(int messageSize) {
 
 #ifdef ENABLE_WASTE
   if (topic.startsWith("afval")) {
-    //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4;
-    //   None = 5
+    //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4; PMD + GFT = 5; Papier + GFT = 6; None = 7
     #ifdef ENABLE_MUSIC
     musicCo[2] = 199;
     #endif
@@ -1357,7 +1356,13 @@ void onMqttMessage(int messageSize) {
       if (message.indexOf("Restafval") != -1 ||
           message.indexOf("restafval") != -1) {
         wasteType = 4;
-      } else {
+      } else if (message.indexOf("PMD") != -1 ||
+          message.indexOf("pmd") != -1) {
+        wasteType = 5;
+      } else if (message.indexOf("Papier") != -1 ||
+          message.indexOf("papier") != -1) {
+        wasteType = 6;
+      }{
         wasteType = 1;
       }
     } else if (message.indexOf("Restafval") != -1 ||
@@ -1369,7 +1374,7 @@ void onMqttMessage(int messageSize) {
                message.indexOf("papier") != -1) {
       wasteType = 3;
     } else {
-      wasteType = 5;
+      wasteType = 7;
       #ifdef ENABLE_MUSIC
       musicCo[2] = 399;  // { 400, 262, 399, 217 };
       #endif

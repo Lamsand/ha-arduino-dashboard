@@ -1,6 +1,6 @@
-#include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "Dashboard.h"
 
 #ifdef ENABLE_WASTE
 void Dashboard::wasteIcon(int xInput, int yInput, int wasteType) {
@@ -22,6 +22,12 @@ void Dashboard::wasteIcon(int xInput, int yInput, int wasteType) {
       case 4:
         file = sd.open("GFTRestD.bin");
         break;
+      case 5:
+        file = sd.open("GFTPMDD.bin");
+        break;
+      case 6:
+        file = sd.open("GFTPaperD.bin");
+        break;     
     }
 
   } else {
@@ -40,6 +46,12 @@ void Dashboard::wasteIcon(int xInput, int yInput, int wasteType) {
         break;
       case 4:
         file = sd.open("GFTRestL.bin");
+        break;
+      case 5:
+        file = sd.open("GFTPMDL.bin");
+        break;
+      case 6:
+        file = sd.open("GFTPaperL.bin");
         break;
     }
   }
