@@ -790,14 +790,20 @@ void loop() {
         } else if (touch_y > 400 && touch_y < 440) {
           drawProduction = !drawProduction;
         }
-      } else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 &&
-                 touch_y > 124 + 156 / 2 - 85 && touch_y < 124 + 156 / 2 + 85) {
+      }
+#ifdef ENABLE_evcc
+      else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 &&
+               touch_y > 124 + 156 / 2 - 85 &&
+               touch_y <
+                   124 + 156 / 2 + 85) {  // lightning bolt clicked: to evcc
         page = "evcc";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
                        laadpaal_chargingPower);
-      } else if (!energy_longGraph) {
+      }
+#endif
+      if (!energy_longGraph) {
         energy_roundState = !energy_roundState;
       } else {
         newEnergyGraph = LOW;
@@ -876,6 +882,7 @@ void loop() {
     }
 #endif
 #ifdef ENABLE_CAR
+#ifdef ENABLE_evcc
     else if (page == "detailCar") {
       if (touch_x > 600) {
         page = "evcc";
@@ -885,6 +892,7 @@ void loop() {
                        laadpaal_chargingPower);
       }
     }
+#endif
 #endif
 
     lastTouch = millis();
@@ -1347,22 +1355,23 @@ void onMqttMessage(int messageSize) {
 
 #ifdef ENABLE_WASTE
   if (topic.startsWith("afval")) {
-    //   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4; PMD + GFT = 5; Papier + GFT = 6; None = 7
-    #ifdef ENABLE_MUSIC
+//   Wastetype:  Rest = 0; GFT = 1;  PMD = 2;  Papier = 3;  Rest + GFT = 4; PMD
+//   + GFT = 5; Papier + GFT = 6; None = 7
+#ifdef ENABLE_MUSIC
     musicCo[2] = 199;
-    #endif
+#endif
     wasteCo[4] = 1;
     if (message.indexOf("GFT") != -1) {
       if (message.indexOf("Restafval") != -1 ||
           message.indexOf("restafval") != -1) {
         wasteType = 4;
-      } else if (message.indexOf("PMD") != -1 ||
-          message.indexOf("pmd") != -1) {
+      } else if (message.indexOf("PMD") != -1 || message.indexOf("pmd") != -1) {
         wasteType = 5;
       } else if (message.indexOf("Papier") != -1 ||
-          message.indexOf("papier") != -1) {
+                 message.indexOf("papier") != -1) {
         wasteType = 6;
-      }{
+      }
+      {
         wasteType = 1;
       }
     } else if (message.indexOf("Restafval") != -1 ||
@@ -1375,9 +1384,9 @@ void onMqttMessage(int messageSize) {
       wasteType = 3;
     } else {
       wasteType = 7;
-      #ifdef ENABLE_MUSIC
+#ifdef ENABLE_MUSIC
       musicCo[2] = 399;  // { 400, 262, 399, 217 };
-      #endif
+#endif
       wasteCo[4] = 3;  // { 900, 262, 199, 217 };
     }
     print();
