@@ -54,7 +54,15 @@ Open `Dashboard.h` and locate the **App Toggles** section. Simply comment out (`
 - **Arduino Giga R1 WiFi**
 - **Arduino Giga Display Shield** (800×480 touch display)
 - MicroSD reader module (connected via SPI pins)
-- MicroSD card (for image assets used by `Dashboard.cpp`)
+- MicroSD card (for image assets used by the module `.cpp` files)
+
+---
+
+## 🖨️ 3D Printed Stand
+
+A matching display stand for the Arduino Giga Display Shield is available on MakerWorld:
+
+👉 [Arduino Giga Display Shield Stand](https://makerworld.com/en/models/2523230-arduino-giga-dsiplay-shield-display-stand#profileId-2776105)
 
 ---
 
@@ -66,6 +74,7 @@ Install these via the Arduino IDE Library Manager:
 - `ArduinoMqttClient`
 - `Arduino_GigaDisplayTouch`
 - `Arduino_GigaDisplay_GFX`
+- `SdFat` by Bill Greiman
 
 ---
 
@@ -101,6 +110,8 @@ Rename `arduino_secrets_example.h` to `arduino_secrets.h` and fill in your detai
 
 ### 4. Set up MQTT in Home Assistant
 
+> 💡 You need the **Mosquitto broker** add-on installed in Home Assistant. Go to **Settings → Add-ons → Mosquitto broker** and install it. Then create an MQTT user under **Settings → People**.
+
 The dashboard subscribes to these MQTT topics — make sure your HA automations or integrations publish to them:
 
 | Topic prefix | Data |
@@ -109,7 +120,7 @@ The dashboard subscribes to these MQTT topics — make sure your HA automations 
 | `home/temp` | Outdoor temperature (integer °C) |
 | `energy/currentImport`, `energy/currentProduction`, `energy/currentConsumption` | Watts |
 | `energy/newValue` | `Short` or `Long` to trigger graph update (every 5/ 30 seconds) |
-| `laadpaal/battery`, `chargingPower`, `targetCharge`, `cruisingRange` | Car/charger data |
+| `laadpaal/battery`, `laadpaal/chargingPower`, `laadpaal/targetCharge`, `laadpaal/cruisingRange` | Car/charger data |
 | `lights/sfeerlichtjes`, `groteBol`, `glazenBol`, `maanlamp`, `raamversiering`, `berging` | `on` / `off` / brightness (0-255) |
 | `music/keuken/...` & `music/speelkamer/...` | `title`, `channel`, `state`, `volume` |
 | `ventilation/keuken/...` & `ventilation/kelder/...` | `CO2`, `VOC`, `humidity`, `AQI`, `state`, `remaining` |
@@ -121,16 +132,16 @@ The dashboard also **publishes** to these topics when you interact with it (e.g.
 
 ### 5. Flash the sketch
 
-Open `Home_assistant.ino` in the Arduino IDE, select **Arduino Giga R1 WiFi** as the board, and upload.
+Open `ha-arduino-dashboard.ino` in the Arduino IDE, select **Arduino Giga R1 WiFi** as the board, and upload.
 
 ---
 
 ## 🗂️ File Structure
 
 ```
-├── Home_assistant.ino        # Main sketch: WiFi, MQTT, touch handling, page routing
+├── ha-arduino-dashboard.ino  # Main sketch: WiFi, MQTT, touch handling, page routing
 ├── Dashboard.h               # Dashboard class declaration (includes app toggles)
-├── Dashboard.cpp             # Base dashboard setup and core drawing logic
+├── Dashboard.cpp             # Base dashboard setup, logos and core drawing logic (no SD images)
 ├── car.cpp                   # Car UI & data handling
 ├── evcc.cpp                  # EVCC charging detail view logic
 ├── energy.cpp                # Energy monitoring & graphing logic
@@ -138,6 +149,7 @@ Open `Home_assistant.ino` in the Arduino IDE, select **Arduino Giga R1 WiFi** as
 ├── lights.cpp                # Light toggles & brightness sliders
 ├── mower.cpp                 # Lawnmower control & status logic
 ├── music.cpp                 # Speaker & media player controls
+├── waste.cpp                 # Waste collection type display
 ├── Colors.h                  # Colour definitions (RGB565)
 ├── arduino_secrets_example.h # Credential template — rename to arduino_secrets.h
 └── .gitignore                # Excludes arduino_secrets.h from version control
@@ -162,3 +174,5 @@ Feel free to open issues or pull requests. This project is highly personal/hardw
 ## 📄 License
 
 MIT — do whatever you want with it, just don't blame me if your heat pump does something weird. 😄
+
+See the [LICENSE](LICENSE) file for details.
