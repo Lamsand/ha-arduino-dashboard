@@ -4,6 +4,7 @@
 
 #include "Arduino.h"
 #include "Colors.h"
+#include "config.h"
 
 ////// BASICS //////
 bool Dashboard::begin() {

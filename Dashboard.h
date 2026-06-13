@@ -4,23 +4,13 @@
 #include "Arduino.h"
 #include "Arduino_GigaDisplay_GFX.h"
 #include "SdFat.h"
+#include "config.h"
 
 // --- Global Constants ---
 #define SCREEN_W 800
 #define SCREEN_H 480
 #define chipSelect 5
 #define buffSize 150000
-
-// --- App Toggles (Option A) ---
-#define ENABLE_MOWER
-#define ENABLE_CAR
-#define ENABLE_VENTILATION
-#define ENABLE_HEAT_PUMP
-#define ENABLE_MUSIC
-#define ENABLE_WASTE
-#define ENABLE_LIGHTS
-#define ENABLE_ENERGY
-#define ENABLE_evcc
 
 class Dashboard {
 private:
@@ -60,9 +50,9 @@ public:
   void imageSimulator(int xInput, int yInput, int w, int h, int color);
   // ** lights **
   void moonlampImg(int xInput, int yInput, bool state);
-  void bolImg(int xInput, int yInput, bool state);
-  void bergingImg(int xInput, int yInput, bool state);
-  void sfeerlichtjesImg(int xInput, int yInput, bool state);
+  void globeLightImg(int xInput, int yInput, bool state);
+  void PhilipsHueImg(int xInput, int yInput, bool state);
+  void christmasLightsImg(int xInput, int yInput, bool state);
   // ** car **
   void carImageMini(int xInput, int yInput);
   void carImageLarge(int xInput, int yInput);

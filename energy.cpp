@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "Colors.h"
 #include "Dashboard.h"
+#include "config.h"
 
 #ifdef ENABLE_ENERGY
 void Dashboard::bliksem(int xInput, int yInput, int state) {

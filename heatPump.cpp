@@ -1,6 +1,7 @@
 #include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "config.h"
 
 #ifdef ENABLE_HEAT_PUMP
 void Dashboard::printHeatPumpTime(const String& time) {

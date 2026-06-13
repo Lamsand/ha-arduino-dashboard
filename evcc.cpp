@@ -1,6 +1,7 @@
 #include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "config.h"
 
 #ifdef ENABLE_evcc
 void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {

@@ -20,6 +20,7 @@
 #include "Colors.h"
 #include "Dashboard.h"
 #include "arduino_secrets.h"
+#include "config.h"
 
 Arduino_GigaDisplayTouch touchDetector;
 // Declarations
@@ -352,13 +353,13 @@ void loop() {
         dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
                                lights_glazenBol, lights_berging,
                                lights_maanlamp, lights_raamversiering);
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
                                    lights_sfeerlichtjes);
-        dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
-        dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
+        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
+        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
         dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                               lights_maanlamp);
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                                    lights_raamversiering);
       }
 #endif
@@ -448,13 +449,13 @@ void loop() {
         dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
                                lights_glazenBol, lights_berging,
                                lights_maanlamp, lights_raamversiering);
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
                                    lights_sfeerlichtjes);
-        dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
-        dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
+        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
+        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
         dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                               lights_maanlamp);
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                                    lights_raamversiering);
       }
 #endif
@@ -678,13 +679,13 @@ void loop() {
         dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
                                lights_glazenBol, lights_berging,
                                lights_maanlamp, lights_raamversiering);
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
                                    lights_sfeerlichtjes);
-        dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
-        dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
+        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
+        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
         dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                               lights_maanlamp);
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                                    lights_raamversiering);
       }
       if (touch_x > 300 && touch_x < 500 && touch_y > 340 &&
@@ -913,21 +914,21 @@ void loop() {
     if (page.startsWith("detailLights")) {
       // Serial.println("Refresh");
       if (sfeerlichtjesChange) {
-        dashboard.sfeerlichtjesImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
                                    lights_sfeerlichtjes);
       }
       if (groteBolChange) {
-        dashboard.bolImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
+        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
       }
       if (glazenBolChange) {
-        dashboard.bolImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
+        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
       }
       if (maanlampChange) {
         dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                               lights_maanlamp);
       }
       if (raamversieringChange) {
-        dashboard.sfeerlichtjesImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+        dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                                    lights_raamversiering);
       }
       if (page.startsWith("detailLights/") == HIGH) {

@@ -1,6 +1,7 @@
 #include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "config.h"
 
 #ifdef ENABLE_MOWER
 void Dashboard::ventiIcon(int xInput, int yInput, bool state) {
