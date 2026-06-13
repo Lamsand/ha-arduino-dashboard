@@ -353,14 +353,12 @@ void loop() {
         dashboard.detailLights(lights_sfeerlichtjes, lights_groteBol,
                                lights_glazenBol, lights_berging,
                                lights_maanlamp, lights_raamversiering);
-        dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
-                                   lights_sfeerlichtjes);
-        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
-        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
-        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
-                              lights_maanlamp);
-        dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
-                                   lights_raamversiering);
+        dashboard.lightRefresh(1, lights_sfeerlichtjes);
+        dashboard.lightRefresh(2, lights_groteBol);
+        dashboard.lightRefresh(3, lights_glazenBol);
+        dashboard.lightRefresh(4, lights_maanlamp);
+        dashboard.lightRefresh(5, lights_raamversiering);
+        dashboard.lightRefresh(6, lights_berging);
       }
 #endif
 #ifdef ENABLE_ENERGY
@@ -450,13 +448,15 @@ void loop() {
                                lights_glazenBol, lights_berging,
                                lights_maanlamp, lights_raamversiering);
         dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
-                                   lights_sfeerlichtjes);
-        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
-        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
+                                     lights_sfeerlichtjes);
+        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                lights_groteBol);
+        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                lights_glazenBol);
         dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                               lights_maanlamp);
         dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
-                                   lights_raamversiering);
+                                     lights_raamversiering);
       }
 #endif
 #ifdef ENABLE_ENERGY
@@ -680,13 +680,15 @@ void loop() {
                                lights_glazenBol, lights_berging,
                                lights_maanlamp, lights_raamversiering);
         dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
-                                   lights_sfeerlichtjes);
-        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
-        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
+                                     lights_sfeerlichtjes);
+        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                lights_groteBol);
+        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16,
+                                lights_glazenBol);
         dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
                               lights_maanlamp);
         dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
-                                   lights_raamversiering);
+                                     lights_raamversiering);
       }
       if (touch_x > 300 && touch_x < 500 && touch_y > 340 &&
           touch_y < 440) {  // O/I button clicked
@@ -914,22 +916,24 @@ void loop() {
     if (page.startsWith("detailLights")) {
       // Serial.println("Refresh");
       if (sfeerlichtjesChange) {
-        dashboard.christmasLightsImg(SCREEN_W / 6, SCREEN_H / 4 + 16,
-                                   lights_sfeerlichtjes);
+        dashboard.lightRefresh(1,
+                                     lights_sfeerlichtjes);
       }
       if (groteBolChange) {
-        dashboard.globeLightImg(3 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_groteBol);
+        dashboard.lightRefresh(2,
+                                lights_groteBol);
       }
       if (glazenBolChange) {
-        dashboard.globeLightImg(5 * SCREEN_W / 6, SCREEN_H / 4 + 16, lights_glazenBol);
+        dashboard.lightRefresh(3,
+                                lights_glazenBol);
       }
       if (maanlampChange) {
-        dashboard.moonlampImg(SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
+        dashboard.lightRefresh(4,
                               lights_maanlamp);
       }
       if (raamversieringChange) {
-        dashboard.christmasLightsImg(3 * SCREEN_W / 4, 3 * SCREEN_H / 4 + 16,
-                                   lights_raamversiering);
+        dashboard.lightRefresh(5,
+                                     lights_raamversiering);
       }
       if (page.startsWith("detailLights/") == HIGH) {
         dashboard.lightSw();

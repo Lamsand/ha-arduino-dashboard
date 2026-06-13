@@ -53,6 +53,7 @@ public:
   void globeLightImg(int xInput, int yInput, bool state);
   void PhilipsHueImg(int xInput, int yInput, bool state);
   void christmasLightsImg(int xInput, int yInput, bool state);
+  void lightRefresh(int lampnumber, bool state);
   // ** car **
   void carImageMini(int xInput, int yInput);
   void carImageLarge(int xInput, int yInput);
