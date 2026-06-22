@@ -133,8 +133,7 @@ public:
                  int target, int range);
   void evcc(int PV, int grid, int consumption, float toCar);
   // ** lights **
-  void detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol,
-                    bool berging, bool maanlamp, bool raamversiering);
+  void detailLights();
   void lightBr(int br);
   void lightSw();
   // ** music **

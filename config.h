@@ -20,6 +20,15 @@
 #define LAMP5_ENABLED
 #define LAMP6_ENABLED
 
+// Uncomment the lines below if the lamps are on/off switches, comment out if they are dimmable.
+#define LAMP1_ON_OFF
+// #define LAMP2_ON_OFF
+// #define LAMP3_ON_OFF
+// #define LAMP4_ON_OFF
+#define LAMP5_ON_OFF
+// #define LAMP6_ON_OFF
+
+// No need to change anything below this line unless you know what you're doing.
 #ifdef LAMP1_ENABLED
 extern const char* lamp1;
 extern const char* lamp1type;
