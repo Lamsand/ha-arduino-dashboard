@@ -29,30 +29,18 @@
 // #define LAMP6_ON_OFF
 
 // No need to change anything below this line unless you know what you're doing.
-#ifdef LAMP1_ENABLED
 extern const char* lamp1;
 extern const char* lamp1type;
-#endif
-#ifdef LAMP2_ENABLED
 extern const char* lamp2;
 extern const char* lamp2type;
-#endif
-#ifdef LAMP3_ENABLED
 extern const char* lamp3;
 extern const char* lamp3type;
-#endif
-#ifdef LAMP4_ENABLED
 extern const char* lamp4;
 extern const char* lamp4type;
-#endif
-#ifdef LAMP5_ENABLED
 extern const char* lamp5;
 extern const char* lamp5type;
-#endif
-#ifdef LAMP6_ENABLED
 extern const char* lamp6;
 extern const char* lamp6type;
-#endif
 
 #ifdef LAMP6_ENABLED
 extern const int lamp1Co[4];

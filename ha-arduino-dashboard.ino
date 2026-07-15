@@ -143,6 +143,8 @@ bool energy_longGraph = LOW;
 bool drawImport = HIGH;
 bool drawProduction = HIGH;
 bool drawConsumption = HIGH;
+
+float currentPrice = 0;
 #endif
 #ifdef ENABLE_MUSIC
 String keuken_title = "";
@@ -849,8 +851,9 @@ void loop() {
         page = "evcc";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
+        Serial.println(currentPrice);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower);
+                       laadpaal_chargingPower, currentPrice);
       }
 #endif
       if (!energy_longGraph) {
@@ -938,8 +941,9 @@ void loop() {
         page = "evcc";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
+        Serial.println(currentPrice);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower);
+                       laadpaal_chargingPower, currentPrice);
       }
     }
 #endif
@@ -1059,8 +1063,9 @@ void loop() {
       }
     }
     if (page == "evcc") {
+      Serial.println(currentPrice);
       dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                     laadpaal_chargingPower);
+                     laadpaal_chargingPower, currentPrice);
     }
     newBlxmInfo = LOW;
     newEnergyVal = LOW;
@@ -1102,7 +1107,7 @@ void loop() {
 void onMqttMessage(int messageSize) {
   String topic = mqttClient.messageTopic();
   String message = mqttClient.readString();
-  if (topic.startsWith("mower")) {  // Print topic & message
+  if (topic.startsWith("energy")) {  // Print topic & message
     Serial.print("'");
     Serial.print(topic);
     Serial.print("'   '");
@@ -1323,8 +1328,12 @@ void onMqttMessage(int messageSize) {
         }
         newEnergyGraph = HIGH;
       }
+      lastEnergyNewValue = millis();
     }
-    lastEnergyNewValue = millis();
+    if (topic == "energy/currentPrice") {
+      newEnergyVal = HIGH;
+      currentPrice = message.toFloat();
+    }
   }
 #endif  // ENABLE_ENERGY
 

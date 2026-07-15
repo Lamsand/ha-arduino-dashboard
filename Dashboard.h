@@ -131,7 +131,7 @@ public:
   // ** car **
   void detailCar(int battery, float chargingCapacity, int chargingSpeed,
                  int target, int range);
-  void evcc(int PV, int grid, int consumption, float toCar);
+  void evcc(int PV, int grid, int consumption, float toCar, float currentPrice);
   // ** lights **
   void detailLights();
   void lightBr(int br);

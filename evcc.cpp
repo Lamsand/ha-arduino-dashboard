@@ -1,21 +1,19 @@
-#include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "Dashboard.h"
 #include "config.h"
 
 #ifdef ENABLE_evcc
-void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
-
+void Dashboard::evcc(int PV, int grid, int consumption, float toCar, float currentPrice) {
   // ── Energy flow calculations ───────────────────────────────────────────────
   // How much power goes to home vs car
-  int toHome  = max(consumption - (int)(toCar * 1000.0f), 0);
+  int toHome = max(consumption - (int)(toCar * 1000.0f), 0);
   // Self-use: PV power consumed locally (not exported)
   int selfUse = min(PV, toHome);
   // Grid import (positive grid = buying from grid)
   int gridUse = max(grid, 0);
   // Grid export (negative grid = selling to grid)
-  int toGrid  = max(-grid, 0);
-
+  int toGrid = max(-grid, 0);
 
   // ── Layout constants ──────────────────────────────────────────────────────
   // Main region
@@ -28,34 +26,37 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   const int16_t barY = regY + 68;
   const int16_t barW = regW;
   const int16_t barH = 44;
-  const int16_t barR = 6;          // corner radius
+  const int16_t barR = 6;  // corner radius
 
   // Bracket lines above and below the bar
   const int16_t bbotY = barY + barH;
   const int16_t bbotH = 16;
 
   // Icon vertical centres: sit on the bracket lines
-  const int16_t sunY  = barY - bbotH;   // top bracket line (sources)
+  const int16_t sunY = barY - bbotH;    // top bracket line (sources)
   const int16_t iconY = bbotY + bbotH;  // bottom bracket line (sinks)
-
 
   // ── Bar segment widths (pixels) ───────────────────────────────────────────
   // Total is used to scale each segment proportionally across barW
-  int total  = selfUse + gridUse + toGrid;
+  int total = selfUse + gridUse + toGrid;
   if (total <= 0) total = 1;
 
-  int greenW  = constrain((int)((long)selfUse * barW / total), 0, barW);
-  int greyW   = constrain((int)((long)gridUse * barW / total), 0, barW - greenW);
+  int greenW = constrain((int)((long)selfUse * barW / total), 0, barW);
+  int greyW = constrain((int)((long)gridUse * barW / total), 0, barW - greenW);
   int yellowW = barW - greenW - greyW;
 
   // Snap rounding remainders: if a flow is zero its segment must also be zero
-  if (toGrid  == 0) { yellowW = 0; greyW  = barW - greenW; }
-  if (gridUse == 0) { greyW   = 0; yellowW = barW - greenW; }
-
+  if (toGrid == 0) {
+    yellowW = 0;
+    greyW = barW - greenW;
+  }
+  if (gridUse == 0) {
+    greyW = 0;
+    yellowW = barW - greenW;
+  }
 
   // ── 0. Clear the widget area (avoids full-screen flicker) ─────────────────
   display.fillRect(regX - 15, regY + 35, regW + 15, 110, publicBackg);
-
 
   // ── 1. Title ("EVCC") ─────────────────────────────────────────────────────
   display.setTextColor(publicTEXT, publicBackg);
@@ -63,47 +64,32 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   display.setCursor(regX, regY + 8);
   display.print("EVCC");
 
-
   // ── 2. PV power — top centre ──────────────────────────────────────────────
   display.setTextColor(GREY, publicBackg);
   display.setTextSize(2);
 
   char pvStr[16];
   if (PV < 1000)
-    snprintf(pvStr, sizeof(pvStr), "%d W",     PV);
+    snprintf(pvStr, sizeof(pvStr), "%d W", PV);
   else
-    snprintf(pvStr, sizeof(pvStr), "%.1f kW",  PV / 1000.0f);
+    snprintf(pvStr, sizeof(pvStr), "%.1f kW", PV / 1000.0f);
 
-  int16_t  tx, ty;
+  int16_t tx, ty;
   uint16_t tw, th;
   display.getTextBounds(pvStr, 0, 0, &tx, &ty, &tw, &th);
   display.setCursor(regX + regW / 2 - tw / 2, regY + 8);
   display.print(pvStr);
 
+  // ── 3. Price — top right  ---------------------------------------────────
+  char priceStr[20];
 
-  // ── 3. Grid power — top right (red = importing, green = exporting) ────────
-  char gridStr[20];
-  if (grid >= 0) {
-    // Positive grid = importing → shown in red with a "+" prefix
-    if (grid < 1000)
-      snprintf(gridStr, sizeof(gridStr), "+%d W",    grid);
-    else
-      snprintf(gridStr, sizeof(gridStr), "+%.1f kW", grid / 1000.0f);
-    display.setTextColor(lightRed, publicBackg);
-  } else {
-    // Negative grid = exporting → shown in green, snprintf adds the "-"
-    if (-grid < 1000)
-      snprintf(gridStr, sizeof(gridStr), "%d W",    grid);
-    else
-      snprintf(gridStr, sizeof(gridStr), "%.1f kW", grid / 1000.0f);
-    display.setTextColor(evccGREEN, publicBackg);
-  }
-
+  
+  snprintf(priceStr, sizeof(priceStr), "%.1f ct/kWh", currentPrice);
+  display.setTextColor(GREY, publicBackg);
   display.setTextSize(2);
-  display.getTextBounds(gridStr, 0, 0, &tx, &ty, &tw, &th);
+  display.getTextBounds(priceStr, 0, 0, &tx, &ty, &tw, &th);
   display.setCursor(regX + regW - tw, regY + 8);
-  display.print(gridStr);
-
+  display.print(priceStr);
 
   // ── 4. "In" / "Out" labels — vertical, right edge ────────────────────────
   // "In"  sits beside the top bracket  (sources entering the bar)
@@ -111,48 +97,56 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
   display.setTextSize(1);
   display.setTextColor(GREY, publicBackg);
 
-  display.setCursor(regX + regW + 6, barY);      display.print("I");
-  display.setCursor(regX + regW + 6, barY +  9); display.print("n");
-  display.setCursor(regX + regW + 6, bbotY +  2); display.print("O");
-  display.setCursor(regX + regW + 6, bbotY + 11); display.print("u");
-  display.setCursor(regX + regW + 6, bbotY + 20); display.print("t");
-
+  display.setCursor(regX + regW + 6, barY);
+  display.print("I");
+  display.setCursor(regX + regW + 6, barY + 9);
+  display.print("n");
+  display.setCursor(regX + regW + 6, bbotY + 2);
+  display.print("O");
+  display.setCursor(regX + regW + 6, bbotY + 11);
+  display.print("u");
+  display.setCursor(regX + regW + 6, bbotY + 20);
+  display.print("t");
 
   // ── 5. Top bracket — open at the bottom, icons sit on this line ──────────
   display.drawRoundRect(barX, barY - bbotH, barW, barR + 40, barR, GREY);
-  display.fillRect(barX, barY - 8, barW, 16, publicBackg);  // erase bottom edge → "open"
+  display.fillRect(barX, barY - 8, barW, 16,
+                   publicBackg);  // erase bottom edge → "open"
 
   // ── 6. Bottom bracket — open at the top, icons sit on this line ──────────
   display.drawRoundRect(barX, bbotY - 4, barW, barR + bbotH, barR, GREY);
-  display.fillRect(barX, bbotY - 8, barW, 16, publicBackg); // erase top edge → "open"
-
+  display.fillRect(barX, bbotY - 8, barW, 16,
+                   publicBackg);  // erase top edge → "open"
 
   // ── 7. Three-segment energy bar ───────────────────────────────────────────
-  // Draw order: fill full bar with rightmost colour, then overdraw leftward segments.
-  // Green  = self-use (PV direct to home)
-  // Grey   = grid import
-  // Yellow = grid export
+  // Draw order: fill full bar with rightmost colour, then overdraw leftward
+  // segments. Green  = self-use (PV direct to home) Grey   = grid import Yellow
+  // = grid export
 
   // Base layer: fill entire bar with the rightmost active colour
-  if      (yellowW > 0) display.fillRoundRect(barX, barY, barW, barH, barR, YELLOW);
-  else if (greyW   > 0) display.fillRoundRect(barX, barY, barW, barH, barR, GREY);
-  else                  display.fillRoundRect(barX, barY, barW, barH, barR, evccGREEN);
+  if (yellowW > 0)
+    display.fillRoundRect(barX, barY, barW, barH, barR, YELLOW);
+  else if (greyW > 0)
+    display.fillRoundRect(barX, barY, barW, barH, barR, GREY);
+  else
+    display.fillRoundRect(barX, barY, barW, barH, barR, evccGREEN);
 
   // Overdraw grey segment on top of yellow (covers left portion)
   if (greyW > 0 && yellowW > 0) {
     display.fillRoundRect(barX, barY, greenW + greyW, barH, barR, GREY);
-    display.fillRect(barX + greenW + greyW, barY, barR, barH, GREY); // square off right edge
+    display.fillRect(barX + greenW + greyW, barY, barR, barH,
+                     GREY);  // square off right edge
   }
 
   // Overdraw green segment on top of grey/yellow
   if (greenW > 0) {
     display.fillRoundRect(barX, barY, greenW, barH, barR, evccGREEN);
-    // Square off the right edge of the green segment so it butts cleanly against the next colour
+    // Square off the right edge of the green segment so it butts cleanly
+    // against the next colour
     if (greyW > 0 || yellowW > 0)
       display.fillRect(barX + greenW, barY, barR, barH,
                        greyW > 0 ? (uint16_t)GREY : (uint16_t)YELLOW);
   }
-
 
   // ── 8. Watt labels inside each bar segment ────────────────────────────────
   // Only drawn when the segment is wide enough to fit the text (> 40 px)
@@ -161,9 +155,12 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
 
   // Green segment — self-use
   if (greenW > 40) {
-    if (selfUse < 1000) snprintf(wStr, sizeof(wStr), "%d W",    selfUse);
-    else                snprintf(wStr, sizeof(wStr), "%.1f kW", selfUse / 1000.0f);
-    uint16_t lw, lh; int16_t lx, ly;
+    if (selfUse < 1000)
+      snprintf(wStr, sizeof(wStr), "%d W", selfUse);
+    else
+      snprintf(wStr, sizeof(wStr), "%.1f kW", selfUse / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
     display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
     display.setTextColor(BLACK, publicBackg);
     display.setCursor(barX + (greenW - lw) / 2, barY + (barH - lh) / 2);
@@ -172,9 +169,12 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
 
   // Grey segment — grid import
   if (greyW > 40) {
-    if (gridUse < 1000) snprintf(wStr, sizeof(wStr), "%d W",    gridUse);
-    else                snprintf(wStr, sizeof(wStr), "%.1f kW", gridUse / 1000.0f);
-    uint16_t lw, lh; int16_t lx, ly;
+    if (gridUse < 1000)
+      snprintf(wStr, sizeof(wStr), "%d W", gridUse);
+    else
+      snprintf(wStr, sizeof(wStr), "%.1f kW", gridUse / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
     display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
     display.setTextColor(publicTEXT);
     display.setCursor(barX + greenW + (greyW - lw) / 2, barY + (barH - lh) / 2);
@@ -183,27 +183,28 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
 
   // Yellow segment — grid export
   if (yellowW > 40) {
-    if (toGrid < 1000) snprintf(wStr, sizeof(wStr), "%d W",    toGrid);
-    else               snprintf(wStr, sizeof(wStr), "%.1f kW", toGrid / 1000.0f);
-    uint16_t lw, lh; int16_t lx, ly;
+    if (toGrid < 1000)
+      snprintf(wStr, sizeof(wStr), "%d W", toGrid);
+    else
+      snprintf(wStr, sizeof(wStr), "%.1f kW", toGrid / 1000.0f);
+    uint16_t lw, lh;
+    int16_t lx, ly;
     display.getTextBounds(wStr, 0, 0, &lx, &ly, &lw, &lh);
     display.setTextColor(BLACK);
-    display.setCursor(barX + greenW + greyW + (yellowW - lw) / 2, barY + (barH - lh) / 2);
+    display.setCursor(barX + greenW + greyW + (yellowW - lw) / 2,
+                      barY + (barH - lh) / 2);
     display.print(wStr);
   }
-
 
   // ── 9. Divider ticks between segments ────────────────────────────────────
   // Top tick: between green and grey (on the top bracket line)
   if (greyW > 1)
-    display.drawLine(barX + greenW, sunY + 4,
-                     barX + greenW, sunY + 12, GREY);
+    display.drawLine(barX + greenW, sunY + 4, barX + greenW, sunY + 12, GREY);
 
   // Bottom tick: between grey/green and yellow (on the bottom bracket line)
   if (yellowW > 1)
-    display.drawLine(barX + greenW + greyW, bbotY + 4,
-                     barX + greenW + greyW, bbotY + bbotH - 4, GREY);
-
+    display.drawLine(barX + greenW + greyW, bbotY + 4, barX + greenW + greyW,
+                     bbotY + bbotH - 4, GREY);
 
   // ── 10. Source icons (top bracket line) ──────────────────────────────────
   // Sun icon — centred in the combined green+yellow (PV) zone
@@ -217,7 +218,6 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
     const int16_t gx = barX + greenW + greyW / 2;
     evccIcon(gx, sunY, 1);  // 1 = pylon
   }
-
 
   // ── 11. Sink icons (bottom bracket line) ─────────────────────────────────
   // The bottom bracket has three zones: [ home | car | grid export ]
@@ -251,7 +251,8 @@ void Dashboard::evcc(int PV, int grid, int consumption, float toCar) {
     const int16_t gx = barX + greenW + greyW + yellowW / 2;
     evccIcon(gx, iconY, 1);  // 1 = pylon
   }
-}void Dashboard::evccIcon(int xInput, int yInput, int state) {
+}
+void Dashboard::evccIcon(int xInput, int yInput, int state) {
   switch (state) {
     case 0:
       if (publicBackg == BLACK) {
