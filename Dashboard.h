@@ -13,13 +13,13 @@
 #define buffSize 150000
 
 class Dashboard {
-private:
+ private:
   GigaDisplay_GFX display;
   SdFat sd;
   FsFile file;
   uint16_t rowBuffer[buffSize];
 
-public:
+ public:
   int publicTEXT;
   int publicBackg;
   int publicAllBackg;
@@ -99,11 +99,13 @@ public:
                int target);
   void homeEmpty(int x, int y, int w, int h);
   void homeHeatPump(int x, int y, int w, int h, int DHWtemp);
+  void homePrices(int x, int y, int w, int h, float currentPrice);
   // ** value refresh **
   void homeEnergyV(int x, int y, int w, int h, int state, int value);
   void homeCarV(int x, int y, int w, int h, int battery, float chargingCapacity,
                 int target);
   void homeHeatPumpV(int x, int y, int w, int h, int DHWtemp);
+  void homePricesV(int x, int y, int w, int h, float currentPrice);
   // ** image draw **
   void homeEnergyImg(int x, int y, int w, int h, int state);
   void homeLightsImg(int x, int y, int w, int h);
@@ -126,6 +128,17 @@ public:
                    bool drawProduction, bool drawConsumption);
   void energyV(int currentImport, int currentProduction,
                int currentConsumption);
+  // ** prices **
+  void prices(float* epex, float* ecopower, float* tomorrowEpex,
+              float* tomorrowEcopower, float currentEpex, float currentEcopower,
+              bool tomorrowGraph, bool drawEpex, bool drawEcopower,
+              int clickedX);
+  void pricesGraph(float* epex, float* ecopower, float* tomorrowEpex,
+                   float* tomorrowEcopower, float currentEpex,
+                   float currentEcopower, bool tomorrowGraph, bool drawEpex,
+                   bool drawEcopower, int clickedX);
+  void pricesV(float currentEpex, float currentEcopower, int clickedX);
+  void detailPrices(int clickedHour, int clickedMinute, float epex, float ecopower);
   // ** settings **
   void settings(bool theme, const String& time);
   // ** car **

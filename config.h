@@ -9,6 +9,7 @@
 #define ENABLE_LIGHTS
 #define ENABLE_ENERGY
 #define ENABLE_evcc
+#define ENABLE_PRICES
 
 #ifdef ENABLE_LIGHTS
 // Comment out the lines below to disable specific lamps, but only disable in

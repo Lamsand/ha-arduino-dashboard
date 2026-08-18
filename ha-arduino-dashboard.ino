@@ -53,28 +53,31 @@ MqttClient mqttClient(wifiClient);
   3 = hide
 */
 #ifdef ENABLE_LIGHTS
-int lightCo[5] = {0, 44, 400, 218, 1};
+int lightCo[5] = { 0, 44, 400, 218, 1 };
 #endif
 #ifdef ENABLE_CAR
-int carCo[5] = {400, 44, 399, 218, 1};
+int carCo[5] = { 400, 44, 399, 218, 1 };
 #endif
 #ifdef ENABLE_ENERGY
-int energyCo[5] = {0, 262, 400, 217, 0};
+int energyCo[5] = { 0, 262, 400, 217, 1 };
 #endif
 #ifdef ENABLE_MUSIC
-int musicCo[5] = {400, 262, 399, 217, 1};
+int musicCo[5] = { 400, 262, 399, 217, 1 };
 #endif
 #ifdef ENABLE_WASTE
-int wasteCo[5] = {600, 262, 199, 217, 3};
+int wasteCo[5] = { 600, 262, 199, 217, 3 };
 #endif
 #ifdef ENABLE_VENTILATION
-int ventiCo[5] = {400, 262, 399, 217, 2};
+int ventiCo[5] = { 400, 262, 399, 217, 2 };
 #endif
 #ifdef ENABLE_HEAT_PUMP
-int heatPumpCo[5] = {400, 44, 399, 218, 2};
+int heatPumpCo[5] = { 400, 44, 399, 218, 2 };
 #endif
 #ifdef ENABLE_MOWER
-int mowerCo[5] = {0, 44, 400, 218, 2};
+int mowerCo[5] = { 0, 44, 400, 218, 2 };
+#endif
+#ifdef ENABLE_PRICES
+int priceCo[5] = { 0, 262, 400, 217, 2 };
 #endif
 
 #ifdef ENABLE_WASTE
@@ -143,8 +146,6 @@ bool energy_longGraph = LOW;
 bool drawImport = HIGH;
 bool drawProduction = HIGH;
 bool drawConsumption = HIGH;
-
-float currentPrice = 0;
 #endif
 #ifdef ENABLE_MUSIC
 String keuken_title = "";
@@ -155,6 +156,20 @@ String speelkamer_title = "";
 String speelkamer_channel = "Spotify";
 int speelkamer_volume = 0;
 bool speelkamer_state = LOW;
+#endif
+#ifdef ENABLE_PRICES
+float todayEpex[96];
+float todayEcopower[96];
+float tomorrowEpex[96];
+float tomorrowEcopower[96];
+bool tomorrowGraph = LOW;
+bool drawEpex = HIGH;
+bool drawEcopower = HIGH;
+float currentEpex = 0;
+float currentEcopower = 0;
+bool newPricesGraph = LOW;
+bool newPricesVal = LOW;
+int clickedX = 0;
 #endif
 
 String realTime = "Default";
@@ -229,7 +244,8 @@ void setup() {
     Serial.println();
   } else {
     Serial.print("Touch controller init - FAILED");
-    while (1);
+    while (1)
+      ;
   }
   // set colors in dashboard.h
   dashboard.publicTEXT = TEXT;
@@ -248,6 +264,15 @@ void setup() {
   Serial.print("Connected to the network, your IP: ");
   IPAddress ip = WiFi.localIP();
   Serial.println(ip);
+  Serial.print("Your MAC: ");
+  // Print MAC Address (Crucial for Deco identification)
+  byte mac[6];
+  WiFi.macAddress(mac);
+  for (int i = 5; i >= 0; i--) {
+    if (mac[i] < 16) Serial.print("0");
+    Serial.print(mac[i], HEX);
+    if (i > 0) Serial.print(":");
+  }
   delay(2000);
 
   mqttClient.setId("arduinoInterface");
@@ -280,6 +305,9 @@ void setup() {
 #endif
 #ifdef ENABLE_ENERGY
   mqttClient.subscribe("energy/#");
+#endif
+#ifdef ENABLE_PRICES
+  mqttClient.subscribe("prices/#");
 #endif
 #ifdef ENABLE_MUSIC
   mqttClient.subscribe("music/#");
@@ -319,7 +347,7 @@ void loop() {
   GDTpoint_t points[5];
   contacts = touchDetector.getTouchPoints(points);
   if (contacts > 0 && (millis() - lastTouch > threshold)) {  // touch
-    lastTouch = millis();  // register last touch
+    lastTouch = millis();                                    // register last touch
     Serial.print("Contacts:");
     Serial.println(contacts);
     // record the x,y coordinates
@@ -327,11 +355,12 @@ void loop() {
       touch_x = 800 - points[i].y;
       touch_y = points[i].x;
     }
-    if ((touch_x < 100 && page != "home" && page.indexOf("/") == -1) ||
-        page == "blackScreen") {  // Return
+    if ((touch_x < 100 && page != "home" && page.indexOf("/") == -1 && page != "prices") || page == "blackScreen") {  // Return
+      if (page == "blackScreen") {
+        digitalWrite(74, HIGH);
+      }
       page = "home";
       print();
-      // printImg();
     } else if (page == "home") {
       if (touch_x > 700 && touch_y > 40) {  // to home2
         page = "home2";
@@ -339,9 +368,7 @@ void loop() {
       }
 
 #ifdef ENABLE_CAR
-      else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
-               touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
-               (carCo[4] == 0 || carCo[4] == 1)) {  // Car clicked
+      else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] && touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] && (carCo[4] == 0 || carCo[4] == 1)) {  // Car clicked
         page = "detailCar";
         dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
                             laadpaal_chargingSpeed, laadpaal_targetCharge,
@@ -349,9 +376,7 @@ void loop() {
       }
 #endif
 #ifdef ENABLE_LIGHTS
-      else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
-               touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
-               (lightCo[4] == 0 || lightCo[4] == 1)) {  // Lights clicked
+      else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] && touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] && (lightCo[4] == 0 || lightCo[4] == 1)) {  // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
         dashboard.detailLights();
@@ -364,9 +389,7 @@ void loop() {
       }
 #endif
 #ifdef ENABLE_ENERGY
-      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
-               touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
-               (energyCo[4] == 0 || energyCo[4] == 1)) {  // Energy clicked
+      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] && touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] && (energyCo[4] == 0 || energyCo[4] == 1)) {  // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
         dashboard.energy(importArr, productionArr, consumptionArr,
@@ -377,10 +400,17 @@ void loop() {
                          drawConsumption);
       }
 #endif
+#ifdef ENABLE_PRICES
+      else if (touch_y < priceCo[1] + priceCo[3] && touch_y > priceCo[1] && touch_x < priceCo[0] + priceCo[2] && touch_x > priceCo[0] && (priceCo[4] == 0 || priceCo[4] == 1)) {  // Prices clicked
+        page = "prices";
+        dashboard.fillScreen(AllBackg);
+        dashboard.prices(todayEpex, todayEcopower, tomorrowEpex,
+                         tomorrowEcopower, currentEpex, currentEcopower,
+                         tomorrowGraph, drawEpex, drawEcopower, clickedX);
+      }
+#endif
 #ifdef ENABLE_MUSIC
-      else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
-               touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
-               (musicCo[4] == 0 || musicCo[4] == 1)) {  // Music clicked
+      else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] && touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] && (musicCo[4] == 0 || musicCo[4] == 1)) {  // Music clicked
         page = "music";
         dashboard.fillScreen(AllBackg);
         dashboard.music(keuken_channel, keuken_title, keuken_state,
@@ -388,29 +418,21 @@ void loop() {
       }
 #endif
 #ifdef ENABLE_HEAT_PUMP
-      else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
-               touch_y > heatPumpCo[1] &&
-               touch_x < heatPumpCo[0] + heatPumpCo[2] &&
-               touch_x > heatPumpCo[0] &&
-               (heatPumpCo[4] == 0 || heatPumpCo[4] == 1)) {  // Music clicked
+      else if (touch_y < heatPumpCo[1] + heatPumpCo[3] && touch_y > heatPumpCo[1] && touch_x < heatPumpCo[0] + heatPumpCo[2] && touch_x > heatPumpCo[0] && (heatPumpCo[4] == 0 || heatPumpCo[4] == 1)) {  // Heat Pump clicked
         page = "heatPump";
         dashboard.fillScreen(AllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
       }
 #endif
 #ifdef ENABLE_MOWER
-      else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
-               touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
-               (mowerCo[4] == 0 || mowerCo[4] == 1)) {  // Music clicked
+      else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] && touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] && (mowerCo[4] == 0 || mowerCo[4] == 1)) {  // Mower clicked
         page = "mower";
         dashboard.fillScreen(AllBackg);
         dashboard.mower(mowerBattery, mowerState);
       }
 #endif
 #ifdef ENABLE_VENTILATION
-      else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
-               touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
-               (ventiCo[4] == 0 || ventiCo[4] == 1)) {  // Ventilation clicked
+      else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] && touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] && (ventiCo[4] == 0 || ventiCo[4] == 1)) {  // Ventilation clicked
         page = "venti";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 239);
@@ -422,8 +444,7 @@ void loop() {
         dashboard.ventilationImg(keuken_boost, kelder_boost);
       }
 #endif
-      else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
-               touch_y < 44) {  // Settings clicked
+      else if (touch_x > 746 && touch_x < 800 && touch_y > 0 && touch_y < 44) {  // Settings clicked
         page = "settings";
         dashboard.settings(darkMode, lastReset);
       }
@@ -431,9 +452,7 @@ void loop() {
       if (0) {
       }
 #ifdef ENABLE_CAR
-      else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
-               touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
-               (carCo[4] == 0 || carCo[4] == 2)) {  // Car clicked
+      else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] && touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] && (carCo[4] == 0 || carCo[4] == 2)) {  // Car clicked
         page = "detailCar";
         dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
                             laadpaal_chargingSpeed, laadpaal_targetCharge,
@@ -441,9 +460,7 @@ void loop() {
       }
 #endif
 #ifdef ENABLE_LIGHTS
-      else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
-               touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
-               (lightCo[4] == 0 || lightCo[4] == 2)) {  // Lights clicked
+      else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] && touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] && (lightCo[4] == 0 || lightCo[4] == 2)) {  // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
         dashboard.detailLights();
@@ -456,9 +473,7 @@ void loop() {
       }
 #endif
 #ifdef ENABLE_ENERGY
-      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
-               touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
-               (energyCo[4] == 0 || energyCo[4] == 2)) {  // Energy clicked
+      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] && touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] && (energyCo[4] == 0 || energyCo[4] == 2)) {  // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
         dashboard.energy(importArr, productionArr, consumptionArr,
@@ -469,30 +484,31 @@ void loop() {
                          drawConsumption);
       }
 #endif
+#ifdef ENABLE_PRICES
+      else if (touch_y < priceCo[1] + priceCo[3] && touch_y > priceCo[1] && touch_x < priceCo[0] + priceCo[2] && touch_x > priceCo[0] && (priceCo[4] == 0 || priceCo[4] == 2)) {  // Prices clicked
+        page = "prices";
+        dashboard.fillScreen(AllBackg);
+        dashboard.prices(todayEpex, todayEcopower, tomorrowEpex,
+                         tomorrowEcopower, currentEpex, currentEcopower,
+                         tomorrowGraph, drawEpex, drawEcopower, clickedX);
+      }
+#endif
 #ifdef ENABLE_HEAT_PUMP
-      else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
-               touch_y > heatPumpCo[1] &&
-               touch_x < heatPumpCo[0] + heatPumpCo[2] &&
-               touch_x > heatPumpCo[0] &&
-               (heatPumpCo[4] == 0 || heatPumpCo[4] == 2)) {  // Music clicked
+      else if (touch_y < heatPumpCo[1] + heatPumpCo[3] && touch_y > heatPumpCo[1] && touch_x < heatPumpCo[0] + heatPumpCo[2] && touch_x > heatPumpCo[0] && (heatPumpCo[4] == 0 || heatPumpCo[4] == 2)) {  // Heat Pump clicked
         page = "heatPump";
         dashboard.fillScreen(AllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
       }
 #endif
 #ifdef ENABLE_MOWER
-      else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
-               touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
-               (mowerCo[4] == 0 || mowerCo[4] == 2)) {  // Music clicked
+      else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] && touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] && (mowerCo[4] == 0 || mowerCo[4] == 2)) {  // Mower clicked
         page = "mower";
         dashboard.fillScreen(AllBackg);
         dashboard.mower(mowerBattery, mowerState);
       }
 #endif
 #ifdef ENABLE_MUSIC
-      else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
-               touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
-               (musicCo[4] == 0 || musicCo[4] == 2)) {  // Music clicked
+      else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] && touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] && (musicCo[4] == 0 || musicCo[4] == 2)) {  // Music clicked
         page = "music";
         dashboard.fillScreen(AllBackg);
         dashboard.music(keuken_channel, keuken_title, keuken_state,
@@ -500,9 +516,7 @@ void loop() {
       }
 #endif
 #ifdef ENABLE_VENTILATION
-      else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
-               touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
-               (ventiCo[4] == 0 || ventiCo[4] == 2)) {  // Ventilation clicked
+      else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] && touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] && (ventiCo[4] == 0 || ventiCo[4] == 2)) {  // Ventilation clicked
         page = "venti";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 799, 239);
@@ -514,14 +528,12 @@ void loop() {
         dashboard.ventilationImg(keuken_boost, kelder_boost);
       }
 #endif
-      else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
-               touch_y < 44) {  // Settings clicked
+      else if (touch_x > 746 && touch_x < 800 && touch_y > 0 && touch_y < 44) {  // Settings clicked
         page = "settings";
         dashboard.settings(darkMode, lastReset);
       }
     } else if (page == "settings") {
-      if (touch_x < 360 && touch_x > 285 && touch_y < 140 &&
-          touch_y > 109) {  // darkMode clicked
+      if (touch_x < 360 && touch_x > 285 && touch_y < 140 && touch_y > 109) {  // darkMode clicked
         darkMode = !darkMode;
         if (darkMode) {
           BACKG = BLACK;
@@ -539,8 +551,7 @@ void loop() {
           dashboard.publicAllBackg = AllBackg;
         }
         dashboard.settings(darkMode, lastReset);
-      } else if (touch_x < 170 && touch_x > 130 && touch_y < 462 &&
-                 touch_y > 422) {
+      } else if (touch_x < 170 && touch_x > 130 && touch_y < 462 && touch_y > 422) {
         Serial.println("RESET!!!!!");
         NVIC_SystemReset();
       }
@@ -548,9 +559,7 @@ void loop() {
 #ifdef ENABLE_LIGHTS
     else if (page == "detailLights") {
 #ifdef LAMP1_ENABLED
-      if (touch_x > lamp1Co[0] && touch_x < lamp1Co[0] + lamp1Co[2] &&
-          touch_y > lamp1Co[1] &&
-          touch_y < lamp1Co[1] + lamp1Co[3]) {  // Lamp 1
+      if (touch_x > lamp1Co[0] && touch_x < lamp1Co[0] + lamp1Co[2] && touch_y > lamp1Co[1] && touch_y < lamp1Co[1] + lamp1Co[3]) {  // Lamp 1
 #ifndef LAMP1_ON_OFF
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
@@ -576,9 +585,7 @@ void loop() {
       }
 #endif
 #ifdef LAMP2_ENABLED
-      if (touch_x > lamp2Co[0] && touch_x < lamp2Co[0] + lamp2Co[2] &&
-          touch_y > lamp2Co[1] &&
-          touch_y < lamp2Co[1] + lamp2Co[3]) {  // Lamp 2
+      if (touch_x > lamp2Co[0] && touch_x < lamp2Co[0] + lamp2Co[2] && touch_y > lamp2Co[1] && touch_y < lamp2Co[1] + lamp2Co[3]) {  // Lamp 2
 #ifndef LAMP2_ON_OFF
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
@@ -605,9 +612,7 @@ void loop() {
       }
 #endif
 #ifdef LAMP3_ENABLED
-      if (touch_x > lamp3Co[0] && touch_x < lamp3Co[0] + lamp3Co[2] &&
-          touch_y > lamp3Co[1] &&
-          touch_y < lamp3Co[1] + lamp3Co[3]) {  // Lamp 3
+      if (touch_x > lamp3Co[0] && touch_x < lamp3Co[0] + lamp3Co[2] && touch_y > lamp3Co[1] && touch_y < lamp3Co[1] + lamp3Co[3]) {  // Lamp 3
 #ifndef LAMP3_ON_OFF
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
@@ -634,9 +639,7 @@ void loop() {
       }
 #endif
 #ifdef LAMP4_ENABLED
-      if (touch_x > lamp4Co[0] && touch_x < lamp4Co[0] + lamp4Co[2] &&
-          touch_y > lamp4Co[1] &&
-          touch_y < lamp4Co[1] + lamp4Co[3]) {  // Lamp 4
+      if (touch_x > lamp4Co[0] && touch_x < lamp4Co[0] + lamp4Co[2] && touch_y > lamp4Co[1] && touch_y < lamp4Co[1] + lamp4Co[3]) {  // Lamp 4
 #ifndef LAMP4_ON_OFF
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
@@ -663,9 +666,7 @@ void loop() {
       }
 #endif
 #ifdef LAMP5_ENABLED
-      if (touch_x > lamp5Co[0] && touch_x < lamp5Co[0] + lamp5Co[2] &&
-          touch_y > lamp5Co[1] &&
-          touch_y < lamp5Co[1] + lamp5Co[3]) {  // Lamp 5
+      if (touch_x > lamp5Co[0] && touch_x < lamp5Co[0] + lamp5Co[2] && touch_y > lamp5Co[1] && touch_y < lamp5Co[1] + lamp5Co[3]) {  // Lamp 5
 #ifndef LAMP5_ON_OFF
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
@@ -691,9 +692,7 @@ void loop() {
       }
 #endif
 #ifdef LAMP6_ENABLED
-      if (touch_x > lamp6Co[0] && touch_x < lamp6Co[0] + lamp6Co[2] &&
-          touch_y > lamp6Co[1] &&
-          touch_y < lamp6Co[1] + lamp6Co[3]) {  // Lamp 6
+      if (touch_x > lamp6Co[0] && touch_x < lamp6Co[0] + lamp6Co[2] && touch_y > lamp6Co[1] && touch_y < lamp6Co[1] + lamp6Co[3]) {  // Lamp 6
 #ifndef LAMP6_ON_OFF
         contacts = touchDetector.getTouchPoints(points);
         while (contacts == 0) {
@@ -726,8 +725,7 @@ void loop() {
       String k = page;
       k.replace("detailLights/", "");
       Serial.println(k);
-      if ((touch_x < 300 || touch_x > 500) ||
-          (touch_y < 40 || touch_y > 440)) {  // Return
+      if ((touch_x < 300 || touch_x > 500) || (touch_y < 40 || touch_y > 440)) {  // Return
         Serial.println("return");
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
@@ -739,8 +737,7 @@ void loop() {
         dashboard.lightRefresh(5, lamp5state);
         dashboard.lightRefresh(6, lamp6state);
       }
-      if (touch_x > 300 && touch_x < 500 && touch_y > 340 &&
-          touch_y < 440) {  // O/I button clicked
+      if (touch_x > 300 && touch_x < 500 && touch_y > 340 && touch_y < 440) {  // O/I button clicked
         mqttClient.beginMessage("lights/" + k);
         mqttClient.print("Switch");
         mqttClient.endMessage();
@@ -750,9 +747,7 @@ void loop() {
 #ifdef ENABLE_MUSIC
     else if (page.startsWith("music")) {
       if (page == "music") {
-        if (touch_x < 350 && touch_x > 50 && touch_y < 350 && touch_y > 50 &&
-            (touch_x < 250 || touch_x > 350 || touch_y < 300 ||
-             touch_y > 400)) {  // Keuken icon clicked
+        if (touch_x < 350 && touch_x > 50 && touch_y < 350 && touch_y > 50 && (touch_x < 250 || touch_x > 350 || touch_y < 300 || touch_y > 400)) {  // Keuken icon clicked
           page = "music/keuken";
           dashboard.chooseChannel();
           newMusic = LOW;
@@ -761,21 +756,17 @@ void loop() {
           newSpeelkamer = LOW;
           newKeuken = LOW;
         }
-        if (touch_x > 250 && touch_x < 350 && touch_y > 300 &&
-            touch_y < 400) {  // Keuken button clicked
+        if (touch_x > 250 && touch_x < 350 && touch_y > 300 && touch_y < 400) {  // Keuken button clicked
           mqttClient.beginMessage("music/keuken");
           mqttClient.print("Switch");
           mqttClient.endMessage();
         }
-        if (touch_x < 750 && touch_x > 450 && touch_y < 350 && touch_y > 50 &&
-            (touch_x < 650 || touch_x > 750 || touch_y < 300 ||
-             touch_y > 400)) {  // Speelkamer icon clicked
+        if (touch_x < 750 && touch_x > 450 && touch_y < 350 && touch_y > 50 && (touch_x < 650 || touch_x > 750 || touch_y < 300 || touch_y > 400)) {  // Speelkamer icon clicked
           page = "music/speelkamer";
           dashboard.chooseChannel();
           newMusic = LOW;
         }
-        if (touch_x > 650 && touch_x < 750 && touch_y > 300 &&
-            touch_y < 400) {  // Speelkamer button clicked
+        if (touch_x > 650 && touch_x < 750 && touch_y > 300 && touch_y < 400) {  // Speelkamer button clicked
           mqttClient.beginMessage("music/speelkamer");
           mqttClient.print("Switch");
           mqttClient.endMessage();
@@ -832,7 +823,7 @@ void loop() {
 #ifdef ENABLE_ENERGY
     else if (page == "energy") {
       newEnergyGraph = HIGH;
-      if (touch_x > 440 && touch_x < 800 && touch_y > 30 && touch_y < 94) {
+      if (touch_x > 440 && touch_x < 800 && touch_y > 20 && touch_y < 100) {  // long graph clicked
         energy_longGraph = !energy_longGraph;
       } else if (touch_x > 440 && touch_x < 480) {
         if (touch_y > 310 && touch_y < 350) {
@@ -844,64 +835,74 @@ void loop() {
         }
       }
 #ifdef ENABLE_evcc
-      else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 &&
-               touch_y > 124 + 156 / 2 - 85 &&
-               touch_y <
-                   124 + 156 / 2 + 85) {  // lightning bolt clicked: to evcc
+      else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 && touch_y > 124 + 156 / 2 - 85 && touch_y < 124 + 156 / 2 + 85) {  // lightning bolt clicked: to evcc
         page = "evcc";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
-        Serial.println(currentPrice);
+        Serial.println(currentEpex);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower, currentPrice);
+                       laadpaal_chargingPower, currentEpex);
       }
 #endif
-      if (!energy_longGraph) {
+      else if (!energy_longGraph) {
         energy_roundState = !energy_roundState;
       } else {
         newEnergyGraph = LOW;
       }
     }
 #endif
+#ifdef ENABLE_PRICES
+    else if (page == "prices") {
+      newPricesGraph = HIGH;
+      if (touch_x < 60) {
+        page = "home";
+        print();
+      } else if (touch_x > 440 && touch_x < 800 && touch_y > 20 && touch_y < 100) {  // tomorrow graph clicked
+        tomorrowGraph = !tomorrowGraph;
+      } else if (touch_x > 440 && touch_x < 480) {
+        if (touch_y > 350 && touch_y < 390) {
+          drawEpex = !drawEpex;
+        } else if (touch_y > 400 && touch_y < 440) {
+          drawEcopower = !drawEcopower;
+        }
+      } else if (touch_x > 61 && touch_x < 420 && touch_y > 40 && touch_y < 440) {
+        clickedX = touch_x;
+      }
+    }
+#endif
 #ifdef ENABLE_VENTILATION
     else if (page == "venti") {
       if (keuken_boost) {
-        if (touch_x > 595 && touch_x < 765 && touch_y > 35 &&
-            touch_y < 205) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 35 && touch_y < 205) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/keuken/control");
           mqttClient.print("Stop");
           mqttClient.endMessage();
         }
       } else {
-        if (touch_x > 390 && touch_x < 560 && touch_y > 35 &&
-            touch_y < 205) {  // Keuken 1u
+        if (touch_x > 390 && touch_x < 560 && touch_y > 35 && touch_y < 205) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/keuken/control");
           mqttClient.print(60);
           mqttClient.endMessage();
         }
-        if (touch_x > 595 && touch_x < 765 && touch_y > 35 &&
-            touch_y < 205) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 35 && touch_y < 205) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/keuken/control");
           mqttClient.print(180);
           mqttClient.endMessage();
         }
       }
       if (kelder_boost) {
-        if (touch_x > 595 && touch_x < 765 && touch_y > 275 &&
-            touch_y < 445) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 275 && touch_y < 445) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/kelder/control");
           mqttClient.print("Stop");
           mqttClient.endMessage();
         }
       } else {
-        if (touch_x > 390 && touch_x < 560 && touch_y > 275 &&
-            touch_y < 445) {  // Keuken 1u
+        if (touch_x > 390 && touch_x < 560 && touch_y > 275 && touch_y < 445) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/kelder/control");
           mqttClient.print(60);
           mqttClient.endMessage();
         }
-        if (touch_x > 595 && touch_x < 765 && touch_y > 275 &&
-            touch_y < 445) {  // Keuken 1u
+        if (touch_x > 595 && touch_x < 765 && touch_y > 275 && touch_y < 445) {  // Keuken 1u
           mqttClient.beginMessage("ventilation/kelder/control");
           mqttClient.print(180);
           mqttClient.endMessage();
@@ -912,21 +913,18 @@ void loop() {
 #ifdef ENABLE_MOWER
     else if (page == "mower") {
       if (mowerState) {
-        if (touch_x > 264 && touch_x < 464 && touch_y > 360 &&
-            touch_y < 440) {  // Return
+        if (touch_x > 264 && touch_x < 464 && touch_y > 360 && touch_y < 440) {  // Return
           mqttClient.beginMessage("mower/set");
           mqttClient.print("Return");
           mqttClient.endMessage();
         }
-        if (touch_x > 40 && touch_x < 240 && touch_y > 360 &&
-            touch_y < 440) {  // Pause
+        if (touch_x > 40 && touch_x < 240 && touch_y > 360 && touch_y < 440) {  // Pause
           mqttClient.beginMessage("mower/set");
           mqttClient.print("Pause");
           mqttClient.endMessage();
         }
       } else {
-        if (touch_x > 40 && touch_x < 464 && touch_y > 360 &&
-            touch_y < 440) {  // Start
+        if (touch_x > 40 && touch_x < 464 && touch_y > 360 && touch_y < 440) {  // Start
           mqttClient.beginMessage("mower/set");
           mqttClient.print("Start");
           mqttClient.endMessage();
@@ -941,9 +939,9 @@ void loop() {
         page = "evcc";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
-        Serial.println(currentPrice);
+        Serial.println(currentEpex);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower, currentPrice);
+                       laadpaal_chargingPower, currentEpex);
       }
     }
 #endif
@@ -962,8 +960,7 @@ void loop() {
     newHomeInfo = LOW;
   }
 #ifdef ENABLE_LIGHTS
-  if (lamp1change || lamp2change || lamp3change || lamp4change || lamp6change ||
-      lamp5change) {
+  if (lamp1change || lamp2change || lamp3change || lamp4change || lamp6change || lamp5change) {
     if (page.startsWith("detailLights")) {
       // Serial.println("Refresh");
       if (lamp1change) {
@@ -1006,8 +1003,7 @@ void loop() {
   }
 #endif
 #ifdef ENABLE_MUSIC
-  if (newMusic || newKeukenChan || newSpeelkamerChan || newSpeelkamer ||
-      newKeuken) {
+  if (newMusic || newKeukenChan || newSpeelkamerChan || newSpeelkamer || newKeuken) {
     if (page == "music") {
       if (newKeukenChan) {
         dashboard.k_kanaal(keuken_channel, keuken_state);
@@ -1063,9 +1059,9 @@ void loop() {
       }
     }
     if (page == "evcc") {
-      Serial.println(currentPrice);
+      Serial.println(currentEcopower);
       dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                     laadpaal_chargingPower, currentPrice);
+                     laadpaal_chargingPower, currentEpex);
     }
     newBlxmInfo = LOW;
     newEnergyVal = LOW;
@@ -1089,15 +1085,32 @@ void loop() {
     newVentiImg = LOW;
   }
 #endif
+#ifdef ENABLE_PRICES
+  if (newPricesVal || newPricesGraph) {
+    if (page == "prices") {
+      if (newPricesVal) {
+        dashboard.pricesV(currentEpex, currentEcopower, clickedX);
+      }
+      if (newPricesGraph) {
+        dashboard.pricesGraph(todayEpex, todayEcopower, tomorrowEpex,
+                              tomorrowEcopower, currentEpex, currentEcopower,
+                              tomorrowGraph, drawEpex, drawEcopower, clickedX);
+      }
+    }
+    newPricesVal = LOW;
+    newPricesGraph = LOW;
+    clickedX = 0;
+  }
+#endif
 
   if (WiFi.status() != WL_CONNECTED || lastEnergyNewValue + 15000 < millis()) {
     NVIC_SystemReset();
   }
   if (night && lastTouch + 60000 < millis()) {  // Shut down at night
-    dashboard.fillScreen(BLACK);
+    dashboard.fillScreen(BLACK);  
+    digitalWrite(74, LOW);
     page = "blackScreen";
-  } else if (lastTouch + 60000 < millis() && page != "home" &&
-             page.indexOf("/") == -1) {  // Return to home after a while
+  } else if (lastTouch + 60000 < millis() && page != "home" && page.indexOf("/") == -1) {  // Return to home after a while
     page = "home";
     print();
     // printImg();
@@ -1107,7 +1120,7 @@ void loop() {
 void onMqttMessage(int messageSize) {
   String topic = mqttClient.messageTopic();
   String message = mqttClient.readString();
-  if (topic.startsWith("energy")) {  // Print topic & message
+  if (topic.startsWith("prices")) {  // Print topic & message
     Serial.print("'");
     Serial.print(topic);
     Serial.print("'   '");
@@ -1243,7 +1256,7 @@ void onMqttMessage(int messageSize) {
           energy_state = 0;
           newBlxmInfo = HIGH;
         }
-      } else if (currentImport < 7000) {
+      } else if (currentImport < 4800) {
         if (energy_state != 1) {
           energy_state = 1;
           newBlxmInfo = HIGH;
@@ -1330,16 +1343,156 @@ void onMqttMessage(int messageSize) {
       }
       lastEnergyNewValue = millis();
     }
-    if (topic == "energy/currentPrice") {
-      newEnergyVal = HIGH;
-      currentPrice = message.toFloat();
-    }
   }
 #endif  // ENABLE_ENERGY
+#ifdef ENABLE_PRICES
+  /////////////////////////////////////////////////////// prices/#
+  if (topic.startsWith("prices/") == HIGH) {
+    if (topic == "prices/currentEpex") {
+      // newEnergyVal = HIGH;
+      currentEpex = message.toFloat();
+    }
+    if (topic == "prices/currentEcopower") {
+      // newEnergyVal = HIGH;
+      currentEcopower = message.toFloat();
+    }
+    if (topic == "prices/todayEpex") {
+      int index = 0;
+      const char* ptr = message.c_str();
+
+      // Skip opening bracket
+      while (*ptr && *ptr != '[') ptr++;
+      if (*ptr == '[') ptr++;
+
+      while (index < 96 && *ptr) {
+        char* end;
+        float value = strtof(ptr, &end);
+
+        if (end != ptr) {
+          todayEpex[index++] = value;
+          ptr = end;
+        } else {
+          ptr++;
+        }
+
+        while (*ptr && (*ptr == ',' || *ptr == ' ' || *ptr == '\n' || *ptr == '\r' || *ptr == '\t')) {
+          ptr++;
+        }
+
+        if (*ptr == ']') break;
+      }
+
+      Serial.println("✓ Loaded todayEpex: ");
+      Serial.print("  {");
+      for (int i = 0; i < 96; i++) {
+        Serial.print(todayEpex[i]);
+        if (i < 95) Serial.print("; ");
+      }
+      Serial.println("}");
+    }
+    if (topic == "prices/todayEcopower") {
+      int index = 0;
+      const char* ptr = message.c_str();
+
+      // Skip opening bracket
+      while (*ptr && *ptr != '[') ptr++;
+      if (*ptr == '[') ptr++;
+
+      while (index < 96 && *ptr) {
+        char* end;
+        float value = strtof(ptr, &end);
+
+        if (end != ptr) {
+          todayEcopower[index++] = value;
+          ptr = end;
+        } else {
+          ptr++;
+        }
+
+        while (*ptr && (*ptr == ',' || *ptr == ' ' || *ptr == '\n' || *ptr == '\r' || *ptr == '\t')) {
+          ptr++;
+        }
+
+        if (*ptr == ']') break;
+      }
+
+      Serial.println("✓ Loaded todayEcopower");
+    }
+    if (topic == "prices/tomorrowEpex") {
+      if (message == "false") {
+        for (int i = 0; i < 96; i++) {
+          tomorrowEpex[i] = 0;
+        }
+        tomorrowEpex[0] = -100;
+      } else {
+        int index = 0;
+        const char* ptr = message.c_str();
+
+        // Skip opening bracket
+        while (*ptr && *ptr != '[') ptr++;
+        if (*ptr == '[') ptr++;
+
+        while (index < 96 && *ptr) {
+          char* end;
+          float value = strtof(ptr, &end);
+
+          if (end != ptr) {
+            tomorrowEpex[index++] = value;
+            ptr = end;
+          } else {
+            ptr++;
+          }
+
+          while (*ptr && (*ptr == ',' || *ptr == ' ' || *ptr == '\n' || *ptr == '\r' || *ptr == '\t')) {
+            ptr++;
+          }
+
+          if (*ptr == ']') break;
+        }
+
+        Serial.println("✓ Loaded tomorrowEpex");
+      }
+    }
+    if (topic == "prices/tomorrowEcopower") {
+      if (message == "false") {
+        for (int i = 0; i < 96; i++) {
+          tomorrowEcopower[i] = 0;
+        }
+        tomorrowEcopower[0] = -100;
+      } else {
+        int index = 0;
+        const char* ptr = message.c_str();
+
+        // Skip opening bracket
+        while (*ptr && *ptr != '[') ptr++;
+        if (*ptr == '[') ptr++;
+
+        while (index < 96 && *ptr) {
+          char* end;
+          float value = strtof(ptr, &end);
+
+          if (end != ptr) {
+            tomorrowEcopower[index++] = value;
+            ptr = end;
+          } else {
+            ptr++;
+          }
+
+          while (*ptr && (*ptr == ',' || *ptr == ' ' || *ptr == '\n' || *ptr == '\r' || *ptr == '\t')) {
+            ptr++;
+          }
+
+          if (*ptr == ']') break;
+        }
+
+        Serial.println("✓ Loaded tomorrowEcopower");
+      }
+    }
+  }
+#endif  // ENABLE_PRICES
 
 #ifdef ENABLE_MUSIC
-  if (topic.startsWith("music/") && message != "Switch" && message != "Up" &&
-      message != "Down" && message != "Next" && message != "Last") {
+  if (topic.startsWith("music/") && message != "Switch" && message != "Up" && message != "Down" && message != "Next" && message != "Last") {
     newMusic = HIGH;
     if (topic.startsWith("music/keuken")) {
       if (topic == "music/keuken/volume") {
@@ -1351,16 +1504,12 @@ void onMqttMessage(int messageSize) {
       if (topic == "music/keuken/channel") {
         if (message == "VRT Radio 1" || message == "Radio 1") {
           message = "Radio 1";
-        } else if (message == "VRT Studio Brussel Vuurland" ||
-                   message == "Studio Brussel Vuurland" ||
-                   message == "Vuurland") {
+        } else if (message == "VRT Studio Brussel Vuurland" || message == "Studio Brussel Vuurland" || message == "Vuurland") {
           message = "Vuurland";
         } else if (message == "VRT NWS") {
-        } else if (message == "Radio 2 vlaams-brabant" ||
-                   message == "Radio 2") {
+        } else if (message == "Radio 2 vlaams-brabant" || message == "Radio 2") {
           message = "Radio 2";
-        } else if (message == "Spotify Connect" || message == "" ||
-                   message == "Spotify") {
+        } else if (message == "Spotify Connect" || message == "" || message == "Spotify") {
           message = "Spotify";
         }
         keuken_channel = message;
@@ -1385,16 +1534,12 @@ void onMqttMessage(int messageSize) {
       if (topic == "music/speelkamer/channel") {
         if (message == "VRT Radio 1" || message == "Radio 1") {
           message = "Radio 1";
-        } else if (message == "VRT Studio Brussel Vuurland" ||
-                   message == "Studio Brussel Vuurland" ||
-                   message == "Vuurland") {
+        } else if (message == "VRT Studio Brussel Vuurland" || message == "Studio Brussel Vuurland" || message == "Vuurland") {
           message = "Vuurland";
         } else if (message == "VRT NWS") {
-        } else if (message == "Radio 2 vlaams-brabant" ||
-                   message == "Radio 2") {
+        } else if (message == "Radio 2 vlaams-brabant" || message == "Radio 2") {
           message = "Radio 2";
-        } else if (message == "Spotify Connect" || message == "" ||
-                   message == "Spotify") {
+        } else if (message == "Spotify Connect" || message == "" || message == "Spotify") {
           message = "Spotify";
         }
         speelkamer_channel = message;
@@ -1421,24 +1566,20 @@ void onMqttMessage(int messageSize) {
 #endif
     wasteCo[4] = 1;
     if (message.indexOf("GFT") != -1) {
-      if (message.indexOf("Restafval") != -1 ||
-          message.indexOf("restafval") != -1) {
+      if (message.indexOf("Restafval") != -1 || message.indexOf("restafval") != -1) {
         wasteType = 4;
       } else if (message.indexOf("PMD") != -1 || message.indexOf("pmd") != -1) {
         wasteType = 5;
-      } else if (message.indexOf("Papier") != -1 ||
-                 message.indexOf("papier") != -1) {
+      } else if (message.indexOf("Papier") != -1 || message.indexOf("papier") != -1) {
         wasteType = 6;
       } else {
         wasteType = 1;
       }
-    } else if (message.indexOf("Restafval") != -1 ||
-               message.indexOf("restafval") != -1) {
+    } else if (message.indexOf("Restafval") != -1 || message.indexOf("restafval") != -1) {
       wasteType = 0;
     } else if (message.indexOf("PMD") != -1) {
       wasteType = 2;
-    } else if (message.indexOf("Papier") != -1 ||
-               message.indexOf("papier") != -1) {
+    } else if (message.indexOf("Papier") != -1 || message.indexOf("papier") != -1) {
       wasteType = 3;
     } else {
       wasteType = 7;
@@ -1602,6 +1743,12 @@ void print() {
     dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
 #endif
+#ifdef ENABLE_PRICES
+  if (priceCo[4] == 0 || priceCo[4] == 1) {
+    dashboard.homePrices(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
+                         currentEpex);
+  }
+#endif
   printImg();
 }
 void printV() {
@@ -1621,6 +1768,12 @@ void printV() {
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
     dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                             heatPumpCo[3], hotWaterTemp);
+  }
+#endif
+#ifdef ENABLE_PRICES
+  if (priceCo[4] == 0 || priceCo[4] == 1) {
+    dashboard.homePricesV(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
+                          currentEpex);
   }
 #endif
 }
@@ -1720,6 +1873,12 @@ void print2() {
     dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
 #endif
+#ifdef ENABLE_PRICES
+  if (priceCo[4] == 0 || priceCo[4] == 2) {
+    dashboard.homePrices(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
+                         currentEpex);
+  }
+#endif
   print2Img();
 }
 void print2V() {
@@ -1739,6 +1898,12 @@ void print2V() {
   if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
     dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                             heatPumpCo[3], hotWaterTemp);
+  }
+#endif
+#ifdef ENABLE_PRICES
+  if (priceCo[4] == 0 || priceCo[4] == 2) {
+    dashboard.homePricesV(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
+                          currentEpex);
   }
 #endif
 }
