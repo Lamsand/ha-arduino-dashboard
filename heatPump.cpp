@@ -1,6 +1,6 @@
-#include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "Dashboard.h"
 #include "config.h"
 
 #ifdef ENABLE_HEAT_PUMP
@@ -219,4 +219,89 @@ void Dashboard::heatPump(bool compr, int DHWtemp, int XDHW) {
     display.print("maken...");
   }
 }
+
+void Dashboard::heatPumpChooseHour(int setH, int setM, int x, int y) {
+  display.fillScreen(publicAllBackg);
+  display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
+  display.setTextColor(publicBackg, publicTEXT);
+  display.setTextSize(6);
+  display.setCursor(310, 384);
+  if (setH < 10) {
+    display.print("0");
+  }
+  display.print(setH);
+  display.setTextColor(publicTEXT, publicBackg);
+
+  display.print(":");
+
+  if (setM < 10) {
+    display.print("0");
+  }
+  display.print(setM);
+
+  display.drawCircle(400, 192, 150, publicTEXT);
+  display.drawCircle(400, 192, 140, publicTEXT);
+
+  for (int i = 0; i < 12; i++) {
+    float angle = (i * 30 - 60) * DEG_TO_RAD;
+    int x1 = 400 + cos(angle) * 140;
+    int y1 = 192 + sin(angle) * 140;
+    int x2 = 400 + cos(angle) * 150;
+    int y2 = 192 + sin(angle) * 150;
+    display.drawLine(x1, y1, x2, y2, publicTEXT);
+    
+    display.setTextSize(3);
+    int xText = 400 + cos(angle) * 110;
+    int yText = 192 + sin(angle) * 110;
+    if (i + 1 < 10) {
+      display.setCursor(xText - 9, yText - 12);
+    } else {
+      display.setCursor(xText - 18, yText - 12);
+    }
+    display.print(i + 1);
+  }
+}
+
+void Dashboard::heatPumpChooseMinute(int setH, int setM, int x, int y) {
+  display.fillScreen(publicAllBackg);
+  display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
+  display.setTextColor(publicTEXT, publicBackg);
+  display.setTextSize(6);
+  display.setCursor(310, 384);
+  if (setH < 10) {
+    display.print("0");
+  }
+  display.print(setH);
+  display.print(":");
+  display.setTextColor(publicBackg, publicTEXT);
+  if (setM < 10) {
+    display.print("0");
+  }
+  display.print(setM);
+
+  display.drawCircle(400, 192, 150, publicTEXT);
+  display.drawCircle(400, 192, 140, publicTEXT);
+  
+  display.setTextColor(publicTEXT, publicBackg);
+
+  for (int i = 0; i < 12; i++) {
+    float angle = (i * 30 - 90) * DEG_TO_RAD;
+    int x1 = 400 + cos(angle) * 140;
+    int y1 = 192 + sin(angle) * 140;
+    int x2 = 400 + cos(angle) * 150;
+    int y2 = 192 + sin(angle) * 150;
+    display.drawLine(x1, y1, x2, y2, publicTEXT);
+    
+    display.setTextSize(3);
+    int xText = 400 + cos(angle) * 110;
+    int yText = 192 + sin(angle) * 110;
+    if (i + 1 < 10) {
+      display.setCursor(xText - 9, yText - 12);
+    } else {
+      display.setCursor(xText - 18, yText - 12);
+    }
+    display.print((i + 0) * 5);
+  }
+}
+
 #endif

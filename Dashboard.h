@@ -25,6 +25,7 @@ class Dashboard {
   int publicAllBackg;
   ////// BASICS /////////////
   bool begin();
+  void reInit();
   int fillArc(int x, int y, int start_angle, int seg_count, int r, int w,
               unsigned int colour);
   void home();
@@ -166,6 +167,8 @@ class Dashboard {
   void ventilationImg(bool k_state, bool b_state);
   // ** heat pump **
   void heatPump(bool compr, int DHWtemp, int XDHW);
+  void heatPumpChooseHour(int setH, int setM, int x, int y);
+  void heatPumpChooseMinute(int setH, int setM, int x, int y);
   // ** mower **
   void mower(int battery, bool mowing);
 };

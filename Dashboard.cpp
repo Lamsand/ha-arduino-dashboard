@@ -22,6 +22,14 @@ bool Dashboard::begin() {
   display.cp437(true);
   return true;
 }
+
+void Dashboard::reInit(){
+  display.begin();
+  display.setRotation(3);
+  display.setTextWrap(false);
+  display.cp437(true);
+}
+
 int Dashboard::fillArc(int x, int y, int start_angle, int seg_count, int r,
                        int w, unsigned int colour) {
   byte seg = 3;  // Segments are 3 degrees wide = 120 segments for 360 degrees
