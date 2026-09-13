@@ -52,82 +52,43 @@ MqttClient mqttClient(wifiClient);
   co[4]: 0 = every homepage, 1 = only first homepage, 2 = only second homepage,
   3 = hide
 */
-#ifdef ENABLE_LIGHTS
-int lightCo[5] = {0, 44, 400, 218, 1};
-#endif
 #ifdef ENABLE_CAR
 int carCo[5] = {400, 44, 399, 218, 1};
 #endif
 #ifdef ENABLE_ENERGY
 int energyCo[5] = {0, 262, 400, 217, 1};
 #endif
-#ifdef ENABLE_MUSIC
-int musicCo[5] = {400, 262, 399, 217, 1};
-#endif
-#ifdef ENABLE_WASTE
-int wasteCo[5] = {600, 262, 199, 217, 3};
-#endif
-#ifdef ENABLE_VENTILATION
-int ventiCo[5] = {400, 262, 399, 217, 2};
-#endif
 #ifdef ENABLE_HEAT_PUMP
 int heatPumpCo[5] = {400, 44, 399, 218, 2};
+#endif
+#ifdef ENABLE_LIGHTS
+int lightCo[5] = {0, 44, 400, 218, 1};
 #endif
 #ifdef ENABLE_MOWER
 int mowerCo[5] = {0, 44, 400, 218, 2};
 #endif
+#ifdef ENABLE_MUSIC
+int musicCo[5] = {400, 262, 399, 217, 1};
+#endif
 #ifdef ENABLE_PRICES
 int priceCo[5] = {0, 262, 400, 217, 2};
 #endif
-
+#ifdef ENABLE_RELAYS
+int relayCo[5] = {0, 44, 400, 218, 2};
+#endif
+#ifdef ENABLE_VENTILATION
+int ventiCo[5] = {400, 262, 399, 217, 2};
+#endif
 #ifdef ENABLE_WASTE
-int wasteType = 4;
+int wasteCo[5] = {600, 262, 199, 217, 3};
 #endif
-#ifdef ENABLE_LIGHTS
-bool lamp1state = LOW;
-int lamp1brightness = 0;
-bool lamp2state = LOW;
-int lamp2brightness = 0;
-bool lamp3state = LOW;
-int lamp3brightness = 0;
-bool lamp4state = LOW;
-int lamp4brightness = 0;
-bool lamp5state = LOW;
-int lamp5brightness = 0;
-bool lamp6state = LOW;
-int lamp6brightness = 0;
-#endif
+
 #ifdef ENABLE_CAR
 int laadpaal_battery = 0;
 float laadpaal_chargingPower = 0;
 int laadpaal_chargingSpeed = 0;
 int laadpaal_cruisingRange = 0;
 int laadpaal_targetCharge = 0;
-#endif
-#ifdef ENABLE_HEAT_PUMP
-bool compressor = LOW;
-int hotWaterTemp = 0;
-int XDHW = 0;
-String heatPumpTime = "00:00";
-int heatPumpHour = 0;
-int heatPumpMinute = 0;
-bool heatPumpPM = HIGH;
-#endif
-#ifdef ENABLE_MOWER
-int mowerBattery = 0;
-bool mowerState = LOW;
-#endif
-#ifdef ENABLE_VENTILATION
-int keuken_CO2 = 0;
-int keuken_humidity = 0;
-int keuken_quality = 0;
-int keuken_boostRemaining = 8;
-bool keuken_boost = HIGH;
-int kelder_VOC = 0;
-int kelder_humidity = 0;
-int kelder_quality = 0;
-int kelder_boostRemaining = 210;
-bool kelder_boost = HIGH;
 #endif
 #ifdef ENABLE_ENERGY
 int importArr[360];
@@ -149,6 +110,33 @@ bool energy_longGraph = LOW;
 bool drawImport = HIGH;
 bool drawProduction = HIGH;
 bool drawConsumption = HIGH;
+#endif
+#ifdef ENABLE_HEAT_PUMP
+bool compressor = LOW;
+int hotWaterTemp = 0;
+int XDHW = 0;
+String heatPumpTime = "00:00";
+int heatPumpHour = 0;
+int heatPumpMinute = 0;
+bool heatPumpPM = HIGH;
+#endif
+#ifdef ENABLE_LIGHTS
+bool lamp1state = LOW;
+int lamp1brightness = 0;
+bool lamp2state = LOW;
+int lamp2brightness = 0;
+bool lamp3state = LOW;
+int lamp3brightness = 0;
+bool lamp4state = LOW;
+int lamp4brightness = 0;
+bool lamp5state = LOW;
+int lamp5brightness = 0;
+bool lamp6state = LOW;
+int lamp6brightness = 0;
+#endif
+#ifdef ENABLE_MOWER
+int mowerBattery = 0;
+bool mowerState = LOW;
 #endif
 #ifdef ENABLE_MUSIC
 String keuken_title = "";
@@ -174,6 +162,29 @@ bool newPricesGraph = LOW;
 bool newPricesVal = LOW;
 int clickedX = 0;
 #endif
+#ifdef ENABLE_RELAYS
+bool relay1state = LOW;
+bool relay2state = LOW;
+bool relay3state = LOW;
+bool relay4state = LOW;
+bool relay5state = LOW;
+bool relay6state = LOW;
+#endif
+#ifdef ENABLE_VENTILATION
+int keuken_CO2 = 0;
+int keuken_humidity = 0;
+int keuken_quality = 0;
+int keuken_boostRemaining = 8;
+bool keuken_boost = HIGH;
+int kelder_VOC = 0;
+int kelder_humidity = 0;
+int kelder_quality = 0;
+int kelder_boostRemaining = 210;
+bool kelder_boost = HIGH;
+#endif
+#ifdef ENABLE_WASTE
+int wasteType = 4;
+#endif
 
 String realTime = "Default";
 int realTimeInt = 0;
@@ -194,20 +205,13 @@ bool darkMode = HIGH;
 ////////////// new info /////////////
 // ** home **
 bool newHomeInfo = LOW;
+#ifdef ENABLE_CAR
+bool newCarInfo = LOW;
+#endif
 #ifdef ENABLE_ENERGY
 bool newEnergyGraph = LOW;
 bool newEnergyVal = LOW;
 bool newBlxmInfo = LOW;
-#endif
-#ifdef ENABLE_CAR
-bool newCarInfo = LOW;
-#endif
-#ifdef ENABLE_MUSIC
-bool newKeukenChan = LOW;
-bool newSpeelkamerChan = LOW;
-bool newKeuken = LOW;
-bool newSpeelkamer = LOW;
-bool newMusic = LOW;
 #endif
 #ifdef ENABLE_LIGHTS
 bool lamp1change = LOW;
@@ -216,6 +220,21 @@ bool lamp3change = LOW;
 bool lamp4change = LOW;
 bool lamp5change = LOW;
 bool lamp6change = LOW;
+#endif
+#ifdef ENABLE_MUSIC
+bool newKeukenChan = LOW;
+bool newSpeelkamerChan = LOW;
+bool newKeuken = LOW;
+bool newSpeelkamer = LOW;
+bool newMusic = LOW;
+#endif
+#ifdef ENABLE_RELAYS
+bool relay1change = LOW;
+bool relay2change = LOW;
+bool relay3change = LOW;
+bool relay4change = LOW;
+bool relay5change = LOW;
+bool relay6change = LOW;
 #endif
 #ifdef ENABLE_VENTILATION
 bool newVentiV = LOW;
@@ -328,6 +347,9 @@ void setup() {
 #endif
 #ifdef ENABLE_MOWER
   mqttClient.subscribe("mower/#");
+#endif
+#ifdef ENABLE_RELAYS
+  mqttClient.subscribe("relays/#");
 #endif
 
   delay(2000);
@@ -471,6 +493,21 @@ void loop() {
         dashboard.ventilationImg(keuken_boost, kelder_boost);
       }
 #endif
+#ifdef ENABLE_RELAYS
+      else if (touch_y < relayCo[1] + relayCo[3] && touch_y > relayCo[1] &&
+               touch_x < relayCo[0] + relayCo[2] && touch_x > relayCo[0] &&
+               (relayCo[4] == 0 || relayCo[4] == 1)) { // Relays clicked
+        page = "detailRelays";
+        dashboard.fillScreen(AllBackg);
+        dashboard.detailRelays();
+        dashboard.relayRefresh(1, relay1state);
+        dashboard.relayRefresh(2, relay2state);
+        dashboard.relayRefresh(3, relay3state);
+        dashboard.relayRefresh(4, relay4state);
+        dashboard.relayRefresh(5, relay5state);
+        dashboard.relayRefresh(6, relay6state);
+      }
+#endif
       else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
                touch_y < 44) { // Settings clicked
         page = "settings";
@@ -573,6 +610,21 @@ void loop() {
                                keuken_quality, kelder_quality,
                                keuken_boostRemaining, kelder_boostRemaining);
         dashboard.ventilationImg(keuken_boost, kelder_boost);
+      }
+#endif
+#ifdef ENABLE_RELAYS
+      else if (touch_y < relayCo[1] + relayCo[3] && touch_y > relayCo[1] &&
+               touch_x < relayCo[0] + relayCo[2] && touch_x > relayCo[0] &&
+               (relayCo[4] == 0 || relayCo[4] == 2)) { // Relays clicked
+        page = "detailRelays";
+        dashboard.fillScreen(AllBackg);
+        dashboard.detailRelays();
+        dashboard.relayRefresh(1, relay1state);
+        dashboard.relayRefresh(2, relay2state);
+        dashboard.relayRefresh(3, relay3state);
+        dashboard.relayRefresh(4, relay4state);
+        dashboard.relayRefresh(5, relay5state);
+        dashboard.relayRefresh(6, relay6state);
       }
 #endif
       else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
@@ -1140,6 +1192,69 @@ void loop() {
       }
     }
 #endif
+#ifdef ENABLE_RELAYS
+    else if (page == "detailRelays") {
+#ifdef RELAY1_ENABLED
+      if (touch_x > relay1Co[0] && touch_x < relay1Co[0] + relay1Co[2] &&
+          touch_y > relay1Co[1] &&
+          touch_y < relay1Co[1] + relay1Co[3]) { // Relay 1
+        mqttClient.beginMessage("relays/relay1");
+        mqttClient.print("Switch");
+        mqttClient.endMessage();
+      }
+#endif
+#ifdef RELAY2_ENABLED
+      if (touch_x > relay2Co[0] && touch_x < relay2Co[0] + relay2Co[2] &&
+          touch_y > relay2Co[1] &&
+          touch_y < relay2Co[1] + relay2Co[3]) { // Relay 2
+
+        Serial.println("Tap");
+        mqttClient.beginMessage("relays/relay2");
+        mqttClient.print("Switch");
+        mqttClient.endMessage();
+      }
+#endif
+#ifdef RELAY3_ENABLED
+      if (touch_x > relay3Co[0] && touch_x < relay3Co[0] + relay3Co[2] &&
+          touch_y > relay3Co[1] &&
+          touch_y < relay3Co[1] + relay3Co[3]) { // Relay 3
+        Serial.println("Tap");
+        mqttClient.beginMessage("relays/relay3");
+        mqttClient.print("Switch");
+        mqttClient.endMessage();
+      }
+#endif
+#ifdef RELAY4_ENABLED
+      if (touch_x > relay4Co[0] && touch_x < relay4Co[0] + relay4Co[2] &&
+          touch_y > relay4Co[1] &&
+          touch_y < relay4Co[1] + relay4Co[3]) { // Relay 4
+        Serial.println("Tap");
+        mqttClient.beginMessage("relays/relay4");
+        mqttClient.print("Switch");
+        mqttClient.endMessage();
+      }
+#endif
+#ifdef RELAY5_ENABLED
+      if (touch_x > relay5Co[0] && touch_x < relay5Co[0] + relay5Co[2] &&
+          touch_y > relay5Co[1] &&
+          touch_y < relay5Co[1] + relay5Co[3]) { // Relay 5
+        mqttClient.beginMessage("relays/relay5");
+        mqttClient.print("Switch");
+        mqttClient.endMessage();
+      }
+#endif
+#ifdef RELAY6_ENABLED
+      if (touch_x > relay6Co[0] && touch_x < relay6Co[0] + relay6Co[2] &&
+          touch_y > relay6Co[1] &&
+          touch_y < relay6Co[1] + relay6Co[3]) { // Relay 6
+        Serial.println("Tap");
+        mqttClient.beginMessage("relays/relay6");
+        mqttClient.print("Switch");
+        mqttClient.endMessage();
+      }
+#endif
+    }
+#endif
 
     lastTouch = millis();
   }
@@ -1195,6 +1310,38 @@ void loop() {
     lamp4change = LOW;
     lamp6change = LOW;
     lamp5change = LOW;
+  }
+#endif
+#ifdef ENABLE_RELAYS
+  if (relay1change || relay2change || relay3change || relay4change ||
+      relay6change || relay5change) {
+    if (page == "detailRelays") {
+      // Serial.println("Refresh");
+      if (relay1change) {
+        dashboard.relayRefresh(1, relay1state);
+      }
+      if (relay2change) {
+        dashboard.relayRefresh(2, relay2state);
+      }
+      if (relay3change) {
+        dashboard.relayRefresh(3, relay3state);
+      }
+      if (relay4change) {
+        dashboard.relayRefresh(4, relay4state);
+      }
+      if (relay5change) {
+        dashboard.relayRefresh(5, relay5state);
+      }
+      if (relay6change) {
+        dashboard.relayRefresh(6, relay6state);
+      }
+    }
+    relay1change = LOW;
+    relay2change = LOW;
+    relay3change = LOW;
+    relay4change = LOW;
+    relay6change = LOW;
+    relay5change = LOW;
   }
 #endif
 #ifdef ENABLE_MUSIC
@@ -1317,7 +1464,7 @@ void loop() {
 void onMqttMessage(int messageSize) {
   String topic = mqttClient.messageTopic();
   String message = mqttClient.readString();
-  if (topic.startsWith("prices")) { // Print topic & message
+  if (topic.startsWith("relays")) { // Print topic & message
     Serial.print("'");
     Serial.print(topic);
     Serial.print("'   '");
@@ -1925,6 +2072,62 @@ void onMqttMessage(int messageSize) {
     }
   }
 #endif // ENABLE_MOWER
+
+#ifdef ENABLE_RELAYS
+  /////////////////////////////////////////////////////// relays/#
+  if (topic.startsWith("relays/") == HIGH) {
+    if (message != "Switch") {
+      if (topic == "relays/relay1") {
+        if (message == "on") {
+          relay1state = 1;
+        } else if (message == "off") {
+          relay1state = 0;
+        }
+        relay1change = HIGH;
+      }
+      if (topic == "relays/relay2") {
+        if (message == "off") {
+          relay2state = 0;
+        } else {
+          relay2state = 1;
+        }
+        relay2change = HIGH;
+      }
+      if (topic == "relays/relay3") {
+        if (message == "off") {
+          relay3state = 0;
+        } else {
+          relay3state = 1;
+        }
+        relay3change = HIGH;
+      }
+      if (topic == "relays/relay4") {
+        if (message == "off") {
+          relay4state = 0;
+        } else {
+          relay4state = 1;
+        }
+        relay4change = HIGH;
+      }
+      if (topic == "relays/relay5") {
+        if (message == "on") {
+          relay5state = 1;
+        } else if (message == "off") {
+          relay5state = 0;
+        }
+        relay5change = HIGH;
+      }
+      if (topic == "relays/relay6") {
+        if (message == "off") {
+          relay6state = 0;
+        } else {
+          relay6state = 1;
+        }
+        relay6change = HIGH;
+      }
+    }
+  }
+#endif // ENABLE_RELAYS
 }
 void print() {
   dashboard.home();
@@ -1981,6 +2184,11 @@ void print() {
   if (priceCo[4] == 0 || priceCo[4] == 1) {
     dashboard.homePrices(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
                          currentEpex);
+  }
+#endif
+#ifdef ENABLE_RELAYS
+  if (relayCo[4] == 0 || relayCo[4] == 1) {
+    dashboard.homeEmpty(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
   }
 #endif
   printImg();
@@ -2055,6 +2263,11 @@ void printImg() {
     dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
 #endif
+#ifdef ENABLE_RELAYS
+  if (relayCo[4] == 0 || relayCo[4] == 1) {
+    dashboard.homeRelaysImg(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
+  }
+#endif
 }
 void print2() {
   dashboard.home();
@@ -2111,6 +2324,11 @@ void print2() {
   if (priceCo[4] == 0 || priceCo[4] == 2) {
     dashboard.homePrices(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
                          currentEpex);
+  }
+#endif
+#ifdef ENABLE_RELAYS
+  if (relayCo[4] == 0 || relayCo[4] == 2) {
+    dashboard.homeEmpty(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
   }
 #endif
   print2Img();
@@ -2183,6 +2401,11 @@ void print2Img() {
 #ifdef ENABLE_MOWER
   if (mowerCo[4] == 0 || mowerCo[4] == 2) {
     dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
+  }
+#endif
+#ifdef ENABLE_RELAYS
+  if (relayCo[4] == 0 || relayCo[4] == 2) {
+    dashboard.homeRelaysImg(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
   }
 #endif
 }

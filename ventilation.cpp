@@ -1,9 +1,9 @@
-#include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "Dashboard.h"
 #include "config.h"
 
-#ifdef ENABLE_MOWER
+#ifdef ENABLE_VENTILATION
 void Dashboard::ventiIcon(int xInput, int yInput, bool state) {
   if (state == HIGH) {
     if (publicBackg == BLACK) {
@@ -18,21 +18,22 @@ void Dashboard::ventiIcon(int xInput, int yInput, bool state) {
       file = sd.open("Ventilation/ventiLL.bin");
     }
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 130;
   const int w = 130;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 void Dashboard::ventiIconLarge(int xInput, int yInput, bool state) {
@@ -49,21 +50,22 @@ void Dashboard::ventiIconLarge(int xInput, int yInput, bool state) {
       file = sd.open("Ventilation/ventiLLL.bin");
     }
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 170;
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 void Dashboard::clockIcon(int xInput, int yInput, int hours) {
@@ -80,21 +82,22 @@ void Dashboard::clockIcon(int xInput, int yInput, int hours) {
       file = sd.open("Ventilation/3hD.bin");
     }
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 170;
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 void Dashboard::ventiStopIcon(int xInput, int yInput) {
@@ -103,21 +106,22 @@ void Dashboard::ventiStopIcon(int xInput, int yInput) {
   } else {
     file = sd.open("Ventilation/stopBoostL.bin");
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 170;
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 

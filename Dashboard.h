@@ -94,6 +94,10 @@ public:
   void mdi_play(int xInput, int yInput, bool inverted);
   void mdi_pause(int xInput, int yInput, bool inverted);
   void mdi_returnHome(int xInput, int yInput, bool inverted);
+  // ** relays **
+  void automationImg(int xInput, int yInput, bool state);
+  void switchImg(int xInput, int yInput, bool state);
+  void relayRefresh(int relaynumber, bool state);
   ////// HOME ///////////////
   void homeEnergy(int x, int y, int w, int h, int state, int value);
   void homeCar(int x, int y, int w, int h, int battery, float chargingCapacity,
@@ -116,6 +120,7 @@ public:
   void homeVentiImg(int x, int y, int w, int h);
   void homeHeatPumpImg(int x, int y, int w, int h, bool state);
   void homeMowerImg(int x, int y, int w, int h);
+  void homeRelaysImg(int x, int y, int w, int h);
   ////// DETAILS /////////////
   // ** energy **
   void energy(int *import, int *prod, int *cons, int *longImport, int *longProd,
@@ -174,6 +179,8 @@ public:
   void heatPumpAlreadyHot();
   // ** mower **
   void mower(int battery, bool mowing);
+  // ** relays **
+  void detailRelays();
 };
 
 #endif
