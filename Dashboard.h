@@ -13,13 +13,13 @@
 #define buffSize 150000
 
 class Dashboard {
- private:
+private:
   GigaDisplay_GFX display;
   SdFat sd;
   FsFile file;
   uint16_t rowBuffer[buffSize];
 
- public:
+public:
   int publicTEXT;
   int publicBackg;
   int publicAllBackg;
@@ -29,8 +29,8 @@ class Dashboard {
   int fillArc(int x, int y, int start_angle, int seg_count, int r, int w,
               unsigned int colour);
   void home();
-  void printTime(const String& time);
-  void printHeatPumpTime(const String& time);
+  void printTime(const String &time);
+  void printHeatPumpTime(const String &time);
   void printWaterTemp(int temp);
   void printTemp(int temp);
   void setupWiFi();
@@ -47,7 +47,7 @@ class Dashboard {
   void noConn(int x, int y, int size);
   void WiFiIcon(int x, int y, int size, int color);
   ////// IMAGES /////////////
-  void readLarge(FsFile& f, uint8_t* buf, uint32_t len);
+  void readLarge(FsFile &f, uint8_t *buf, uint32_t len);
   void imageSimulator(int xInput, int yInput, int w, int h, int color);
   // ** lights **
   void moonlampImg(int xInput, int yInput, bool state);
@@ -118,30 +118,31 @@ class Dashboard {
   void homeMowerImg(int x, int y, int w, int h);
   ////// DETAILS /////////////
   // ** energy **
-  void energy(int* import, int* prod, int* cons, int* longImport, int* longProd,
-              int* longCons, int currentImport, int currentProduction,
-              int currentConsumption, int* TIME, int* LONGTIME, int state,
+  void energy(int *import, int *prod, int *cons, int *longImport, int *longProd,
+              int *longCons, int currentImport, int currentProduction,
+              int currentConsumption, int *TIME, int *LONGTIME, int state,
               bool longGraph, bool rounded, bool drawImport,
               bool drawProduction, bool drawConsumption);
-  void energyGraph(int* import, int* prod, int* cons, int* longImport,
-                   int* longProd, int* longCons, int* TIME, int* LONGTIME,
+  void energyGraph(int *import, int *prod, int *cons, int *longImport,
+                   int *longProd, int *longCons, int *TIME, int *LONGTIME,
                    bool longGraph, bool rounded, bool drawImport,
                    bool drawProduction, bool drawConsumption);
   void energyV(int currentImport, int currentProduction,
                int currentConsumption);
   // ** prices **
-  void prices(float* epex, float* ecopower, float* tomorrowEpex,
-              float* tomorrowEcopower, float currentEpex, float currentEcopower,
+  void prices(float *epex, float *ecopower, float *tomorrowEpex,
+              float *tomorrowEcopower, float currentEpex, float currentEcopower,
               bool tomorrowGraph, bool drawEpex, bool drawEcopower,
               int clickedX);
-  void pricesGraph(float* epex, float* ecopower, float* tomorrowEpex,
-                   float* tomorrowEcopower, float currentEpex,
+  void pricesGraph(float *epex, float *ecopower, float *tomorrowEpex,
+                   float *tomorrowEcopower, float currentEpex,
                    float currentEcopower, bool tomorrowGraph, bool drawEpex,
                    bool drawEcopower, int clickedX);
   void pricesV(float currentEpex, float currentEcopower, int clickedX);
-  void detailPrices(int clickedHour, int clickedMinute, float epex, float ecopower);
+  void detailPrices(int clickedHour, int clickedMinute, float epex,
+                    float ecopower);
   // ** settings **
-  void settings(bool theme, const String& time);
+  void settings(bool theme, const String &time);
   // ** car **
   void detailCar(int battery, float chargingCapacity, int chargingSpeed,
                  int target, int range);
@@ -151,15 +152,15 @@ class Dashboard {
   void lightBr(int br);
   void lightSw();
   // ** music **
-  void music(const String& k_kanaal, const String& k_title, bool k_state,
-             const String& s_kanaal, const String& s_title, bool s_state);
-  void musicV(const String& k_kanaal, const String& k_title,
-              const String& s_kanaal, const String& s_title);
-  void k_kanaal(const String& k_kanaal, bool k_state);
-  void s_kanaal(const String& s_kanaal, bool s_state);
+  void music(const String &k_kanaal, const String &k_title, bool k_state,
+             const String &s_kanaal, const String &s_title, bool s_state);
+  void musicV(const String &k_kanaal, const String &k_title,
+              const String &s_kanaal, const String &s_title);
+  void k_kanaal(const String &k_kanaal, bool k_state);
+  void s_kanaal(const String &s_kanaal, bool s_state);
   void k_state(bool k_state);
   void s_state(bool s_state);
-  String trimTitle(const String& title, int maxChars);
+  String trimTitle(const String &title, int maxChars);
   void chooseChannel();
   // ** ventilation **
   void ventilationV(bool k_state, bool b_state, int k_CO2, int b_VOC, int k_hum,
@@ -167,8 +168,10 @@ class Dashboard {
   void ventilationImg(bool k_state, bool b_state);
   // ** heat pump **
   void heatPump(bool compr, int DHWtemp, int XDHW);
-  void heatPumpChooseHour(int setH, int setM, int x, int y);
-  void heatPumpChooseMinute(int setH, int setM, int x, int y);
+  void heatPumpChooseHour(int setH, int setM, bool clicked, bool PM);
+  void heatPumpChooseMinute(int setH, int setM, bool clicked);
+  void heatPumpTimeAlreadyPassed();
+  void heatPumpAlreadyHot();
   // ** mower **
   void mower(int battery, bool mowing);
 };
