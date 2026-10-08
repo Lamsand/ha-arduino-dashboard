@@ -2042,6 +2042,9 @@ void onMqttMessage(int messageSize) {
     if (topic == "heatPump/hotWaterTemp") {
       hotWaterTemp = message.toInt();
       newHomeInfo = HIGH;
+      if (page == "home") {
+        dashboard.printWaterTemp(hotWaterTemp);
+      }
     }
     if (topic == "heatPump/XDHW") {
       XDHW = message.toInt();
