@@ -27,6 +27,10 @@ Arduino_GigaDisplayTouch touchDetector;
 int lastTouch;
 const int threshold = 250; // time in milliseconds
 
+const int primes[10] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29}; // for homepages
+const int lastPage = 2; // last homepage number
+int homePage = 1;       // current homepage number
+
 int touch_x;
 int touch_y;
 
@@ -51,36 +55,40 @@ MqttClient mqttClient(wifiClient);
 
   co[4]: 0 = every homepage, 1 = only first homepage, 2 = only second homepage,
   3 = hide
+
+  xCo[4]: 0 = no homepage, multiply 1 with the number of every homepage you want
+  the tile to appear on: 2 = homepage 1, 3 = homepage 2, 5 = homepage 3, 6 =
+  homepage 1 and 2, 10 = homepage 1 and 3, etc.
 */
 #ifdef ENABLE_CAR
-int carCo[5] = {400, 44, 399, 218, 1};
+int carCo[5] = {400, 44, 399, 218, 2};
 #endif
 #ifdef ENABLE_ENERGY
-int energyCo[5] = {0, 262, 400, 217, 1};
+int energyCo[5] = {0, 262, 400, 217, 2};
 #endif
 #ifdef ENABLE_HEAT_PUMP
-int heatPumpCo[5] = {400, 44, 399, 218, 2};
+int heatPumpCo[5] = {400, 44, 399, 218, 3};
 #endif
 #ifdef ENABLE_LIGHTS
-int lightCo[5] = {0, 44, 400, 218, 1};
+int lightCo[5] = {0, 44, 400, 218, 2};
 #endif
 #ifdef ENABLE_MOWER
-int mowerCo[5] = {0, 44, 400, 218, 2};
+int mowerCo[5] = {0, 44, 400, 218, 3};
 #endif
 #ifdef ENABLE_MUSIC
-int musicCo[5] = {400, 262, 399, 217, 1};
+int musicCo[5] = {400, 262, 399, 217, 2};
 #endif
 #ifdef ENABLE_PRICES
-int priceCo[5] = {0, 262, 400, 217, 2};
+int priceCo[5] = {0, 262, 400, 217, 3};
 #endif
 #ifdef ENABLE_RELAYS
-int relayCo[5] = {0, 44, 400, 218, 2};
+int relayCo[5] = {0, 44, 400, 218, 3};
 #endif
 #ifdef ENABLE_VENTILATION
-int ventiCo[5] = {400, 262, 399, 217, 2};
+int ventiCo[5] = {400, 262, 399, 217, 3};
 #endif
 #ifdef ENABLE_WASTE
-int wasteCo[5] = {600, 262, 199, 217, 3};
+int wasteCo[5] = {600, 262, 199, 217, 0};
 #endif
 
 #ifdef ENABLE_CAR
@@ -357,7 +365,7 @@ void setup() {
   // mqttClient.unsubscribe("home/connection");
   page = "home";
   mqttClient.poll();
-  print();
+  print(homePage);
   // printImg();
   newHomeInfo = LOW;
 }
@@ -390,17 +398,26 @@ void loop() {
         dashboard.reInit();
       }
       page = "home";
-      print();
+      homePage = 1;
+      print(homePage);
     } else if (page == "home") {
-      if (touch_x > 700 && touch_y > 40) { // to home2
-        page = "home2";
-        print2();
+      int primePageNr = primes[homePage - 1];
+      if (touch_x > 700 && touch_y > 40 &&
+          homePage < lastPage) { // to next homepage
+        homePage++;
+        page = "home";
+        print(homePage);
+      } else if (touch_x < 100 && touch_y > 40 &&
+                 homePage > 1) { // to previous homepage
+        homePage--;
+        page = "home";
+        print(homePage);
       }
 
 #ifdef ENABLE_CAR
       else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
                touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
-               (carCo[4] == 0 || carCo[4] == 1)) { // Car clicked
+               (carCo[4] != 0 && carCo[4] % primePageNr == 0)) { // Car clicked
         page = "detailCar";
         dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
                             laadpaal_chargingSpeed, laadpaal_targetCharge,
@@ -410,7 +427,8 @@ void loop() {
 #ifdef ENABLE_LIGHTS
       else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
                touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
-               (lightCo[4] == 0 || lightCo[4] == 1)) { // Lights clicked
+               (lightCo[4] != 0 &&
+                lightCo[4] % primePageNr == 0)) { // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
         dashboard.detailLights();
@@ -425,7 +443,8 @@ void loop() {
 #ifdef ENABLE_ENERGY
       else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
                touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
-               (energyCo[4] == 0 || energyCo[4] == 1)) { // Energy clicked
+               (energyCo[4] != 0 &&
+                energyCo[4] % primePageNr == 0)) { // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
         dashboard.energy(importArr, productionArr, consumptionArr,
@@ -439,7 +458,8 @@ void loop() {
 #ifdef ENABLE_PRICES
       else if (touch_y < priceCo[1] + priceCo[3] && touch_y > priceCo[1] &&
                touch_x < priceCo[0] + priceCo[2] && touch_x > priceCo[0] &&
-               (priceCo[4] == 0 || priceCo[4] == 1)) { // Prices clicked
+               (priceCo[4] != 0 &&
+                priceCo[4] % primePageNr == 0)) { // Prices clicked
         page = "prices";
         dashboard.fillScreen(AllBackg);
         dashboard.prices(todayEpex, todayEcopower, tomorrowEpex,
@@ -450,7 +470,8 @@ void loop() {
 #ifdef ENABLE_MUSIC
       else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
                touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
-               (musicCo[4] == 0 || musicCo[4] == 1)) { // Music clicked
+               (musicCo[4] != 0 &&
+                musicCo[4] % primePageNr == 0)) { // Music clicked
         page = "music";
         dashboard.fillScreen(AllBackg);
         dashboard.music(keuken_channel, keuken_title, keuken_state,
@@ -462,8 +483,8 @@ void loop() {
                touch_y > heatPumpCo[1] &&
                touch_x < heatPumpCo[0] + heatPumpCo[2] &&
                touch_x > heatPumpCo[0] &&
-               (heatPumpCo[4] == 0 ||
-                heatPumpCo[4] == 1)) { // Heat Pump clicked
+               (heatPumpCo[4] != 0 &&
+                heatPumpCo[4] % primePageNr == 0)) { // Heat Pump clicked
         page = "heatPump";
         dashboard.fillScreen(AllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
@@ -472,7 +493,8 @@ void loop() {
 #ifdef ENABLE_MOWER
       else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
                touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
-               (mowerCo[4] == 0 || mowerCo[4] == 1)) { // Mower clicked
+               (mowerCo[4] != 0 &&
+                mowerCo[4] % primePageNr == 0)) { // Mower clicked
         page = "mower";
         dashboard.fillScreen(AllBackg);
         dashboard.mower(mowerBattery, mowerState);
@@ -481,7 +503,8 @@ void loop() {
 #ifdef ENABLE_VENTILATION
       else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
                touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
-               (ventiCo[4] == 0 || ventiCo[4] == 1)) { // Ventilation clicked
+               (ventiCo[4] != 0 &&
+                ventiCo[4] % primePageNr == 0)) { // Ventilation clicked
         page = "venti";
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 239);
@@ -496,126 +519,8 @@ void loop() {
 #ifdef ENABLE_RELAYS
       else if (touch_y < relayCo[1] + relayCo[3] && touch_y > relayCo[1] &&
                touch_x < relayCo[0] + relayCo[2] && touch_x > relayCo[0] &&
-               (relayCo[4] == 0 || relayCo[4] == 1)) { // Relays clicked
-        page = "detailRelays";
-        dashboard.fillScreen(AllBackg);
-        dashboard.detailRelays();
-        dashboard.relayRefresh(1, relay1state);
-        dashboard.relayRefresh(2, relay2state);
-        dashboard.relayRefresh(3, relay3state);
-        dashboard.relayRefresh(4, relay4state);
-        dashboard.relayRefresh(5, relay5state);
-        dashboard.relayRefresh(6, relay6state);
-      }
-#endif
-      else if (touch_x > 746 && touch_x < 800 && touch_y > 0 &&
-               touch_y < 44) { // Settings clicked
-        page = "settings";
-        dashboard.settings(darkMode, lastReset);
-      }
-    } else if (page == "home2") {
-      if (0) {
-      }
-#ifdef ENABLE_CAR
-      else if (touch_y < carCo[1] + carCo[3] && touch_y > carCo[1] &&
-               touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
-               (carCo[4] == 0 || carCo[4] == 2)) { // Car clicked
-        page = "detailCar";
-        dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
-                            laadpaal_chargingSpeed, laadpaal_targetCharge,
-                            laadpaal_cruisingRange);
-      }
-#endif
-#ifdef ENABLE_LIGHTS
-      else if (touch_y < lightCo[1] + lightCo[3] && touch_y > lightCo[1] &&
-               touch_x < lightCo[0] + lightCo[2] && touch_x > lightCo[0] &&
-               (lightCo[4] == 0 || lightCo[4] == 2)) { // Lights clicked
-        page = "detailLights";
-        dashboard.fillScreen(AllBackg);
-        dashboard.detailLights();
-        dashboard.lightRefresh(1, lamp1state);
-        dashboard.lightRefresh(2, lamp2state);
-        dashboard.lightRefresh(3, lamp3state);
-        dashboard.lightRefresh(4, lamp4state);
-        dashboard.lightRefresh(5, lamp5state);
-        dashboard.lightRefresh(6, lamp6state);
-      }
-#endif
-#ifdef ENABLE_ENERGY
-      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
-               touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
-               (energyCo[4] == 0 || energyCo[4] == 2)) { // Energy clicked
-        page = "energy";
-        dashboard.fillScreen(AllBackg);
-        dashboard.energy(importArr, productionArr, consumptionArr,
-                         longImportArr, longProductionArr, longConsumptionArr,
-                         currentImport, currentProduction, currentConsumption,
-                         timeArr, longTimeArr, energy_state, energy_longGraph,
-                         energy_roundState, drawImport, drawProduction,
-                         drawConsumption);
-      }
-#endif
-#ifdef ENABLE_PRICES
-      else if (touch_y < priceCo[1] + priceCo[3] && touch_y > priceCo[1] &&
-               touch_x < priceCo[0] + priceCo[2] && touch_x > priceCo[0] &&
-               (priceCo[4] == 0 || priceCo[4] == 2)) { // Prices clicked
-        page = "prices";
-        dashboard.fillScreen(AllBackg);
-        dashboard.prices(todayEpex, todayEcopower, tomorrowEpex,
-                         tomorrowEcopower, currentEpex, currentEcopower,
-                         tomorrowGraph, drawEpex, drawEcopower, clickedX);
-      }
-#endif
-#ifdef ENABLE_HEAT_PUMP
-      else if (touch_y < heatPumpCo[1] + heatPumpCo[3] &&
-               touch_y > heatPumpCo[1] &&
-               touch_x < heatPumpCo[0] + heatPumpCo[2] &&
-               touch_x > heatPumpCo[0] &&
-               (heatPumpCo[4] == 0 ||
-                heatPumpCo[4] == 2)) { // Heat Pump clicked
-        page = "heatPump";
-        dashboard.fillScreen(AllBackg);
-        dashboard.heatPump(compressor, hotWaterTemp, XDHW);
-      }
-#endif
-#ifdef ENABLE_MOWER
-      else if (touch_y < mowerCo[1] + mowerCo[3] && touch_y > mowerCo[1] &&
-               touch_x < mowerCo[0] + mowerCo[2] && touch_x > mowerCo[0] &&
-               (mowerCo[4] == 0 || mowerCo[4] == 2)) { // Mower clicked
-        page = "mower";
-        dashboard.fillScreen(AllBackg);
-        dashboard.mower(mowerBattery, mowerState);
-      }
-#endif
-#ifdef ENABLE_MUSIC
-      else if (touch_y < musicCo[1] + musicCo[3] && touch_y > musicCo[1] &&
-               touch_x < musicCo[0] + musicCo[2] && touch_x > musicCo[0] &&
-               (musicCo[4] == 0 || musicCo[4] == 2)) { // Music clicked
-        page = "music";
-        dashboard.fillScreen(AllBackg);
-        dashboard.music(keuken_channel, keuken_title, keuken_state,
-                        speelkamer_channel, speelkamer_title, speelkamer_state);
-      }
-#endif
-#ifdef ENABLE_VENTILATION
-      else if (touch_y < ventiCo[1] + ventiCo[3] && touch_y > ventiCo[1] &&
-               touch_x < ventiCo[0] + ventiCo[2] && touch_x > ventiCo[0] &&
-               (ventiCo[4] == 0 || ventiCo[4] == 2)) { // Ventilation clicked
-        page = "venti";
-        dashboard.fillScreen(AllBackg);
-        dashboard.homeEmpty(0, 0, 799, 239);
-        dashboard.homeEmpty(0, 239, 799, 239);
-        dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2,
-                               kelder_VOC, keuken_humidity, kelder_humidity,
-                               keuken_quality, kelder_quality,
-                               keuken_boostRemaining, kelder_boostRemaining);
-        dashboard.ventilationImg(keuken_boost, kelder_boost);
-      }
-#endif
-#ifdef ENABLE_RELAYS
-      else if (touch_y < relayCo[1] + relayCo[3] && touch_y > relayCo[1] &&
-               touch_x < relayCo[0] + relayCo[2] && touch_x > relayCo[0] &&
-               (relayCo[4] == 0 || relayCo[4] == 2)) { // Relays clicked
+               (relayCo[4] != 0 &&
+                relayCo[4] % primePageNr == 0)) { // Relays clicked
         page = "detailRelays";
         dashboard.fillScreen(AllBackg);
         dashboard.detailRelays();
@@ -976,7 +881,8 @@ void loop() {
       newPricesGraph = HIGH;
       if (touch_x < 60) {
         page = "home";
-        print();
+        homePage = 1;
+        print(homePage);
       } else if (touch_x > 440 && touch_x < 800 && touch_y > 20 &&
                  touch_y < 100) { // tomorrow graph clicked
         tomorrowGraph = !tomorrowGraph;
@@ -1261,10 +1167,8 @@ void loop() {
 
   if (newHomeInfo) {
     if (page == "home") {
-      printV();
+      printV(homePage);
       // Serial.println("Refresh");
-    } else if (page == "home2") {
-      print2V();
     }
     newHomeInfo = LOW;
   }
@@ -1393,12 +1297,9 @@ void loop() {
       // Serial.println("Refresh");
     }
     if (page == "home" && newBlxmInfo) {
-      if (energyCo[4] == 0 || energyCo[4] == 1) {
-        dashboard.bliksem(0 + 399 / 4, 262 + 217 / 2, energy_state);
-      }
-    } else if (page == "home2" && newBlxmInfo) {
-      if (energyCo[4] == 0 || energyCo[4] == 2) {
-        dashboard.bliksem(0 + 399 / 4, 262 + 217 / 2, energy_state);
+      if (energyCo[4] != 0 && energyCo[4] % primes[homePage] == 0) {
+        dashboard.bliksem(energyCo[0] + energyCo[2] / 4,
+                          energyCo[1] + energyCo[3] / 2, energy_state);
       }
     }
     if (page == "evcc") {
@@ -1453,10 +1354,12 @@ void loop() {
     dashboard.fillScreen(BLACK);
     digitalWrite(74, LOW);
     page = "blackScreen";
-  } else if (lastTouch + 60000 < millis() && page != "home" &&
+  } else if (lastTouch + 60000 < millis() &&
+             (page != "home" || homePage != 1) &&
              page.indexOf("/") == -1) { // Return to home after a while
     page = "home";
-    print();
+    homePage = 1;
+    print(homePage);
     // printImg();
   }
   delay(10);
@@ -1489,7 +1392,8 @@ void onMqttMessage(int messageSize) {
         night = LOW;
         digitalWrite(74, HIGH);
         dashboard.reInit();
-        print();
+        homePage = 1;
+        print(homePage);
         page = "home";
       }
     }
@@ -1940,7 +1844,7 @@ void onMqttMessage(int messageSize) {
 #ifdef ENABLE_MUSIC
     musicCo[2] = 199;
 #endif
-    wasteCo[4] = 1;
+    wasteCo[4] = 2;
     if (message.indexOf("GFT") != -1) {
       if (message.indexOf("Restafval") != -1 ||
           message.indexOf("restafval") != -1) {
@@ -1966,9 +1870,11 @@ void onMqttMessage(int messageSize) {
 #ifdef ENABLE_MUSIC
       musicCo[2] = 399; // { 400, 262, 399, 217 };
 #endif
-      wasteCo[4] = 3; // { 900, 262, 199, 217 };
+      wasteCo[4] = 0; // { 900, 262, 199, 217 };
     }
-    print();
+    if (page == "home" && homePage == 1) {
+      print(homePage);
+    }
   }
 #endif // ENABLE_WASTE
 
@@ -2132,7 +2038,9 @@ void onMqttMessage(int messageSize) {
   }
 #endif // ENABLE_RELAYS
 }
-void print() {
+void print(int pageNr) {
+  int primePageNr = primes[pageNr - 1];
+  Serial.println(String(pageNr) + ", " + String(primePageNr));
   dashboard.home();
   dashboard.printTime(realTime);
   dashboard.printTemp(outDoorTemp);
@@ -2140,274 +2048,137 @@ void print() {
   dashboard.printHeatPumpTime(heatPumpTime);
   dashboard.printWaterTemp(hotWaterTemp);
 #endif
+
 #ifdef ENABLE_LIGHTS
-  if (lightCo[4] == 0 || lightCo[4] == 1) {
+  if (lightCo[4] != 0 && lightCo[4] % primePageNr == 0) {
     dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
   }
 #endif
 #ifdef ENABLE_CAR
-  if (carCo[4] == 0 || carCo[4] == 1) {
+  if (carCo[4] != 0 && carCo[4] % primePageNr == 0) {
     dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
                       laadpaal_chargingPower, laadpaal_targetCharge);
   }
 #endif
 #ifdef ENABLE_MUSIC
-  if (musicCo[4] == 0 || musicCo[4] == 1) {
+  if (musicCo[4] != 0 && musicCo[4] % primePageNr == 0) {
     dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
   }
 #endif
 #ifdef ENABLE_VENTILATION
-  if (ventiCo[4] == 0 || ventiCo[4] == 1) {
+  if (ventiCo[4] != 0 && ventiCo[4] % primePageNr == 0) {
     dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (energyCo[4] == 0 || energyCo[4] == 1) {
+  if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
     dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                          energy_state, currentImport);
   }
 #endif
 #ifdef ENABLE_WASTE
-  if (wasteCo[4] == 0 || wasteCo[4] == 1) {
+  if (wasteCo[4] != 0 && wasteCo[4] % primePageNr == 0) {
     dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]);
   }
 #endif
 #ifdef ENABLE_HEAT_PUMP
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
+  if (heatPumpCo[4] != 0 && heatPumpCo[4] % primePageNr == 0) {
     dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                            heatPumpCo[3], hotWaterTemp);
   }
 #endif
 #ifdef ENABLE_MOWER
-  if (mowerCo[4] == 0 || mowerCo[4] == 1) {
+  if (mowerCo[4] != 0 && mowerCo[4] % primePageNr == 0) {
     dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
 #endif
 #ifdef ENABLE_PRICES
-  if (priceCo[4] == 0 || priceCo[4] == 1) {
+  if (priceCo[4] != 0 && priceCo[4] % primePageNr == 0) {
     dashboard.homePrices(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
                          currentEpex);
   }
 #endif
 #ifdef ENABLE_RELAYS
-  if (relayCo[4] == 0 || relayCo[4] == 1) {
+  if (relayCo[4] != 0 && relayCo[4] % primePageNr == 0) {
     dashboard.homeEmpty(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
   }
 #endif
-  printImg();
+  printImg(pageNr);
 }
-void printV() {
+void printV(int pageNr) {
+  int primePageNr = primes[pageNr - 1];
 #ifdef ENABLE_CAR
-  if (carCo[4] == 0 || carCo[4] == 1) {
+  if (carCo[4] != 0 && carCo[4] % primePageNr == 0) {
     dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
                        laadpaal_chargingPower, laadpaal_targetCharge);
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (energyCo[4] == 0 || energyCo[4] == 1) {
+  if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
     dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                           energy_state, currentImport);
   }
 #endif
 #ifdef ENABLE_HEAT_PUMP
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
+  if (heatPumpCo[4] != 0 && heatPumpCo[4] % primePageNr == 0) {
     dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                             heatPumpCo[3], hotWaterTemp);
   }
 #endif
 #ifdef ENABLE_PRICES
-  if (priceCo[4] == 0 || priceCo[4] == 1) {
+  if (priceCo[4] != 0 && priceCo[4] % primePageNr == 0) {
     dashboard.homePricesV(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
                           currentEpex);
   }
 #endif
 }
-void printImg() {
+void printImg(int pageNr) {
+  int primePageNr = primes[pageNr - 1];
 #ifdef ENABLE_LIGHTS
-  if (lightCo[4] == 0 || lightCo[4] == 1) {
+  if (lightCo[4] != 0 && lightCo[4] % primePageNr == 0) {
     dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
   }
 #endif
 #ifdef ENABLE_CAR
-  if (carCo[4] == 0 || carCo[4] == 1) {
+  if (carCo[4] != 0 && carCo[4] % primePageNr == 0) {
     dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]);
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (energyCo[4] == 0 || energyCo[4] == 1) {
+  if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
     dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
                             energy_state);
   }
 #endif
 #ifdef ENABLE_MUSIC
-  if (musicCo[4] == 0 || musicCo[4] == 1) {
+  if (musicCo[4] != 0 && musicCo[4] % primePageNr == 0) {
     dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
   }
 #endif
 #ifdef ENABLE_VENTILATION
-  if (ventiCo[4] == 0 || ventiCo[4] == 1) {
+  if (ventiCo[4] != 0 && ventiCo[4] % primePageNr == 0) {
     dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
   }
 #endif
 #ifdef ENABLE_WASTE
-  if (wasteCo[4] == 0 || wasteCo[4] == 1) {
+  if (wasteCo[4] != 0 && wasteCo[4] % primePageNr == 0) {
     dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3],
                            wasteType);
   }
 #endif
 #ifdef ENABLE_HEAT_PUMP
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 1) {
+  if (heatPumpCo[4] != 0 && heatPumpCo[4] % primePageNr == 0) {
     dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
                               heatPumpCo[3], compressor);
   }
 #endif
 #ifdef ENABLE_MOWER
-  if (mowerCo[4] == 0 || mowerCo[4] == 1) {
+  if (mowerCo[4] != 0 && mowerCo[4] % primePageNr == 0) {
     dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
   }
 #endif
 #ifdef ENABLE_RELAYS
-  if (relayCo[4] == 0 || relayCo[4] == 1) {
-    dashboard.homeRelaysImg(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
-  }
-#endif
-}
-void print2() {
-  dashboard.home();
-  dashboard.printTime(realTime);
-  dashboard.printTemp(outDoorTemp);
-#ifdef ENABLE_HEAT_PUMP
-  dashboard.printHeatPumpTime(heatPumpTime);
-  dashboard.printWaterTemp(hotWaterTemp);
-#endif
-#ifdef ENABLE_LIGHTS
-  if (lightCo[4] == 0 || lightCo[4] == 2) {
-    dashboard.homeEmpty(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
-  }
-#endif
-#ifdef ENABLE_CAR
-  if (carCo[4] == 0 || carCo[4] == 2) {
-    dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
-                      laadpaal_chargingPower, laadpaal_targetCharge);
-  }
-#endif
-#ifdef ENABLE_MUSIC
-  if (musicCo[4] == 0 || musicCo[4] == 2) {
-    dashboard.homeEmpty(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
-  }
-#endif
-#ifdef ENABLE_VENTILATION
-  if (ventiCo[4] == 0 || ventiCo[4] == 2) {
-    dashboard.homeEmpty(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
-  }
-#endif
-#ifdef ENABLE_ENERGY
-  if (energyCo[4] == 0 || energyCo[4] == 2) {
-    dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                         energy_state, currentImport);
-  }
-#endif
-#ifdef ENABLE_WASTE
-  if (wasteCo[4] == 0 || wasteCo[4] == 2) {
-    dashboard.homeEmpty(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3]);
-  }
-#endif
-#ifdef ENABLE_HEAT_PUMP
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
-    dashboard.homeHeatPump(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
-                           heatPumpCo[3], hotWaterTemp);
-  }
-#endif
-#ifdef ENABLE_MOWER
-  if (mowerCo[4] == 0 || mowerCo[4] == 2) {
-    dashboard.homeEmpty(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
-  }
-#endif
-#ifdef ENABLE_PRICES
-  if (priceCo[4] == 0 || priceCo[4] == 2) {
-    dashboard.homePrices(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
-                         currentEpex);
-  }
-#endif
-#ifdef ENABLE_RELAYS
-  if (relayCo[4] == 0 || relayCo[4] == 2) {
-    dashboard.homeEmpty(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
-  }
-#endif
-  print2Img();
-}
-void print2V() {
-#ifdef ENABLE_CAR
-  if (carCo[4] == 0 || carCo[4] == 2) {
-    dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
-                       laadpaal_chargingPower, laadpaal_targetCharge);
-  }
-#endif
-#ifdef ENABLE_ENERGY
-  if (energyCo[4] == 0 || energyCo[4] == 2) {
-    dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                          energy_state, currentImport);
-  }
-#endif
-#ifdef ENABLE_HEAT_PUMP
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
-    dashboard.homeHeatPumpV(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
-                            heatPumpCo[3], hotWaterTemp);
-  }
-#endif
-#ifdef ENABLE_PRICES
-  if (priceCo[4] == 0 || priceCo[4] == 2) {
-    dashboard.homePricesV(priceCo[0], priceCo[1], priceCo[2], priceCo[3],
-                          currentEpex);
-  }
-#endif
-}
-void print2Img() {
-#ifdef ENABLE_LIGHTS
-  if (lightCo[4] == 0 || lightCo[4] == 2) {
-    dashboard.homeLightsImg(lightCo[0], lightCo[1], lightCo[2], lightCo[3]);
-  }
-#endif
-#ifdef ENABLE_CAR
-  if (carCo[4] == 0 || carCo[4] == 2) {
-    dashboard.homeCarImg(carCo[0], carCo[1], carCo[2], carCo[3]);
-  }
-#endif
-#ifdef ENABLE_ENERGY
-  if (energyCo[4] == 0 || energyCo[4] == 2) {
-    dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                            energy_state);
-  }
-#endif
-#ifdef ENABLE_MUSIC
-  if (musicCo[4] == 0 || musicCo[4] == 2) {
-    dashboard.homeMusicImg(musicCo[0], musicCo[1], musicCo[2], musicCo[3]);
-  }
-#endif
-#ifdef ENABLE_VENTILATION
-  if (ventiCo[4] == 0 || ventiCo[4] == 2) {
-    dashboard.homeVentiImg(ventiCo[0], ventiCo[1], ventiCo[2], ventiCo[3]);
-  }
-#endif
-#ifdef ENABLE_WASTE
-  if (wasteCo[4] == 0 || wasteCo[4] == 2) {
-    dashboard.homeWasteImg(wasteCo[0], wasteCo[1], wasteCo[2], wasteCo[3],
-                           wasteType);
-  }
-#endif
-#ifdef ENABLE_HEAT_PUMP
-  if (heatPumpCo[4] == 0 || heatPumpCo[4] == 2) {
-    dashboard.homeHeatPumpImg(heatPumpCo[0], heatPumpCo[1], heatPumpCo[2],
-                              heatPumpCo[3], compressor);
-  }
-#endif
-#ifdef ENABLE_MOWER
-  if (mowerCo[4] == 0 || mowerCo[4] == 2) {
-    dashboard.homeMowerImg(mowerCo[0], mowerCo[1], mowerCo[2], mowerCo[3]);
-  }
-#endif
-#ifdef ENABLE_RELAYS
-  if (relayCo[4] == 0 || relayCo[4] == 2) {
+  if (relayCo[4] != 0 && relayCo[4] % primePageNr == 0) {
     dashboard.homeRelaysImg(relayCo[0], relayCo[1], relayCo[2], relayCo[3]);
   }
 #endif
