@@ -1,6 +1,6 @@
 #include "Arduino.h"
 /////////////////////////////////////// App Toggles
-// #define ENABLE_MOWER
+#define ENABLE_MOWER
 #define ENABLE_CAR
 #define ENABLE_VENTILATION
 #define ENABLE_HEAT_PUMP

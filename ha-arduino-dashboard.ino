@@ -1,6 +1,6 @@
 /*
-  ha-arduino-dashboard.ino - A dashboard for Home Assistant on the Arduino Giga
-  Display
+  // ha-arduino-dashboard.ino - A dashboard for Home Assistant on the Arduino
+  Giga Display
 
   Created by Sander Lambrechts, June 2026. This code is open source and
   may be used, modified, and distributed freely. This project is designed to run
@@ -28,7 +28,7 @@ int lastTouch;
 const int threshold = 250; // time in milliseconds
 
 const int primes[10] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29}; // for homepages
-const int lastPage = 2; // last homepage number
+const int lastPage = 3; // last homepage number
 int homePage = 1;       // current homepage number
 
 int touch_x;
@@ -64,16 +64,16 @@ MqttClient mqttClient(wifiClient);
 int carCo[5] = {400, 44, 399, 218, 2};
 #endif
 #ifdef ENABLE_ENERGY
-int energyCo[5] = {0, 262, 400, 217, 2};
+int energyCo[5] = {0, 262, 400, 217, 10};
 #endif
 #ifdef ENABLE_HEAT_PUMP
 int heatPumpCo[5] = {400, 44, 399, 218, 3};
 #endif
 #ifdef ENABLE_LIGHTS
-int lightCo[5] = {0, 44, 400, 218, 2};
+int lightCo[5] = {0, 44, 400, 218, 10};
 #endif
 #ifdef ENABLE_MOWER
-int mowerCo[5] = {0, 44, 400, 218, 3};
+int mowerCo[5] = {400, 44, 399, 218, 5};
 #endif
 #ifdef ENABLE_MUSIC
 int musicCo[5] = {400, 262, 399, 217, 2};
@@ -85,7 +85,7 @@ int priceCo[5] = {0, 262, 400, 217, 3};
 int relayCo[5] = {0, 44, 400, 218, 3};
 #endif
 #ifdef ENABLE_VENTILATION
-int ventiCo[5] = {400, 262, 399, 217, 3};
+int ventiCo[5] = {400, 262, 399, 217, 15};
 #endif
 #ifdef ENABLE_WASTE
 int wasteCo[5] = {600, 262, 199, 217, 0};
@@ -1297,7 +1297,7 @@ void loop() {
       // Serial.println("Refresh");
     }
     if (page == "home" && newBlxmInfo) {
-      if (energyCo[4] != 0 && energyCo[4] % primes[homePage] == 0) {
+      if (energyCo[4] != 0 && energyCo[4] % primes[homePage - 1] == 0) {
         dashboard.bliksem(energyCo[0] + energyCo[2] / 4,
                           energyCo[1] + energyCo[3] / 2, energy_state);
       }
