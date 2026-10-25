@@ -1,6 +1,7 @@
 #include "Dashboard.h"
 #include "Arduino.h"
 #include "Colors.h"
+#include "config.h"
 
 #ifdef ENABLE_MUSIC
 void Dashboard::radio1(int xInput, int yInput) {

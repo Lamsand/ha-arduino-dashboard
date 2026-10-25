@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "Colors.h"
 #include "Dashboard.h"
+#include "config.h"
 
 #ifdef ENABLE_CAR
 void Dashboard::carImageMini(int xInput, int yInput) {

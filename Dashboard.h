@@ -4,23 +4,13 @@
 #include "Arduino.h"
 #include "Arduino_GigaDisplay_GFX.h"
 #include "SdFat.h"
+#include "config.h"
 
 // --- Global Constants ---
 #define SCREEN_W 800
 #define SCREEN_H 480
 #define chipSelect 5
 #define buffSize 150000
-
-// --- App Toggles (Option A) ---
-#define ENABLE_MOWER
-#define ENABLE_CAR
-#define ENABLE_VENTILATION
-#define ENABLE_HEAT_PUMP
-#define ENABLE_MUSIC
-#define ENABLE_WASTE
-#define ENABLE_LIGHTS
-#define ENABLE_ENERGY
-#define ENABLE_evcc
 
 class Dashboard {
 private:
@@ -35,11 +25,12 @@ public:
   int publicAllBackg;
   ////// BASICS /////////////
   bool begin();
+  void reInit();
   int fillArc(int x, int y, int start_angle, int seg_count, int r, int w,
               unsigned int colour);
   void home();
-  void printTime(const String& time);
-  void printHeatPumpTime(const String& time);
+  void printTime(const String &time);
+  void printHeatPumpTime(const String &time);
   void printWaterTemp(int temp);
   void printTemp(int temp);
   void setupWiFi();
@@ -56,13 +47,14 @@ public:
   void noConn(int x, int y, int size);
   void WiFiIcon(int x, int y, int size, int color);
   ////// IMAGES /////////////
-  void readLarge(FsFile& f, uint8_t* buf, uint32_t len);
+  void readLarge(FsFile &f, uint8_t *buf, uint32_t len);
   void imageSimulator(int xInput, int yInput, int w, int h, int color);
   // ** lights **
   void moonlampImg(int xInput, int yInput, bool state);
-  void bolImg(int xInput, int yInput, bool state);
-  void bergingImg(int xInput, int yInput, bool state);
-  void sfeerlichtjesImg(int xInput, int yInput, bool state);
+  void globeLightImg(int xInput, int yInput, bool state);
+  void PhilipsHueImg(int xInput, int yInput, bool state);
+  void christmasLightsImg(int xInput, int yInput, bool state);
+  void lightRefresh(int lampnumber, bool state);
   // ** car **
   void carImageMini(int xInput, int yInput);
   void carImageLarge(int xInput, int yInput);
@@ -102,17 +94,23 @@ public:
   void mdi_play(int xInput, int yInput, bool inverted);
   void mdi_pause(int xInput, int yInput, bool inverted);
   void mdi_returnHome(int xInput, int yInput, bool inverted);
+  // ** relays **
+  void automationImg(int xInput, int yInput, bool state);
+  void switchImg(int xInput, int yInput, bool state);
+  void relayRefresh(int relaynumber, bool state);
   ////// HOME ///////////////
   void homeEnergy(int x, int y, int w, int h, int state, int value);
   void homeCar(int x, int y, int w, int h, int battery, float chargingCapacity,
                int target);
   void homeEmpty(int x, int y, int w, int h);
   void homeHeatPump(int x, int y, int w, int h, int DHWtemp);
+  void homePrices(int x, int y, int w, int h, float currentPrice);
   // ** value refresh **
   void homeEnergyV(int x, int y, int w, int h, int state, int value);
   void homeCarV(int x, int y, int w, int h, int battery, float chargingCapacity,
                 int target);
   void homeHeatPumpV(int x, int y, int w, int h, int DHWtemp);
+  void homePricesV(int x, int y, int w, int h, float currentPrice);
   // ** image draw **
   void homeEnergyImg(int x, int y, int w, int h, int state);
   void homeLightsImg(int x, int y, int w, int h);
@@ -122,40 +120,52 @@ public:
   void homeVentiImg(int x, int y, int w, int h);
   void homeHeatPumpImg(int x, int y, int w, int h, bool state);
   void homeMowerImg(int x, int y, int w, int h);
+  void homeRelaysImg(int x, int y, int w, int h);
   ////// DETAILS /////////////
   // ** energy **
-  void energy(int* import, int* prod, int* cons, int* longImport, int* longProd,
-              int* longCons, int currentImport, int currentProduction,
-              int currentConsumption, int* TIME, int* LONGTIME, int state,
+  void energy(int *import, int *prod, int *cons, int *longImport, int *longProd,
+              int *longCons, int currentImport, int currentProduction,
+              int currentConsumption, int *TIME, int *LONGTIME, int state,
               bool longGraph, bool rounded, bool drawImport,
               bool drawProduction, bool drawConsumption);
-  void energyGraph(int* import, int* prod, int* cons, int* longImport,
-                   int* longProd, int* longCons, int* TIME, int* LONGTIME,
+  void energyGraph(int *import, int *prod, int *cons, int *longImport,
+                   int *longProd, int *longCons, int *TIME, int *LONGTIME,
                    bool longGraph, bool rounded, bool drawImport,
                    bool drawProduction, bool drawConsumption);
   void energyV(int currentImport, int currentProduction,
                int currentConsumption);
+  // ** prices **
+  void prices(float *epex, float *ecopower, float *tomorrowEpex,
+              float *tomorrowEcopower, float currentEpex, float currentEcopower,
+              bool tomorrowGraph, bool drawEpex, bool drawEcopower,
+              int clickedX);
+  void pricesGraph(float *epex, float *ecopower, float *tomorrowEpex,
+                   float *tomorrowEcopower, float currentEpex,
+                   float currentEcopower, bool tomorrowGraph, bool drawEpex,
+                   bool drawEcopower, int clickedX);
+  void pricesV(float currentEpex, float currentEcopower, int clickedX);
+  void detailPrices(int clickedHour, int clickedMinute, float epex,
+                    float ecopower);
   // ** settings **
-  void settings(bool theme, const String& time);
+  void settings(bool theme, const String &time);
   // ** car **
   void detailCar(int battery, float chargingCapacity, int chargingSpeed,
                  int target, int range);
-  void evcc(int PV, int grid, int consumption, float toCar);
+  void evcc(int PV, int grid, int consumption, float toCar, float currentPrice);
   // ** lights **
-  void detailLights(bool sfeerlichtjes, bool groteBol, bool glazenBol,
-                    bool berging, bool maanlamp, bool raamversiering);
+  void detailLights();
   void lightBr(int br);
   void lightSw();
   // ** music **
-  void music(const String& k_kanaal, const String& k_title, bool k_state,
-             const String& s_kanaal, const String& s_title, bool s_state);
-  void musicV(const String& k_kanaal, const String& k_title,
-              const String& s_kanaal, const String& s_title);
-  void k_kanaal(const String& k_kanaal, bool k_state);
-  void s_kanaal(const String& s_kanaal, bool s_state);
+  void music(const String &k_kanaal, const String &k_title, bool k_state,
+             const String &s_kanaal, const String &s_title, bool s_state);
+  void musicV(const String &k_kanaal, const String &k_title,
+              const String &s_kanaal, const String &s_title);
+  void k_kanaal(const String &k_kanaal, bool k_state);
+  void s_kanaal(const String &s_kanaal, bool s_state);
   void k_state(bool k_state);
   void s_state(bool s_state);
-  String trimTitle(const String& title, int maxChars);
+  String trimTitle(const String &title, int maxChars);
   void chooseChannel();
   // ** ventilation **
   void ventilationV(bool k_state, bool b_state, int k_CO2, int b_VOC, int k_hum,
@@ -163,8 +173,14 @@ public:
   void ventilationImg(bool k_state, bool b_state);
   // ** heat pump **
   void heatPump(bool compr, int DHWtemp, int XDHW);
+  void heatPumpChooseHour(int setH, int setM, bool clicked, bool PM);
+  void heatPumpChooseMinute(int setH, int setM, bool clicked);
+  void heatPumpTimeAlreadyPassed();
+  void heatPumpAlreadyHot();
   // ** mower **
   void mower(int battery, bool mowing);
+  // ** relays **
+  void detailRelays();
 };
 
 #endif

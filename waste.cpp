@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "Colors.h"
 #include "Dashboard.h"
+#include "config.h"
 
 #ifdef ENABLE_WASTE
 void Dashboard::wasteIcon(int xInput, int yInput, int wasteType) {

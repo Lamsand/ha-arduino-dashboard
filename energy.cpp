@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "Colors.h"
 #include "Dashboard.h"
+#include "config.h"
 
 #ifdef ENABLE_ENERGY
 void Dashboard::bliksem(int xInput, int yInput, int state) {
@@ -144,6 +145,9 @@ void Dashboard::energyGraph(int* import, int* prod, int* cons, int* longImport,
     for (int i = -1; i < 11; i++) {
       if (i != 10 && i != -1) {
         display.drawFastHLine(60, 400 - i * 36, 360, GREY);
+        if (i == 0) {
+          display.drawFastHLine(60, 400 - i * 36, 360, publicTEXT);
+        }
       }
       display.setTextColor(GREY);
       display.setTextSize(1);
@@ -198,6 +202,9 @@ void Dashboard::energyGraph(int* import, int* prod, int* cons, int* longImport,
     for (int i = -1; i < 11; i++) {
       if (i != 10 && i != -1) {
         display.drawFastHLine(60, 400 - i * 36, 360, GREY);
+        if (i == 0) {
+          display.drawFastHLine(60, 400 - i * 36, 360, publicTEXT);
+        }
       }
       display.setTextColor(GREY);
       display.setTextSize(1);

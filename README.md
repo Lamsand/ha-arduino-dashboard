@@ -2,6 +2,10 @@
 
 A touch-screen dashboard for **Home Assistant** built on the **Arduino Giga R1 + Giga Display Shield** (800×480px). It connects to your home network via WiFi and receives real-time data through **MQTT**, displaying and controlling a wide range of smart home features.
 
+I also built a companion **Home Assistant integration** for this dashboard. The long-term goal is for the integration to handle the MQTT communication and background setup behind the scenes, so the user can configure their entities and apps in Home Assistant instead of managing the MQTT details themselves. This integration is still a **work in progress** and is not feature-complete yet; it currently supports only the apps that are already integrated, while the rest of the Arduino dashboard features are still being wired up.
+
+The Arduino side expects the MQTT topics and payloads described in this README, and the HA integration publishes and receives the data needed for the dashboard controls and sensors.
+
 ---
 
 ## 📸 Preview
