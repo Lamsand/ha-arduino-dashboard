@@ -202,7 +202,7 @@ bool night = LOW;
 
 int outDoorTemp = 0;
 String lastReset = "Default";
-int lastEnergyNewValue = 40000;
+int last5sInterval = 40000;
 String page = "setup";
 int lastRefresh = 0;
 int BACKG = BLACK;
@@ -1346,7 +1346,7 @@ void loop() {
   }
 #endif
 
-  if (WiFi.status() != WL_CONNECTED || lastEnergyNewValue + 15000 < millis()) {
+  if (WiFi.status() != WL_CONNECTED || last5sInterval + 15000 < millis()) {
     NVIC_SystemReset();
   }
   if (night && lastTouch + 60000 < millis()) { // Shut down at night
@@ -1408,6 +1408,12 @@ void onMqttMessage(int messageSize) {
       dashboard.printTemp(outDoorTemp);
     }
   }
+  if (topic == "home/interval") {
+    if (message == "5s") {
+      last5sInterval = millis();
+    }
+  }
+
 #ifdef ENABLE_CAR
   //////////////////////////////////////////////////////// car/#
   if (topic.startsWith("car/") == HIGH) {
@@ -1529,75 +1535,76 @@ void onMqttMessage(int messageSize) {
       message.replace(".0", "");
       currentConsumption = message.toInt();
     }
-    if (topic == "energy/newValue") {
-      if (message == "Short") {
-        String k = realTime;
-        k.replace(":", "");
-        for (int i = 0; i < 359; i++) {
-          importArr[i] = importArr[i + 1];
-          consumptionArr[i] = consumptionArr[i + 1];
-          productionArr[i] = productionArr[i + 1];
-          timeArr[i] = timeArr[i + 1];
-          // Serial.print(importArr[i]);
-          // Serial.print(" ");
-        }
-        if (currentImport < -1111) {
-          importArr[359] = -1111;
-        } else {
-          importArr[359] = currentImport;
-        }
-        if (currentConsumption < -1111) {
-          consumptionArr[359] = -1111;
-        } else {
-          consumptionArr[359] = currentConsumption;
-        }
-        productionArr[359] = currentProduction;
-        // Serial.print(importArr[359]);
-        // Serial.println();
-
-        if (k.toInt() % 100 == 0 && newMinute) {
-          timeArr[359] = k.toInt() / 100;
-          newMinute = LOW;
-        } else {
-          timeArr[359] = 0;
-        }
-        newEnergyGraph = HIGH;
-      } else {
-        String k = realTime;
-        k.replace(":", "");
-        for (int i = 0; i < 359; i++) {
-          longImportArr[i] = longImportArr[i + 1];
-          longConsumptionArr[i] = longConsumptionArr[i + 1];
-          longProductionArr[i] = longProductionArr[i + 1];
-          longTimeArr[i] = longTimeArr[i + 1];
-          // Serial.print(longImportArr[i]);
-          // Serial.print(" ");
-        }
-        if (currentImport < -1111) {
-          longImportArr[359] = -1111;
-        } else {
-          longImportArr[359] = currentImport;
-        }
-        if (currentConsumption < -1111) {
-          longConsumptionArr[359] = -1111;
-        } else {
-          longConsumptionArr[359] = currentConsumption;
-        }
-        longProductionArr[359] = currentProduction;
-        // Serial.print(longImportArr[359]);
-        // Serial.println();
-        if (k.toInt() % 100 == 0 && longNewMinute) {
-          longTimeArr[359] = k.toInt() / 100;
-          longNewMinute = LOW;
-        } else {
-          longTimeArr[359] = 0;
-        }
-        newEnergyGraph = HIGH;
+  }
+  if (topic == "home/interval") {
+    if (message == "5s") {
+      String k = realTime;
+      k.replace(":", "");
+      for (int i = 0; i < 359; i++) {
+        importArr[i] = importArr[i + 1];
+        consumptionArr[i] = consumptionArr[i + 1];
+        productionArr[i] = productionArr[i + 1];
+        timeArr[i] = timeArr[i + 1];
+        // Serial.print(importArr[i]);
+        // Serial.print(" ");
       }
-      lastEnergyNewValue = millis();
+      if (currentImport < -1111) {
+        importArr[359] = -1111;
+      } else {
+        importArr[359] = currentImport;
+      }
+      if (currentConsumption < -1111) {
+        consumptionArr[359] = -1111;
+      } else {
+        consumptionArr[359] = currentConsumption;
+      }
+      productionArr[359] = currentProduction;
+      // Serial.print(importArr[359]);
+      // Serial.println();
+
+      if (k.toInt() % 100 == 0 && newMinute) {
+        timeArr[359] = k.toInt() / 100;
+        newMinute = LOW;
+      } else {
+        timeArr[359] = 0;
+      }
+      newEnergyGraph = HIGH;
+    }
+    if (message == "30s") {
+      String k = realTime;
+      k.replace(":", "");
+      for (int i = 0; i < 359; i++) {
+        longImportArr[i] = longImportArr[i + 1];
+        longConsumptionArr[i] = longConsumptionArr[i + 1];
+        longProductionArr[i] = longProductionArr[i + 1];
+        longTimeArr[i] = longTimeArr[i + 1];
+        // Serial.print(longImportArr[i]);
+        // Serial.print(" ");
+      }
+      if (currentImport < -1111) {
+        longImportArr[359] = -1111;
+      } else {
+        longImportArr[359] = currentImport;
+      }
+      if (currentConsumption < -1111) {
+        longConsumptionArr[359] = -1111;
+      } else {
+        longConsumptionArr[359] = currentConsumption;
+      }
+      longProductionArr[359] = currentProduction;
+      // Serial.print(longImportArr[359]);
+      // Serial.println();
+      if (k.toInt() % 100 == 0 && longNewMinute) {
+        longTimeArr[359] = k.toInt() / 100;
+        longNewMinute = LOW;
+      } else {
+        longTimeArr[359] = 0;
+      }
+      newEnergyGraph = HIGH;
     }
   }
 #endif // ENABLE_ENERGY
+
 #ifdef ENABLE_PRICES
   /////////////////////////////////////////////////////// prices/#
   if (topic.startsWith("prices/") == HIGH) {
