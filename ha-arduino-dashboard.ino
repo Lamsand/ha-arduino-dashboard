@@ -92,11 +92,11 @@ int wasteCo[5] = {600, 262, 199, 217, 0};
 #endif
 
 #ifdef ENABLE_CAR
-int laadpaal_battery = 0;
-float laadpaal_chargingPower = 0;
-int laadpaal_chargingSpeed = 0;
-int laadpaal_cruisingRange = 0;
-int laadpaal_targetCharge = 0;
+int car_battery = 0;
+float car_chargingPower = 0;
+int car_chargingSpeed = 0;
+int car_cruisingRange = 0;
+int car_targetCharge = 0;
 #endif
 #ifdef ENABLE_ENERGY
 int importArr[360];
@@ -333,7 +333,7 @@ void setup() {
   mqttClient.subscribe("lights/#");
 #endif
 #ifdef ENABLE_CAR
-  mqttClient.subscribe("laadpaal/#");
+  mqttClient.subscribe("car/#");
 #endif
 #ifdef ENABLE_ENERGY
   mqttClient.subscribe("energy/#");
@@ -419,9 +419,8 @@ void loop() {
                touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
                (carCo[4] != 0 && carCo[4] % primePageNr == 0)) { // Car clicked
         page = "detailCar";
-        dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
-                            laadpaal_chargingSpeed, laadpaal_targetCharge,
-                            laadpaal_cruisingRange);
+        dashboard.detailCar(car_battery, car_chargingPower, car_chargingSpeed,
+                            car_targetCharge, car_cruisingRange);
       }
 #endif
 #ifdef ENABLE_LIGHTS
@@ -866,7 +865,7 @@ void loop() {
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower, currentEpex);
+                       car_chargingPower, currentEpex);
       }
 #endif
       else if (!energy_longGraph) {
@@ -978,7 +977,7 @@ void loop() {
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower, currentEpex);
+                       car_chargingPower, currentEpex);
       }
     }
 #endif
@@ -1305,7 +1304,7 @@ void loop() {
     if (page == "evcc") {
       Serial.println(currentEcopower);
       dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                     laadpaal_chargingPower, currentEpex);
+                     car_chargingPower, currentEpex);
     }
     newBlxmInfo = LOW;
     newEnergyVal = LOW;
@@ -1410,24 +1409,24 @@ void onMqttMessage(int messageSize) {
     }
   }
 #ifdef ENABLE_CAR
-  //////////////////////////////////////////////////////// laadpaal/#
-  if (topic.startsWith("laadpaal/") == HIGH) {
-    if (topic == "laadpaal/battery") {
-      laadpaal_battery = message.toInt();
+  //////////////////////////////////////////////////////// car/#
+  if (topic.startsWith("car/") == HIGH) {
+    if (topic == "car/battery") {
+      car_battery = message.toInt();
       newHomeInfo = HIGH;
     }
-    if (topic == "laadpaal/chargingPower") {
-      laadpaal_chargingPower = message.toFloat();
+    if (topic == "car/chargingPower") {
+      car_chargingPower = message.toFloat();
       newHomeInfo = HIGH;
     }
-    /*if (topic == "laadpaal/chargingSpeed") {
-      laadpaal_chargingSpeed = message.toInt();
+    /*if (topic == "car/chargingSpeed") {
+      car_chargingSpeed = message.toInt();
     }*/
-    if (topic == "laadpaal/cruisingRange") {
-      laadpaal_cruisingRange = message.toInt();
+    if (topic == "car/cruisingRange") {
+      car_cruisingRange = message.toInt();
     }
-    if (topic == "laadpaal/targetCharge") {
-      laadpaal_targetCharge = message.toInt();
+    if (topic == "car/targetCharge") {
+      car_targetCharge = message.toInt();
       newHomeInfo = HIGH;
     }
   }
@@ -2056,8 +2055,8 @@ void print(int pageNr) {
 #endif
 #ifdef ENABLE_CAR
   if (carCo[4] != 0 && carCo[4] % primePageNr == 0) {
-    dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
-                      laadpaal_chargingPower, laadpaal_targetCharge);
+    dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], car_battery,
+                      car_chargingPower, car_targetCharge);
   }
 #endif
 #ifdef ENABLE_MUSIC
@@ -2109,8 +2108,8 @@ void printV(int pageNr) {
   int primePageNr = primes[pageNr - 1];
 #ifdef ENABLE_CAR
   if (carCo[4] != 0 && carCo[4] % primePageNr == 0) {
-    dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
-                       laadpaal_chargingPower, laadpaal_targetCharge);
+    dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], car_battery,
+                       car_chargingPower, car_targetCharge);
   }
 #endif
 #ifdef ENABLE_ENERGY
