@@ -117,13 +117,14 @@ Rename `arduino_secrets_example.h` to `arduino_secrets.h` and fill in your detai
 > 💡 You need the **Mosquitto broker** add-on installed in Home Assistant. Go to **Settings → Add-ons → Mosquitto broker** and install it. Then create an MQTT user under **Settings → People**.
 
 The dashboard subscribes to these MQTT topics — make sure your HA automations or integrations publish to them:
+> You can also use [my integration](https://github.com/Lamsand/ha-arduino-dashboard-integration) to make this configuration a lot easier.
 
 | Topic prefix | Data |
 |---|---|
 | `home/time` | Current time as `HH:MM` |
 | `home/temp` | Outdoor temperature (integer °C) |
+| `home/interval` | `5s` or `30s` (every 5/ 30 seconds) |
 | `energy/currentImport`, `energy/currentProduction`, `energy/currentConsumption` | Watts |
-| `energy/newValue` | `Short` or `Long` to trigger graph update (every 5/ 30 seconds) |
 | `laadpaal/battery`, `laadpaal/chargingPower`, `laadpaal/targetCharge`, `laadpaal/cruisingRange` | Car/charger data |
 | `lights/sfeerlichtjes`, `groteBol`, `glazenBol`, `maanlamp`, `raamversiering`, `berging` | `on` / `off` / brightness (0-255) |
 | `music/keuken/...` & `music/speelkamer/...` | `title`, `channel`, `state`, `volume` |
