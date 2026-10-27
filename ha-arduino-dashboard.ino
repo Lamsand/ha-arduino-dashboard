@@ -92,11 +92,11 @@ int wasteCo[5] = {600, 262, 199, 217, 0};
 #endif
 
 #ifdef ENABLE_CAR
-int laadpaal_battery = 0;
-float laadpaal_chargingPower = 0;
-int laadpaal_chargingSpeed = 0;
-int laadpaal_cruisingRange = 0;
-int laadpaal_targetCharge = 0;
+int car_battery = 0;
+float car_chargingPower = 0;
+int car_chargingSpeed = 0;
+int car_cruisingRange = 0;
+int car_targetCharge = 0;
 #endif
 #ifdef ENABLE_ENERGY
 int importArr[360];
@@ -202,7 +202,7 @@ bool night = LOW;
 
 int outDoorTemp = 0;
 String lastReset = "Default";
-int lastEnergyNewValue = 40000;
+int last5sInterval = 40000;
 String page = "setup";
 int lastRefresh = 0;
 int BACKG = BLACK;
@@ -333,7 +333,7 @@ void setup() {
   mqttClient.subscribe("lights/#");
 #endif
 #ifdef ENABLE_CAR
-  mqttClient.subscribe("laadpaal/#");
+  mqttClient.subscribe("car/#");
 #endif
 #ifdef ENABLE_ENERGY
   mqttClient.subscribe("energy/#");
@@ -419,9 +419,8 @@ void loop() {
                touch_x < carCo[0] + carCo[2] && touch_x > carCo[0] &&
                (carCo[4] != 0 && carCo[4] % primePageNr == 0)) { // Car clicked
         page = "detailCar";
-        dashboard.detailCar(laadpaal_battery, laadpaal_chargingPower,
-                            laadpaal_chargingSpeed, laadpaal_targetCharge,
-                            laadpaal_cruisingRange);
+        dashboard.detailCar(car_battery, car_chargingPower, car_chargingSpeed,
+                            car_targetCharge, car_cruisingRange);
       }
 #endif
 #ifdef ENABLE_LIGHTS
@@ -866,7 +865,7 @@ void loop() {
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower, currentEpex);
+                       car_chargingPower, currentEpex);
       }
 #endif
       else if (!energy_longGraph) {
@@ -978,7 +977,7 @@ void loop() {
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
         dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                       laadpaal_chargingPower, currentEpex);
+                       car_chargingPower, currentEpex);
       }
     }
 #endif
@@ -1305,7 +1304,7 @@ void loop() {
     if (page == "evcc") {
       Serial.println(currentEcopower);
       dashboard.evcc(currentProduction, currentImport, currentConsumption,
-                     laadpaal_chargingPower, currentEpex);
+                     car_chargingPower, currentEpex);
     }
     newBlxmInfo = LOW;
     newEnergyVal = LOW;
@@ -1347,7 +1346,7 @@ void loop() {
   }
 #endif
 
-  if (WiFi.status() != WL_CONNECTED || lastEnergyNewValue + 15000 < millis()) {
+  if (WiFi.status() != WL_CONNECTED || last5sInterval + 15000 < millis()) {
     NVIC_SystemReset();
   }
   if (night && lastTouch + 60000 < millis()) { // Shut down at night
@@ -1409,25 +1408,31 @@ void onMqttMessage(int messageSize) {
       dashboard.printTemp(outDoorTemp);
     }
   }
+  if (topic == "home/interval") {
+    if (message == "5s") {
+      last5sInterval = millis();
+    }
+  }
+
 #ifdef ENABLE_CAR
-  //////////////////////////////////////////////////////// laadpaal/#
-  if (topic.startsWith("laadpaal/") == HIGH) {
-    if (topic == "laadpaal/battery") {
-      laadpaal_battery = message.toInt();
+  //////////////////////////////////////////////////////// car/#
+  if (topic.startsWith("car/") == HIGH) {
+    if (topic == "car/battery") {
+      car_battery = message.toInt();
       newHomeInfo = HIGH;
     }
-    if (topic == "laadpaal/chargingPower") {
-      laadpaal_chargingPower = message.toFloat();
+    if (topic == "car/chargingPower") {
+      car_chargingPower = message.toFloat();
       newHomeInfo = HIGH;
     }
-    /*if (topic == "laadpaal/chargingSpeed") {
-      laadpaal_chargingSpeed = message.toInt();
+    /*if (topic == "car/chargingSpeed") {
+      car_chargingSpeed = message.toInt();
     }*/
-    if (topic == "laadpaal/cruisingRange") {
-      laadpaal_cruisingRange = message.toInt();
+    if (topic == "car/cruisingRange") {
+      car_cruisingRange = message.toInt();
     }
-    if (topic == "laadpaal/targetCharge") {
-      laadpaal_targetCharge = message.toInt();
+    if (topic == "car/targetCharge") {
+      car_targetCharge = message.toInt();
       newHomeInfo = HIGH;
     }
   }
@@ -1530,75 +1535,76 @@ void onMqttMessage(int messageSize) {
       message.replace(".0", "");
       currentConsumption = message.toInt();
     }
-    if (topic == "energy/newValue") {
-      if (message == "Short") {
-        String k = realTime;
-        k.replace(":", "");
-        for (int i = 0; i < 359; i++) {
-          importArr[i] = importArr[i + 1];
-          consumptionArr[i] = consumptionArr[i + 1];
-          productionArr[i] = productionArr[i + 1];
-          timeArr[i] = timeArr[i + 1];
-          // Serial.print(importArr[i]);
-          // Serial.print(" ");
-        }
-        if (currentImport < -1111) {
-          importArr[359] = -1111;
-        } else {
-          importArr[359] = currentImport;
-        }
-        if (currentConsumption < -1111) {
-          consumptionArr[359] = -1111;
-        } else {
-          consumptionArr[359] = currentConsumption;
-        }
-        productionArr[359] = currentProduction;
-        // Serial.print(importArr[359]);
-        // Serial.println();
-
-        if (k.toInt() % 100 == 0 && newMinute) {
-          timeArr[359] = k.toInt() / 100;
-          newMinute = LOW;
-        } else {
-          timeArr[359] = 0;
-        }
-        newEnergyGraph = HIGH;
-      } else {
-        String k = realTime;
-        k.replace(":", "");
-        for (int i = 0; i < 359; i++) {
-          longImportArr[i] = longImportArr[i + 1];
-          longConsumptionArr[i] = longConsumptionArr[i + 1];
-          longProductionArr[i] = longProductionArr[i + 1];
-          longTimeArr[i] = longTimeArr[i + 1];
-          // Serial.print(longImportArr[i]);
-          // Serial.print(" ");
-        }
-        if (currentImport < -1111) {
-          longImportArr[359] = -1111;
-        } else {
-          longImportArr[359] = currentImport;
-        }
-        if (currentConsumption < -1111) {
-          longConsumptionArr[359] = -1111;
-        } else {
-          longConsumptionArr[359] = currentConsumption;
-        }
-        longProductionArr[359] = currentProduction;
-        // Serial.print(longImportArr[359]);
-        // Serial.println();
-        if (k.toInt() % 100 == 0 && longNewMinute) {
-          longTimeArr[359] = k.toInt() / 100;
-          longNewMinute = LOW;
-        } else {
-          longTimeArr[359] = 0;
-        }
-        newEnergyGraph = HIGH;
+  }
+  if (topic == "home/interval") {
+    if (message == "5s") {
+      String k = realTime;
+      k.replace(":", "");
+      for (int i = 0; i < 359; i++) {
+        importArr[i] = importArr[i + 1];
+        consumptionArr[i] = consumptionArr[i + 1];
+        productionArr[i] = productionArr[i + 1];
+        timeArr[i] = timeArr[i + 1];
+        // Serial.print(importArr[i]);
+        // Serial.print(" ");
       }
-      lastEnergyNewValue = millis();
+      if (currentImport < -1111) {
+        importArr[359] = -1111;
+      } else {
+        importArr[359] = currentImport;
+      }
+      if (currentConsumption < -1111) {
+        consumptionArr[359] = -1111;
+      } else {
+        consumptionArr[359] = currentConsumption;
+      }
+      productionArr[359] = currentProduction;
+      // Serial.print(importArr[359]);
+      // Serial.println();
+
+      if (k.toInt() % 100 == 0 && newMinute) {
+        timeArr[359] = k.toInt() / 100;
+        newMinute = LOW;
+      } else {
+        timeArr[359] = 0;
+      }
+      newEnergyGraph = HIGH;
+    }
+    if (message == "30s") {
+      String k = realTime;
+      k.replace(":", "");
+      for (int i = 0; i < 359; i++) {
+        longImportArr[i] = longImportArr[i + 1];
+        longConsumptionArr[i] = longConsumptionArr[i + 1];
+        longProductionArr[i] = longProductionArr[i + 1];
+        longTimeArr[i] = longTimeArr[i + 1];
+        // Serial.print(longImportArr[i]);
+        // Serial.print(" ");
+      }
+      if (currentImport < -1111) {
+        longImportArr[359] = -1111;
+      } else {
+        longImportArr[359] = currentImport;
+      }
+      if (currentConsumption < -1111) {
+        longConsumptionArr[359] = -1111;
+      } else {
+        longConsumptionArr[359] = currentConsumption;
+      }
+      longProductionArr[359] = currentProduction;
+      // Serial.print(longImportArr[359]);
+      // Serial.println();
+      if (k.toInt() % 100 == 0 && longNewMinute) {
+        longTimeArr[359] = k.toInt() / 100;
+        longNewMinute = LOW;
+      } else {
+        longTimeArr[359] = 0;
+      }
+      newEnergyGraph = HIGH;
     }
   }
 #endif // ENABLE_ENERGY
+
 #ifdef ENABLE_PRICES
   /////////////////////////////////////////////////////// prices/#
   if (topic.startsWith("prices/") == HIGH) {
@@ -2056,8 +2062,8 @@ void print(int pageNr) {
 #endif
 #ifdef ENABLE_CAR
   if (carCo[4] != 0 && carCo[4] % primePageNr == 0) {
-    dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
-                      laadpaal_chargingPower, laadpaal_targetCharge);
+    dashboard.homeCar(carCo[0], carCo[1], carCo[2], carCo[3], car_battery,
+                      car_chargingPower, car_targetCharge);
   }
 #endif
 #ifdef ENABLE_MUSIC
@@ -2109,8 +2115,8 @@ void printV(int pageNr) {
   int primePageNr = primes[pageNr - 1];
 #ifdef ENABLE_CAR
   if (carCo[4] != 0 && carCo[4] % primePageNr == 0) {
-    dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], laadpaal_battery,
-                       laadpaal_chargingPower, laadpaal_targetCharge);
+    dashboard.homeCarV(carCo[0], carCo[1], carCo[2], carCo[3], car_battery,
+                       car_chargingPower, car_targetCharge);
   }
 #endif
 #ifdef ENABLE_ENERGY
