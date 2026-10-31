@@ -129,18 +129,8 @@ int heatPumpMinute = 0;
 bool heatPumpPM = HIGH;
 #endif
 #ifdef ENABLE_LIGHTS
-bool lamp1state = LOW;
-int lamp1brightness = 0;
-bool lamp2state = LOW;
-int lamp2brightness = 0;
-bool lamp3state = LOW;
-int lamp3brightness = 0;
-bool lamp4state = LOW;
-int lamp4brightness = 0;
-bool lamp5state = LOW;
-int lamp5brightness = 0;
-bool lamp6state = LOW;
-int lamp6brightness = 0;
+#include "lights.h"
+Lights lights;
 #endif
 #ifdef ENABLE_MOWER
 int mowerBattery = 0;
@@ -220,14 +210,6 @@ bool newCarInfo = LOW;
 bool newEnergyGraph = LOW;
 bool newEnergyVal = LOW;
 bool newBlxmInfo = LOW;
-#endif
-#ifdef ENABLE_LIGHTS
-bool lamp1change = LOW;
-bool lamp2change = LOW;
-bool lamp3change = LOW;
-bool lamp4change = LOW;
-bool lamp5change = LOW;
-bool lamp6change = LOW;
 #endif
 #ifdef ENABLE_MUSIC
 bool newKeukenChan = LOW;
@@ -430,13 +412,13 @@ void loop() {
                 lightCo[4] % primePageNr == 0)) { // Lights clicked
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
-        dashboard.detailLights();
-        dashboard.lightRefresh(1, lamp1state);
-        dashboard.lightRefresh(2, lamp2state);
-        dashboard.lightRefresh(3, lamp3state);
-        dashboard.lightRefresh(4, lamp4state);
-        dashboard.lightRefresh(5, lamp5state);
-        dashboard.lightRefresh(6, lamp6state);
+        dashboard.detailLights(lights);
+        dashboard.lightRefresh(lights, 1, lights.lamp1state);
+        dashboard.lightRefresh(lights, 2, lights.lamp2state);
+        dashboard.lightRefresh(lights, 3, lights.lamp3state);
+        dashboard.lightRefresh(lights, 4, lights.lamp4state);
+        dashboard.lightRefresh(lights, 5, lights.lamp5state);
+        dashboard.lightRefresh(lights, 6, lights.lamp6state);
       }
 #endif
 #ifdef ENABLE_ENERGY
@@ -564,175 +546,192 @@ void loop() {
     }
 #ifdef ENABLE_LIGHTS
     else if (page == "detailLights") {
-#ifdef LAMP1_ENABLED
-      if (touch_x > lamp1Co[0] && touch_x < lamp1Co[0] + lamp1Co[2] &&
-          touch_y > lamp1Co[1] && touch_y < lamp1Co[1] + lamp1Co[3]) { // Lamp 1
-#ifndef LAMP1_ON_OFF
-        contacts = touchDetector.getTouchPoints(points);
-        while (contacts == 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        while (contacts > 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        if (lastTouch + 600 < millis()) {
-          page = "detailLights/sfeerlichtjes";
-          dashboard.lightSw();
-          dashboard.lightBr(lamp1brightness);
-        } else {
-#endif
-          mqttClient.beginMessage("lights/sfeerlichtjes");
-          mqttClient.print("Switch");
-          mqttClient.endMessage();
-#ifndef LAMP1_ON_OFF
-        }
-#endif
-      }
-#endif
-#ifdef LAMP2_ENABLED
-      if (touch_x > lamp2Co[0] && touch_x < lamp2Co[0] + lamp2Co[2] &&
-          touch_y > lamp2Co[1] && touch_y < lamp2Co[1] + lamp2Co[3]) { // Lamp 2
-#ifndef LAMP2_ON_OFF
-        contacts = touchDetector.getTouchPoints(points);
-        while (contacts == 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        while (contacts > 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        if (lastTouch + 600 < millis()) {
-          page = "detailLights/groteBol";
-          dashboard.lightSw();
-          dashboard.lightBr(lamp2brightness);
-        } else {
-#endif
-          Serial.println("Tap");
-          mqttClient.beginMessage("lights/groteBol");
-          mqttClient.print("Switch");
-          mqttClient.endMessage();
-#ifndef LAMP2_ON_OFF
-        }
-#endif
-      }
-#endif
-#ifdef LAMP3_ENABLED
-      if (touch_x > lamp3Co[0] && touch_x < lamp3Co[0] + lamp3Co[2] &&
-          touch_y > lamp3Co[1] && touch_y < lamp3Co[1] + lamp3Co[3]) { // Lamp 3
-#ifndef LAMP3_ON_OFF
-        contacts = touchDetector.getTouchPoints(points);
-        while (contacts == 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        while (contacts > 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        if (lastTouch + 600 < millis()) {
-          page = "detailLights/glazenBol";
-          dashboard.lightSw();
-          dashboard.lightBr(lamp3brightness);
-        } else {
-#endif
-          Serial.println("Tap");
-          mqttClient.beginMessage("lights/glazenBol");
-          mqttClient.print("Switch");
-          mqttClient.endMessage();
-#ifndef LAMP3_ON_OFF
-        }
-#endif
-      }
-#endif
-#ifdef LAMP4_ENABLED
-      if (touch_x > lamp4Co[0] && touch_x < lamp4Co[0] + lamp4Co[2] &&
-          touch_y > lamp4Co[1] && touch_y < lamp4Co[1] + lamp4Co[3]) { // Lamp 4
-#ifndef LAMP4_ON_OFF
-        contacts = touchDetector.getTouchPoints(points);
-        while (contacts == 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        while (contacts > 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        if (lastTouch + 600 < millis()) {
-          page = "detailLights/maanlamp";
-          dashboard.lightSw();
-          dashboard.lightBr(lamp4brightness);
-        } else {
-#endif
-          Serial.println("Tap");
-          mqttClient.beginMessage("lights/maanlamp");
-          mqttClient.print("Switch");
-          mqttClient.endMessage();
-#ifndef LAMP4_ON_OFF
-        }
-#endif
-      }
-#endif
-#ifdef LAMP5_ENABLED
-      if (touch_x > lamp5Co[0] && touch_x < lamp5Co[0] + lamp5Co[2] &&
-          touch_y > lamp5Co[1] && touch_y < lamp5Co[1] + lamp5Co[3]) { // Lamp 5
-#ifndef LAMP5_ON_OFF
-        contacts = touchDetector.getTouchPoints(points);
-        while (contacts == 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        while (contacts > 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        if (lastTouch + 600 < millis()) {
-          page = "detailLights/raamversiering";
-          dashboard.lightSw();
-          dashboard.lightBr(lamp5brightness);
-        } else {
-#endif
-          mqttClient.beginMessage("lights/raamversiering");
-          mqttClient.print("Switch");
-          mqttClient.endMessage();
-#ifndef LAMP5_ON_OFF
-        }
-#endif
-      }
-#endif
-#ifdef LAMP6_ENABLED
-      if (touch_x > lamp6Co[0] && touch_x < lamp6Co[0] + lamp6Co[2] &&
-          touch_y > lamp6Co[1] && touch_y < lamp6Co[1] + lamp6Co[3]) { // Lamp 6
-#ifndef LAMP6_ON_OFF
-        contacts = touchDetector.getTouchPoints(points);
-        while (contacts == 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-        }
-        while (contacts > 0) {
-          contacts = touchDetector.getTouchPoints(points);
-          delay(20);
-          if (lastTouch + 600 < millis()) {
-            break;
+      if (lights.lamp1enabled) {
+        if (touch_x > lights.lamp1co[0] &&
+            touch_x < lights.lamp1co[0] + lights.lamp1co[2] &&
+            touch_y > lights.lamp1co[1] &&
+            touch_y < lights.lamp1co[1] + lights.lamp1co[3]) { // Lamp 1
+          if (lights.lamp1OnOff) {
+            mqttClient.beginMessage("lights/lamp1");
+            mqttClient.print("Switch");
+            mqttClient.endMessage();
+          } else {
+            contacts = touchDetector.getTouchPoints(points);
+            while (contacts == 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            while (contacts > 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            if (lastTouch + 600 < millis()) {
+              page = "detailLights/lamp1";
+              dashboard.lightSw();
+              dashboard.lightBr(lights.lamp1brightness);
+            } else {
+              mqttClient.beginMessage("lights/lamp1");
+              mqttClient.print("Switch");
+              mqttClient.endMessage();
+            }
           }
         }
-        if (lastTouch + 600 < millis()) {
-          page = "detailLights/berging";
-          dashboard.lightSw();
-          dashboard.lightBr(lamp6brightness);
-        } else {
-#endif
-          Serial.println("Tap");
-          mqttClient.beginMessage("lights/berging");
-          mqttClient.print("Switch");
-          mqttClient.endMessage();
-#ifndef LAMP6_ON_OFF
-        }
-#endif
       }
-#endif
+      if (lights.lamp2enabled) {
+        if (touch_x > lights.lamp2co[0] &&
+            touch_x < lights.lamp2co[0] + lights.lamp2co[2] &&
+            touch_y > lights.lamp2co[1] &&
+            touch_y < lights.lamp2co[1] + lights.lamp2co[3]) { // Lamp 2
+          if (lights.lamp2OnOff) {
+            mqttClient.beginMessage("lights/lamp2");
+            mqttClient.print("Switch");
+            mqttClient.endMessage();
+          } else {
+            contacts = touchDetector.getTouchPoints(points);
+            while (contacts == 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            while (contacts > 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            if (lastTouch + 600 < millis()) {
+              page = "detailLights/lamp2";
+              dashboard.lightSw();
+              dashboard.lightBr(lights.lamp2brightness);
+            } else {
+              mqttClient.beginMessage("lights/lamp2");
+              mqttClient.print("Switch");
+              mqttClient.endMessage();
+            }
+          }
+        }
+      }
+      if (lights.lamp3enabled) {
+        if (touch_x > lights.lamp3co[0] &&
+            touch_x < lights.lamp3co[0] + lights.lamp3co[2] &&
+            touch_y > lights.lamp3co[1] &&
+            touch_y < lights.lamp3co[1] + lights.lamp3co[3]) { // Lamp 3
+          if (lights.lamp3OnOff) {
+            mqttClient.beginMessage("lights/lamp3");
+            mqttClient.print("Switch");
+            mqttClient.endMessage();
+          } else {
+            contacts = touchDetector.getTouchPoints(points);
+            while (contacts == 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            while (contacts > 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            if (lastTouch + 600 < millis()) {
+              page = "detailLights/lamp3";
+              dashboard.lightSw();
+              dashboard.lightBr(lights.lamp3brightness);
+            } else {
+              mqttClient.beginMessage("lights/lamp3");
+              mqttClient.print("Switch");
+              mqttClient.endMessage();
+            }
+          }
+        }
+      }
+      if (lights.lamp4enabled) {
+        if (touch_x > lights.lamp4co[0] &&
+            touch_x < lights.lamp4co[0] + lights.lamp4co[2] &&
+            touch_y > lights.lamp4co[1] &&
+            touch_y < lights.lamp4co[1] + lights.lamp4co[3]) { // Lamp 4
+          if (lights.lamp5OnOff) {
+            mqttClient.beginMessage("lights/lamp4");
+            mqttClient.print("Switch");
+            mqttClient.endMessage();
+          } else {
+            contacts = touchDetector.getTouchPoints(points);
+            while (contacts == 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            while (contacts > 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            if (lastTouch + 600 < millis()) {
+              page = "detailLights/lamp4";
+              dashboard.lightSw();
+              dashboard.lightBr(lights.lamp5brightness);
+            } else {
+              mqttClient.beginMessage("lights/lamp4");
+              mqttClient.print("Switch");
+              mqttClient.endMessage();
+            }
+          }
+        }
+      }
+      if (lights.lamp5enabled) {
+        if (touch_x > lights.lamp5co[0] &&
+            touch_x < lights.lamp5co[0] + lights.lamp5co[2] &&
+            touch_y > lights.lamp5co[1] &&
+            touch_y < lights.lamp5co[1] + lights.lamp5co[3]) { // Lamp 5
+          if (lights.lamp5OnOff) {
+            mqttClient.beginMessage("lights/lamp5");
+            mqttClient.print("Switch");
+            mqttClient.endMessage();
+          } else {
+            contacts = touchDetector.getTouchPoints(points);
+            while (contacts == 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            while (contacts > 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            if (lastTouch + 600 < millis()) {
+              page = "detailLights/lamp5";
+              dashboard.lightSw();
+              dashboard.lightBr(lights.lamp5brightness);
+            } else {
+              mqttClient.beginMessage("lights/lamp5");
+              mqttClient.print("Switch");
+              mqttClient.endMessage();
+            }
+          }
+        }
+      }
+      if (lights.lamp6enabled) {
+        if (touch_x > lights.lamp6co[0] &&
+            touch_x < lights.lamp6co[0] + lights.lamp6co[2] &&
+            touch_y > lights.lamp6co[1] &&
+            touch_y < lights.lamp6co[1] + lights.lamp6co[3]) { // Lamp 6
+          if (lights.lamp6OnOff) {
+            mqttClient.beginMessage("lights/lamp6");
+            mqttClient.print("Switch");
+            mqttClient.endMessage();
+          } else {
+            contacts = touchDetector.getTouchPoints(points);
+            while (contacts == 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            while (contacts > 0) {
+              contacts = touchDetector.getTouchPoints(points);
+              delay(20);
+            }
+            if (lastTouch + 600 < millis()) {
+              page = "detailLights/lamp6";
+              dashboard.lightSw();
+              dashboard.lightBr(lights.lamp6brightness);
+            } else {
+              mqttClient.beginMessage("lights/lamp6");
+              mqttClient.print("Switch");
+              mqttClient.endMessage();
+            }
+          }
+        }
+      }
     } else if (page.startsWith("detailLights/") == HIGH) {
       String k = page;
       k.replace("detailLights/", "");
@@ -742,13 +741,13 @@ void loop() {
         Serial.println("return");
         page = "detailLights";
         dashboard.fillScreen(AllBackg);
-        dashboard.detailLights();
-        dashboard.lightRefresh(1, lamp1state);
-        dashboard.lightRefresh(2, lamp2state);
-        dashboard.lightRefresh(3, lamp3state);
-        dashboard.lightRefresh(4, lamp4state);
-        dashboard.lightRefresh(5, lamp5state);
-        dashboard.lightRefresh(6, lamp6state);
+        dashboard.detailLights(lights);
+        dashboard.lightRefresh(lights, 1, lights.lamp1state);
+        dashboard.lightRefresh(lights, 2, lights.lamp2state);
+        dashboard.lightRefresh(lights, 3, lights.lamp3state);
+        dashboard.lightRefresh(lights, 4, lights.lamp4state);
+        dashboard.lightRefresh(lights, 5, lights.lamp5state);
+        dashboard.lightRefresh(lights, 6, lights.lamp6state);
       }
       if (touch_x > 300 && touch_x < 500 && touch_y > 340 &&
           touch_y < 440) { // O/I button clicked
@@ -1172,47 +1171,51 @@ void loop() {
     newHomeInfo = LOW;
   }
 #ifdef ENABLE_LIGHTS
-  if (lamp1change || lamp2change || lamp3change || lamp4change || lamp6change ||
-      lamp5change) {
+  if (lights.lamp1change || lights.lamp2change || lights.lamp3change ||
+      lights.lamp4change || lights.lamp6change || lights.lamp5change) {
     if (page.startsWith("detailLights")) {
       // Serial.println("Refresh");
-      if (lamp1change) {
-        dashboard.lightRefresh(1, lamp1state);
+      if (lights.lamp1change) {
+        dashboard.lightRefresh(lights, 1, lights.lamp1state);
       }
-      if (lamp2change) {
-        dashboard.lightRefresh(2, lamp2state);
+      if (lights.lamp2change) {
+        dashboard.lightRefresh(lights, 2, lights.lamp2state);
       }
-      if (lamp3change) {
-        dashboard.lightRefresh(3, lamp3state);
+      if (lights.lamp3change) {
+        dashboard.lightRefresh(lights, 3, lights.lamp3state);
       }
-      if (lamp4change) {
-        dashboard.lightRefresh(4, lamp4state);
+      if (lights.lamp4change) {
+        dashboard.lightRefresh(lights, 4, lights.lamp4state);
       }
-      if (lamp5change) {
-        dashboard.lightRefresh(5, lamp5state);
+      if (lights.lamp5change) {
+        dashboard.lightRefresh(lights, 5, lights.lamp5state);
       }
-      if (lamp6change) {
-        dashboard.lightRefresh(6, lamp6state);
+      if (lights.lamp6change) {
+        dashboard.lightRefresh(lights, 6, lights.lamp6state);
       }
       if (page.startsWith("detailLights/") == HIGH) {
         dashboard.lightSw();
-        if (page.endsWith("groteBol") == HIGH) {
-          dashboard.lightBr(lamp3brightness);
-        } else if (page.endsWith("glazenBol") == HIGH) {
-          dashboard.lightBr(lamp2brightness);
-        } else if (page.endsWith("berging") == HIGH) {
-          dashboard.lightBr(lamp6brightness);
-        } else if (page.endsWith("maanlamp") == HIGH) {
-          dashboard.lightBr(lamp4brightness);
+        if (page.endsWith("lamp1") == HIGH) {
+          dashboard.lightBr(lights.lamp1brightness);
+        } else if (page.endsWith("lamp2") == HIGH) {
+          dashboard.lightBr(lights.lamp2brightness);
+        } else if (page.endsWith("lamp3") == HIGH) {
+          dashboard.lightBr(lights.lamp3brightness);
+        } else if (page.endsWith("lamp4") == HIGH) {
+          dashboard.lightBr(lights.lamp4brightness);
+        } else if (page.endsWith("lamp5") == HIGH) {
+          dashboard.lightBr(lights.lamp5brightness);
+        } else if (page.endsWith("lamp6") == HIGH) {
+          dashboard.lightBr(lights.lamp6brightness);
         }
       }
     }
-    lamp1change = LOW;
-    lamp2change = LOW;
-    lamp3change = LOW;
-    lamp4change = LOW;
-    lamp6change = LOW;
-    lamp5change = LOW;
+    lights.lamp1change = LOW;
+    lights.lamp2change = LOW;
+    lights.lamp3change = LOW;
+    lights.lamp4change = LOW;
+    lights.lamp6change = LOW;
+    lights.lamp5change = LOW;
   }
 #endif
 #ifdef ENABLE_RELAYS
@@ -1440,63 +1443,187 @@ void onMqttMessage(int messageSize) {
 
 #ifdef ENABLE_LIGHTS
   /////////////////////////////////////////////////////// lights/#
-  if (topic.startsWith("lights/") == HIGH) {
+  if (topic.startsWith("lights/")) {
     if (message != "Switch") {
-      if (topic == "lights/sfeerlichtjes") {
-        if (message == "on") {
-          lamp1state = 1;
-        } else if (message == "off") {
-          lamp1state = 0;
+      if (topic.startsWith("lights/lamp1")) {
+        if (topic == "lights/lamp1") {
+          if (message == "off") {
+            lights.lamp1state = 0;
+            lights.lamp1brightness = 0;
+          } else {
+            lights.lamp1state = 1;
+            lights.lamp1brightness = message.toInt() * 100 / 255;
+          }
+          lights.lamp1change = HIGH;
         }
-        lamp1change = HIGH;
+        if (topic == "lights/lamp1/name") {
+          lights.lamp1name = message;
+        }
+        if (topic == "lights/lamp1/on-off") {
+          if (message == "off") {
+            lights.lamp1OnOff = 0;
+          } else {
+            lights.lamp1OnOff = 1;
+          }
+        }
+        if (topic == "lights/lamp1/enabled") {
+          if (message == "on") {
+            lights.lamp1enabled = 1;
+          } else {
+            lights.lamp1enabled = 0;
+          }
+          lights.reconfigureCoordinates();
+        }
       }
-      if (topic == "lights/groteBol") {
-        if (message == "") {
-          lamp2brightness = 0;
-          lamp2state = 0;
-        } else {
-          lamp2brightness = message.toInt() * 100 / 255;
-          lamp2state = 1;
+      if (topic.startsWith("lights/lamp2")) {
+        if (topic == "lights/lamp2") {
+          if (message == "off") {
+            lights.lamp2state = 0;
+            lights.lamp2brightness = 0;
+          } else {
+            lights.lamp2state = 1;
+            lights.lamp2brightness = message.toInt() * 100 / 255;
+          }
+          lights.lamp2change = HIGH;
         }
-        lamp2change = HIGH;
+        if (topic == "lights/lamp2/name") {
+          lights.lamp2name = message;
+        }
+        if (topic == "lights/lamp2/on-off") {
+          if (message == "off") {
+            lights.lamp2OnOff = 0;
+          } else {
+            lights.lamp2OnOff = 1;
+          }
+        }
+        if (topic == "lights/lamp2/enabled") {
+          if (message == "on") {
+            lights.lamp2enabled = 1;
+          } else {
+            lights.lamp2enabled = 0;
+          }
+          lights.reconfigureCoordinates();
+        }
       }
-      if (topic == "lights/glazenBol") {
-        if (message == "") {
-          lamp3brightness = 0;
-          lamp3state = 0;
-        } else {
-          lamp3brightness = message.toInt() * 100 / 255;
-          lamp3state = 1;
+      if (topic.startsWith("lights/lamp3")) {
+        if (topic == "lights/lamp3") {
+          if (message == "off") {
+            lights.lamp3state = 0;
+            lights.lamp3brightness = 0;
+          } else {
+            lights.lamp3state = 1;
+            lights.lamp3brightness = message.toInt() * 100 / 255;
+          }
+          lights.lamp3change = HIGH;
         }
-        lamp3change = HIGH;
+        if (topic == "lights/lamp3/name") {
+          lights.lamp3name = message;
+        }
+        if (topic == "lights/lamp3/on-off") {
+          if (message == "off") {
+            lights.lamp3OnOff = 0;
+          } else {
+            lights.lamp3OnOff = 1;
+          }
+        }
+        if (topic == "lights/lamp3/enabled") {
+          if (message == "on") {
+            lights.lamp3enabled = 1;
+          } else {
+            lights.lamp3enabled = 0;
+          }
+          lights.reconfigureCoordinates();
+        }
       }
-      if (topic == "lights/maanlamp") {
-        if (message == "") {
-          lamp4brightness = 0;
-          lamp4state = 0;
-        } else {
-          lamp4brightness = message.toInt() * 100 / 255;
-          lamp4state = 1;
+      if (topic.startsWith("lights/lamp4")) {
+        if (topic == "lights/lamp4") {
+          if (message == "off") {
+            lights.lamp4state = 0;
+            lights.lamp4brightness = 0;
+          } else {
+            lights.lamp4state = 1;
+            lights.lamp4brightness = message.toInt() * 100 / 255;
+          }
+          lights.lamp4change = HIGH;
         }
-        lamp4change = HIGH;
+        if (topic == "lights/lamp4/name") {
+          lights.lamp4name = message;
+        }
+        if (topic == "lights/lamp4/on-off") {
+          if (message == "off") {
+            lights.lamp4OnOff = 0;
+          } else {
+            lights.lamp4OnOff = 1;
+          }
+        }
+        if (topic == "lights/lamp4/enabled") {
+          if (message == "on") {
+            lights.lamp4enabled = 1;
+          } else {
+            lights.lamp4enabled = 0;
+          }
+          lights.reconfigureCoordinates();
+        }
       }
-      if (topic == "lights/raamversiering") {
-        if (message == "on") {
-          lamp5state = 1;
-        } else if (message == "off") {
-          lamp5state = 0;
+      if (topic.startsWith("lights/lamp5")) {
+        if (topic == "lights/lamp5") {
+          if (message == "off") {
+            lights.lamp5state = 0;
+            lights.lamp5brightness = 0;
+          } else {
+            lights.lamp5state = 1;
+            lights.lamp5brightness = message.toInt() * 100 / 255;
+          }
+          lights.lamp5change = HIGH;
         }
-        lamp5change = HIGH;
+        if (topic == "lights/lamp5/name") {
+          lights.lamp5name = message;
+        }
+        if (topic == "lights/lamp5/on-off") {
+          if (message == "off") {
+            lights.lamp5OnOff = 0;
+          } else {
+            lights.lamp5OnOff = 1;
+          }
+        }
+        if (topic == "lights/lamp5/enabled") {
+          if (message == "on") {
+            lights.lamp5enabled = 1;
+          } else {
+            lights.lamp5enabled = 0;
+          }
+          lights.reconfigureCoordinates();
+        }
       }
-      if (topic == "lights/berging") {
-        if (message == "") {
-          lamp6brightness = 0;
-          lamp6state = 0;
-        } else {
-          lamp6brightness = message.toInt() * 100 / 255;
-          lamp6state = 1;
+      if (topic.startsWith("lights/lamp6")) {
+        if (topic == "lights/lamp6") {
+          if (message == "off") {
+            lights.lamp6state = 0;
+            lights.lamp6brightness = 0;
+          } else {
+            lights.lamp6state = 1;
+            lights.lamp6brightness = message.toInt() * 100 / 255;
+          }
+          lights.lamp6change = HIGH;
         }
-        lamp6change = HIGH;
+        if (topic == "lights/lamp6/name") {
+          lights.lamp6name = message;
+        }
+        if (topic == "lights/lamp6/on-off") {
+          if (message == "off") {
+            lights.lamp6OnOff = 0;
+          } else {
+            lights.lamp6OnOff = 1;
+          }
+        }
+        if (topic == "lights/lamp6/enabled") {
+          if (message == "on") {
+            lights.lamp6enabled = 1;
+          } else {
+            lights.lamp6enabled = 0;
+          }
+          lights.reconfigureCoordinates();
+        }
       }
     }
   }

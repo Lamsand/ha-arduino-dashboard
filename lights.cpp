@@ -1,81 +1,22 @@
+#include "lights.h"
 #include "Arduino.h"
 #include "Colors.h"
 #include "Dashboard.h"
 #include "config.h"
 
 #ifdef ENABLE_LIGHTS
-/*  lampX = name of lamp X
-    lampXtype = type of lamp X
+/*  lampXtype = type of lamp X
     -  "Christmas lights"
     -  "Globe lamp"
     -  "Moonlamp"
     -  "Philips Hue"
 */
-const char* lamp1 = "Sfeerlichtjes";
-const char* lamp1type = "Christmas lights";
-
-const char* lamp2 = "Grote bol";
-const char* lamp2type = "Globe lamp";
-
-const char* lamp3 = "Glazen bol";
-const char* lamp3type = "Globe lamp";
-
-const char* lamp4 = "Maanlamp";
-const char* lamp4type = "Moonlamp";
-
-const char* lamp5 = "Raamversiering";
-const char* lamp5type = "Christmas lights";
-
-const char* lamp6 = "Berging";
-const char* lamp6type = "Philips Hue";
-
-#ifdef LAMP6_ENABLED
-const int lamp1Co[4] = {1, 1, SCREEN_W / 3 - 1, SCREEN_H / 2 - 1};
-const int lamp2Co[4] = {SCREEN_W / 3 + 1, 1, SCREEN_W / 3 - 1,
-                        SCREEN_H / 2 - 1};
-const int lamp3Co[4] = {2 * SCREEN_W / 3, 1, SCREEN_W / 3, SCREEN_H / 2 - 1};
-const int lamp4Co[4] = {1, SCREEN_H / 2 + 1, SCREEN_W / 3 - 1,
-                        SCREEN_H / 2 - 2};
-const int lamp5Co[4] = {SCREEN_W / 3 + 1, SCREEN_H / 2 + 1, SCREEN_W / 3 - 1,
-                        SCREEN_H / 2 - 2};
-const int lamp6Co[4] = {2 * SCREEN_W / 3, SCREEN_H / 2 + 1, SCREEN_W / 3,
-                        SCREEN_H / 2 - 2};
-#else
-#ifdef LAMP5_ENABLED
-const int lamp1Co[4] = {1, 1, SCREEN_W / 3 - 1, SCREEN_H / 2 - 1};
-const int lamp2Co[4] = {SCREEN_W / 3 + 1, 1, SCREEN_W / 3 - 1,
-                        SCREEN_H / 2 - 1};
-const int lamp3Co[4] = {2 * SCREEN_W / 3, 1, SCREEN_W / 3, SCREEN_H / 2 - 1};
-const int lamp4Co[4] = {1, SCREEN_H / 2 + 1, SCREEN_W / 2 - 1,
-                        SCREEN_H / 2 - 2};
-const int lamp5Co[4] = {SCREEN_W / 2 + 1, SCREEN_H / 2 + 1, SCREEN_W / 2,
-                        SCREEN_H / 2 - 2};
-#else
-#ifdef LAMP4_ENABLED
-const int lamp1Co[4] = {1, 1, SCREEN_W / 2 - 1, SCREEN_H / 2 - 1};
-const int lamp2Co[4] = {SCREEN_W / 2 + 1, 1, SCREEN_W / 2, SCREEN_H / 2 - 1};
-const int lamp3Co[4] = {1, SCREEN_H / 2 + 1, SCREEN_W / 2 - 1,
-                        SCREEN_H / 2 - 2};
-const int lamp4Co[4] = {SCREEN_W / 2 + 1, SCREEN_H / 2 + 1, SCREEN_W / 2,
-                        SCREEN_H / 2 - 2};
-#else
-#ifdef LAMP3_ENABLED
-const int lamp1Co[4] = {1, 1, SCREEN_W / 2 - 1, SCREEN_H / 2 - 1};
-const int lamp2Co[4] = {SCREEN_W / 2 + 1, 1, SCREEN_W / 2, SCREEN_H / 2 - 1};
-const int lamp3Co[4] = {1, SCREEN_H / 2 + 1, SCREEN_W, SCREEN_H / 2 - 2};
-#else
-#ifdef LAMP2_ENABLED
-const int lamp1Co[4] = {1, 1, SCREEN_W SCREEN_H / 2 - 1};
-const int lamp2Co[4] = {1, 1, SCREEN_W, SCREEN_H / 2 - 1};
-#else
-#ifdef LAMP1_ENABLED
-const int lamp1Co[4] = {1, 1, SCREEN_W, SCREEN_H};
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
+const char *lamp1type = "Christmas lights";
+const char *lamp2type = "Globe lamp";
+const char *lamp3type = "Globe lamp";
+const char *lamp4type = "Moonlamp";
+const char *lamp5type = "Christmas lights";
+const char *lamp6type = "Philips Hue";
 
 void Dashboard::moonlampImg(int xInput, int yInput, bool state) {
   if (state == HIGH) {
@@ -91,21 +32,22 @@ void Dashboard::moonlampImg(int xInput, int yInput, bool state) {
       file = sd.open("Lights/Moonlamp/moonlampLL.bin");
     }
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 170;
   const int w = 162;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 void Dashboard::globeLightImg(int xInput, int yInput, bool state) {
@@ -122,21 +64,22 @@ void Dashboard::globeLightImg(int xInput, int yInput, bool state) {
       file = sd.open("Lights/Globe lamp/globeLL.bin");
     }
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 170;
   const int w = 100;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 void Dashboard::PhilipsHueImg(int xInput, int yInput, bool state) {
@@ -153,21 +96,22 @@ void Dashboard::PhilipsHueImg(int xInput, int yInput, bool state) {
       file = sd.open("Lights/Philips Hue/PhilipsHueLL.bin");
     }
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 170;
   const int w = 156;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 void Dashboard::christmasLightsImg(int xInput, int yInput, bool state) {
@@ -184,21 +128,22 @@ void Dashboard::christmasLightsImg(int xInput, int yInput, bool state) {
       file = sd.open("Lights/Christmas lights/christmasLightsLL.bin");
     }
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 90;
   const int w = 170;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 
@@ -206,61 +151,67 @@ void Dashboard::homeLightsImg(int x, int y, int w, int h) {
   globeLightImg(x + w / 2, y + h / 2, HIGH);
 }
 
-void Dashboard::detailLights() {
-#ifdef LAMP1_ENABLED
-  // Lamp 1
-  display.fillRoundRect(lamp1Co[0], lamp1Co[1], lamp1Co[2], lamp1Co[3], 10,
-                        publicBackg);
-  display.setTextColor(publicTEXT);
-  display.setTextSize(2);
-  display.setCursor(19 + lamp1Co[0], 19 + lamp1Co[1]);
-  display.print(lamp1);
-#endif
-#ifdef LAMP2_ENABLED
-  // Lamp 2
-  display.fillRoundRect(lamp2Co[0], lamp2Co[1], lamp2Co[2], lamp2Co[3], 10,
-                        publicBackg);
-  display.setTextColor(publicTEXT);
-  display.setTextSize(2);
-  display.setCursor(19 + lamp2Co[0], 19 + lamp2Co[1]);
-  display.print(lamp2);
-#endif
-#ifdef LAMP3_ENABLED
-  // Lamp 3
-  display.fillRoundRect(lamp3Co[0], lamp3Co[1], lamp3Co[2], lamp3Co[3], 10,
-                        publicBackg);
-  display.setTextColor(publicTEXT);
-  display.setTextSize(2);
-  display.setCursor(19 + lamp3Co[0], 19 + lamp3Co[1]);
-  display.print(lamp3);
-#endif
-#ifdef LAMP4_ENABLED
-  // Lamp 4
-  display.fillRoundRect(lamp4Co[0], lamp4Co[1], lamp4Co[2], lamp4Co[3], 10,
-                        publicBackg);
-  display.setTextColor(publicTEXT);
-  display.setTextSize(2);
-  display.setCursor(19 + lamp4Co[0], 19 + lamp4Co[1]);
-  display.print(lamp4);
-#endif
-#ifdef LAMP5_ENABLED
-  // Lamp 5
-  display.fillRoundRect(lamp5Co[0], lamp5Co[1], lamp5Co[2], lamp5Co[3], 10,
-                        publicBackg);
-  display.setTextColor(publicTEXT);
-  display.setTextSize(2);
-  display.setCursor(19 + lamp5Co[0], 19 + lamp5Co[1]);
-  display.print(lamp5);
-#endif
-#ifdef LAMP6_ENABLED
-  // Lamp 6
-  display.fillRoundRect(lamp6Co[0], lamp6Co[1], lamp6Co[2], lamp6Co[3], 10,
-                        publicBackg);
-  display.setTextColor(publicTEXT);
-  display.setTextSize(2);
-  display.setCursor(19 + lamp6Co[0], 19 + lamp6Co[1]);
-  display.print(lamp6);
-#endif
+void Dashboard::detailLights(const Lights &lights) {
+  if (lights.lamp1enabled) {
+    // Lamp 1
+    display.fillRoundRect(lights.lamp1co[0], lights.lamp1co[1],
+                          lights.lamp1co[2], lights.lamp1co[3], 10,
+                          publicBackg);
+    display.setTextColor(publicTEXT);
+    display.setTextSize(2);
+    display.setCursor(19 + lights.lamp1co[0], 19 + lights.lamp1co[1]);
+    display.print(lights.lamp1name);
+  }
+  if (lights.lamp2enabled) {
+    // Lamp 2
+    display.fillRoundRect(lights.lamp2co[0], lights.lamp2co[1],
+                          lights.lamp2co[2], lights.lamp2co[3], 10,
+                          publicBackg);
+    display.setTextColor(publicTEXT);
+    display.setTextSize(2);
+    display.setCursor(19 + lights.lamp2co[0], 19 + lights.lamp2co[1]);
+    display.print(lights.lamp2name);
+  }
+  if (lights.lamp3enabled) {
+    // Lamp 3
+    display.fillRoundRect(lights.lamp3co[0], lights.lamp3co[1],
+                          lights.lamp3co[2], lights.lamp3co[3], 10,
+                          publicBackg);
+    display.setTextColor(publicTEXT);
+    display.setTextSize(2);
+    display.setCursor(19 + lights.lamp3co[0], 19 + lights.lamp3co[1]);
+    display.print(lights.lamp3name);
+  }
+  if (lights.lamp4enabled) {
+    // Lamp 4
+    display.fillRoundRect(lights.lamp4co[0], lights.lamp4co[1],
+                          lights.lamp4co[2], lights.lamp4co[3], 10,
+                          publicBackg);
+    display.setTextColor(publicTEXT);
+    display.setTextSize(2);
+    display.setCursor(19 + lights.lamp4co[0], 19 + lights.lamp4co[1]);
+    display.print(lights.lamp4name);
+  }
+  if (lights.lamp5enabled) {
+    // Lamp 5
+    display.fillRoundRect(lights.lamp5co[0], lights.lamp5co[1],
+                          lights.lamp5co[2], lights.lamp5co[3], 10,
+                          publicBackg);
+    display.setTextColor(publicTEXT);
+    display.setTextSize(2);
+    display.setCursor(19 + lights.lamp5co[0], 19 + lights.lamp5co[1]);
+    display.print(lights.lamp5name);
+  }
+  if (lights.lamp6enabled) {
+    // Lamp 6
+    display.fillRoundRect(lights.lamp6co[0], lights.lamp6co[1],
+                          lights.lamp6co[2], lights.lamp6co[3], 10,
+                          publicBackg);
+    display.setTextColor(publicTEXT);
+    display.setTextSize(2);
+    display.setCursor(19 + lights.lamp6co[0], 19 + lights.lamp6co[1]);
+    display.print(lights.lamp6name);
+  }
 }
 void Dashboard::lightBr(int br) {
   display.drawRoundRect(299, 39, 202, 282, 51, publicTEXT);
@@ -301,110 +252,210 @@ void Dashboard::lightSw() {
   display.fillRoundRect(397, 355, 6, 30, 2, publicTEXT);
 }
 
-void Dashboard::lightRefresh(int lampnumber, bool state) {
+void Dashboard::lightRefresh(const Lights &lights, int lampnumber, bool state) {
   switch (lampnumber) {
-#ifdef LAMP1_ENABLED
-    case 1:
+  case 1:
+    if (lights.lamp1enabled) {
       if (lamp1type == "Christmas lights") {
-        christmasLightsImg((lamp1Co[0] + lamp1Co[2] / 2),
-                           (lamp1Co[1] + lamp1Co[3] / 2 + 14), state);
+        christmasLightsImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
+                           (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14),
+                           state);
       } else if (lamp1type == "Globe lamp") {
-        globeLightImg((lamp1Co[0] + lamp1Co[2] / 2),
-                      (lamp1Co[1] + lamp1Co[3] / 2 + 14), state);
+        globeLightImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
+                      (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14), state);
       } else if (lamp1type == "Moonlamp") {
-        moonlampImg((lamp1Co[0] + lamp1Co[2] / 2),
-                    (lamp1Co[1] + lamp1Co[3] / 2 + 14), state);
+        moonlampImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
+                    (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14), state);
       } else if (lamp1type == "Philips Hue") {
-        PhilipsHueImg((lamp1Co[0] + lamp1Co[2] / 2),
-                      (lamp1Co[1] + lamp1Co[3] / 2 + 14), state);
+        PhilipsHueImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
+                      (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14), state);
       }
-      break;
-#endif
-#ifdef LAMP2_ENABLED
-    case 2:
+    }
+    break;
+  case 2:
+    if (lights.lamp2enabled) {
       if (lamp2type == "Christmas lights") {
-        christmasLightsImg((lamp2Co[0] + lamp2Co[2] / 2),
-                           (lamp2Co[1] + lamp2Co[3] / 2 + 14), state);
+        christmasLightsImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
+                           (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14),
+                           state);
       } else if (lamp2type == "Globe lamp") {
-        globeLightImg((lamp2Co[0] + lamp2Co[2] / 2),
-                      (lamp2Co[1] + lamp2Co[3] / 2 + 14), state);
+        globeLightImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
+                      (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14), state);
       } else if (lamp2type == "Moonlamp") {
-        moonlampImg((lamp2Co[0] + lamp2Co[2] / 2),
-                    (lamp2Co[1] + lamp2Co[3] / 2 + 14), state);
+        moonlampImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
+                    (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14), state);
       } else if (lamp2type == "Philips Hue") {
-        PhilipsHueImg((lamp2Co[0] + lamp2Co[2] / 2),
-                      (lamp2Co[1] + lamp2Co[3] / 2 + 14), state);
+        PhilipsHueImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
+                      (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14), state);
       }
-      break;
-#endif
-#ifdef LAMP3_ENABLED
-    case 3:
+    }
+    break;
+  case 3:
+    if (lights.lamp3enabled) {
       if (lamp3type == "Christmas lights") {
-        christmasLightsImg((lamp3Co[0] + lamp3Co[2] / 2),
-                           (lamp3Co[1] + lamp3Co[3] / 2 + 14), state);
+        christmasLightsImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
+                           (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14),
+                           state);
       } else if (lamp3type == "Globe lamp") {
-        globeLightImg((lamp3Co[0] + lamp3Co[2] / 2),
-                      (lamp3Co[1] + lamp3Co[3] / 2 + 14), state);
+        globeLightImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
+                      (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14), state);
       } else if (lamp3type == "Moonlamp") {
-        moonlampImg((lamp3Co[0] + lamp3Co[2] / 2),
-                    (lamp3Co[1] + lamp3Co[3] / 2 + 14), state);
+        moonlampImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
+                    (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14), state);
       } else if (lamp3type == "Philips Hue") {
-        PhilipsHueImg((lamp3Co[0] + lamp3Co[2] / 2),
-                      (lamp3Co[1] + lamp3Co[3] / 2 + 14), state);
+        PhilipsHueImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
+                      (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14), state);
       }
-      break;
-#endif
-#ifdef LAMP4_ENABLED
-    case 4:
+    }
+    break;
+  case 4:
+    if (lights.lamp4enabled) {
       if (lamp4type == "Christmas lights") {
-        christmasLightsImg((lamp4Co[0] + lamp4Co[2] / 2),
-                           (lamp4Co[1] + lamp4Co[3] / 2 + 14), state);
+        christmasLightsImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
+                           (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14),
+                           state);
       } else if (lamp4type == "Globe lamp") {
-        globeLightImg((lamp4Co[0] + lamp4Co[2] / 2),
-                      (lamp4Co[1] + lamp4Co[3] / 2 + 14), state);
+        globeLightImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
+                      (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14), state);
       } else if (lamp4type == "Moonlamp") {
-        moonlampImg((lamp4Co[0] + lamp4Co[2] / 2),
-                    (lamp4Co[1] + lamp4Co[3] / 2 + 14), state);
+        moonlampImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
+                    (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14), state);
       } else if (lamp4type == "Philips Hue") {
-        PhilipsHueImg((lamp4Co[0] + lamp4Co[2] / 2),
-                      (lamp4Co[1] + lamp4Co[3] / 2 + 14), state);
+        PhilipsHueImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
+                      (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14), state);
       }
-      break;
-#endif
-#ifdef LAMP5_ENABLED
-    case 5:
+    }
+    break;
+  case 5:
+    if (lights.lamp5enabled) {
       if (lamp5type == "Christmas lights") {
-        christmasLightsImg((lamp5Co[0] + lamp5Co[2] / 2),
-                           (lamp5Co[1] + lamp5Co[3] / 2 + 14), state);
+        christmasLightsImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
+                           (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14),
+                           state);
       } else if (lamp5type == "Globe lamp") {
-        globeLightImg((lamp5Co[0] + lamp5Co[2] / 2),
-                      (lamp5Co[1] + lamp5Co[3] / 2 + 14), state);
+        globeLightImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
+                      (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14), state);
       } else if (lamp5type == "Moonlamp") {
-        moonlampImg((lamp5Co[0] + lamp5Co[2] / 2),
-                    (lamp5Co[1] + lamp5Co[3] / 2 + 14), state);
+        moonlampImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
+                    (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14), state);
       } else if (lamp5type == "Philips Hue") {
-        PhilipsHueImg((lamp5Co[0] + lamp5Co[2] / 2),
-                      (lamp5Co[1] + lamp5Co[3] / 2 + 14), state);
+        PhilipsHueImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
+                      (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14), state);
       }
-      break;
-#endif
-#ifdef LAMP6_ENABLED
-    case 6:
+    }
+    break;
+  case 6:
+    if (lights.lamp6enabled) {
       if (lamp6type == "Christmas lights") {
-        christmasLightsImg((lamp6Co[0] + lamp6Co[2] / 2),
-                           (lamp6Co[1] + lamp6Co[3] / 2 + 14), state);
+        christmasLightsImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
+                           (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14),
+                           state);
       } else if (lamp6type == "Globe lamp") {
-        globeLightImg((lamp6Co[0] + lamp6Co[2] / 2),
-                      (lamp6Co[1] + lamp6Co[3] / 2 + 14), state);
+        globeLightImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
+                      (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14), state);
       } else if (lamp6type == "Moonlamp") {
-        moonlampImg((lamp6Co[0] + lamp6Co[2] / 2),
-                    (lamp6Co[1] + lamp6Co[3] / 2 + 14), state);
+        moonlampImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
+                    (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14), state);
       } else if (lamp6type == "Philips Hue") {
-        PhilipsHueImg((lamp6Co[0] + lamp6Co[2] / 2),
-                      (lamp6Co[1] + lamp6Co[3] / 2 + 14), state);
+        PhilipsHueImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
+                      (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14), state);
       }
-      break;
-#endif
+    }
+    break;
+  }
+}
+
+void Lights::reconfigureCoordinates() {
+  if (lamp6enabled) {
+    lamp1co[0] = 1;
+    lamp1co[1] = 1;
+    lamp1co[2] = SCREEN_W / 3 - 1;
+    lamp1co[3] = SCREEN_H / 2 - 1;
+    lamp2co[0] = SCREEN_W / 3 + 1;
+    lamp2co[1] = 1;
+    lamp2co[2] = SCREEN_W / 3 - 1;
+    lamp2co[3] = SCREEN_H / 2 - 1;
+    lamp3co[0] = 2 * SCREEN_W / 3;
+    lamp3co[1] = 1;
+    lamp3co[2] = SCREEN_W / 3;
+    lamp3co[3] = SCREEN_H / 2 - 1;
+    lamp4co[0] = 1;
+    lamp4co[1] = SCREEN_H / 2 + 1;
+    lamp4co[2] = SCREEN_W / 3 - 1;
+    lamp4co[3] = SCREEN_H / 2 - 2;
+    lamp5co[0] = SCREEN_W / 3 + 1;
+    lamp5co[1] = SCREEN_H / 2 + 1;
+    lamp5co[2] = SCREEN_W / 3 - 1;
+    lamp5co[3] = SCREEN_H / 2 - 2;
+    lamp6co[0] = 2 * SCREEN_W / 3;
+    lamp6co[1] = SCREEN_H / 2 + 1;
+    lamp6co[2] = SCREEN_W / 3;
+    lamp6co[3] = SCREEN_H / 2 - 2;
+  } else if (lamp5enabled) {
+    lamp1co[0] = 1;
+    lamp1co[1] = 1;
+    lamp1co[2] = SCREEN_W / 3 - 1;
+    lamp1co[3] = SCREEN_H / 2 - 1;
+    lamp2co[0] = SCREEN_W / 3 + 1;
+    lamp2co[1] = 1;
+    lamp2co[2] = SCREEN_W / 3 - 1;
+    lamp2co[3] = SCREEN_H / 2 - 1;
+    lamp3co[0] = 2 * SCREEN_W / 3;
+    lamp3co[1] = 1;
+    lamp3co[2] = SCREEN_W / 3;
+    lamp3co[3] = SCREEN_H / 2 - 1;
+    lamp4co[0] = 1;
+    lamp4co[1] = SCREEN_H / 2 + 1;
+    lamp4co[2] = SCREEN_W / 2 - 1;
+    lamp4co[3] = SCREEN_H / 2 - 2;
+    lamp5co[0] = SCREEN_W / 2 + 1;
+    lamp5co[1] = SCREEN_H / 2 + 1;
+    lamp5co[2] = SCREEN_W / 2;
+    lamp5co[3] = SCREEN_H / 2 - 2;
+  } else if (lamp4enabled) {
+    lamp1co[0] = 1;
+    lamp1co[1] = 1;
+    lamp1co[2] = SCREEN_W / 2 - 1;
+    lamp1co[3] = SCREEN_H / 2 - 1;
+    lamp2co[0] = SCREEN_W / 2 + 1;
+    lamp2co[1] = 1;
+    lamp2co[2] = SCREEN_W / 2;
+    lamp2co[3] = SCREEN_H / 2 - 1;
+    lamp3co[0] = 1;
+    lamp3co[1] = SCREEN_H / 2 + 1;
+    lamp3co[2] = SCREEN_W / 2 - 1;
+    lamp3co[3] = SCREEN_H / 2 - 2;
+    lamp4co[0] = SCREEN_W / 2 + 1;
+    lamp4co[1] = SCREEN_H / 2 + 1;
+    lamp4co[2] = SCREEN_W / 2;
+    lamp4co[3] = SCREEN_H / 2 - 2;
+  } else if (lamp3enabled) {
+    lamp1co[0] = 1;
+    lamp1co[1] = 1;
+    lamp1co[2] = SCREEN_W / 2 - 1;
+    lamp1co[3] = SCREEN_H / 2 - 1;
+    lamp2co[0] = SCREEN_W / 2 + 1;
+    lamp2co[1] = 1;
+    lamp2co[2] = SCREEN_W / 2;
+    lamp2co[3] = SCREEN_H / 2 - 1;
+    lamp3co[0] = 1;
+    lamp3co[1] = SCREEN_H / 2 + 1;
+    lamp3co[2] = SCREEN_W;
+    lamp3co[3] = SCREEN_H / 2 - 2;
+  } else if (lamp2enabled) {
+    lamp1co[0] = 1;
+    lamp1co[1] = 1;
+    lamp1co[2] = SCREEN_W;
+    lamp1co[3] = SCREEN_H / 2 - 1;
+    lamp2co[0] = 1;
+    lamp2co[1] = SCREEN_H / 2 + 1;
+    lamp2co[2] = SCREEN_W;
+    lamp2co[3] = SCREEN_H / 2 - 2;
+  } else if (lamp1enabled) {
+    lamp1co[0] = 1;
+    lamp1co[1] = 1;
+    lamp1co[2] = SCREEN_W;
+    lamp1co[3] = SCREEN_H;
   }
 }
 #endif
