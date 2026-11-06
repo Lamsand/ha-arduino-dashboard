@@ -94,6 +94,7 @@ int wasteCo[5] = {600, 262, 199, 217, 0};
 #ifdef ENABLE_CAR
 int car_battery = 0;
 float car_chargingPower = 0;
+bool car_chargingPowerUnitIskW = LOW;
 int car_chargingSpeed = 0;
 int car_cruisingRange = 0;
 int car_targetCharge = 0;
@@ -1425,8 +1426,12 @@ void onMqttMessage(int messageSize) {
       newHomeInfo = HIGH;
     }
     if (topic == "car/chargingPower") {
-      car_chargingPower = message.toFloat();
+      car_chargingPower =
+          message.toFloat() / (1000 * !car_chargingPowerUnitIskW);
       newHomeInfo = HIGH;
+    }
+    if (topic == "car/chargingPower/unit") {
+      car_chargingPowerUnitIskW = message == "kW";
     }
     /*if (topic == "car/chargingSpeed") {
       car_chargingSpeed = message.toInt();
