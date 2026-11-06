@@ -410,7 +410,7 @@ void Lights::reconfigureCoordinates() {
     lamp4co[3] = SCREEN_H / 2 - 2;
     lamp5co[0] = SCREEN_W / 2 + 1;
     lamp5co[1] = SCREEN_H / 2 + 1;
-    lamp5co[2] = SCREEN_W / 2;
+    lamp5co[2] = SCREEN_W / 2 - 2;
     lamp5co[3] = SCREEN_H / 2 - 2;
   } else if (lamp4enabled) {
     lamp1co[0] = 1;
@@ -419,7 +419,7 @@ void Lights::reconfigureCoordinates() {
     lamp1co[3] = SCREEN_H / 2 - 1;
     lamp2co[0] = SCREEN_W / 2 + 1;
     lamp2co[1] = 1;
-    lamp2co[2] = SCREEN_W / 2;
+    lamp2co[2] = SCREEN_W / 2 - 2;
     lamp2co[3] = SCREEN_H / 2 - 1;
     lamp3co[0] = 1;
     lamp3co[1] = SCREEN_H / 2 + 1;
@@ -427,7 +427,7 @@ void Lights::reconfigureCoordinates() {
     lamp3co[3] = SCREEN_H / 2 - 2;
     lamp4co[0] = SCREEN_W / 2 + 1;
     lamp4co[1] = SCREEN_H / 2 + 1;
-    lamp4co[2] = SCREEN_W / 2;
+    lamp4co[2] = SCREEN_W / 2 - 2;
     lamp4co[3] = SCREEN_H / 2 - 2;
   } else if (lamp3enabled) {
     lamp1co[0] = 1;
@@ -436,26 +436,26 @@ void Lights::reconfigureCoordinates() {
     lamp1co[3] = SCREEN_H / 2 - 1;
     lamp2co[0] = SCREEN_W / 2 + 1;
     lamp2co[1] = 1;
-    lamp2co[2] = SCREEN_W / 2;
+    lamp2co[2] = SCREEN_W / 2 - 2;
     lamp2co[3] = SCREEN_H / 2 - 1;
     lamp3co[0] = 1;
     lamp3co[1] = SCREEN_H / 2 + 1;
-    lamp3co[2] = SCREEN_W;
+    lamp3co[2] = SCREEN_W - 2;
     lamp3co[3] = SCREEN_H / 2 - 2;
   } else if (lamp2enabled) {
     lamp1co[0] = 1;
     lamp1co[1] = 1;
-    lamp1co[2] = SCREEN_W;
+    lamp1co[2] = SCREEN_W - 2;
     lamp1co[3] = SCREEN_H / 2 - 1;
     lamp2co[0] = 1;
     lamp2co[1] = SCREEN_H / 2 + 1;
-    lamp2co[2] = SCREEN_W;
+    lamp2co[2] = SCREEN_W - 2;
     lamp2co[3] = SCREEN_H / 2 - 2;
   } else if (lamp1enabled) {
     lamp1co[0] = 1;
     lamp1co[1] = 1;
-    lamp1co[2] = SCREEN_W;
-    lamp1co[3] = SCREEN_H;
+    lamp1co[2] = SCREEN_W - 2;
+    lamp1co[3] = SCREEN_H - 2;
   }
 }
 #endif
