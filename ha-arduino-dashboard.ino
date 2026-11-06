@@ -1427,7 +1427,7 @@ void onMqttMessage(int messageSize) {
     }
     if (topic == "car/chargingPower") {
       car_chargingPower =
-          message.toFloat() / (1000 * !car_chargingPowerUnitIskW);
+          message.toFloat() / (car_chargingPowerUnitIskW ? 1.0f : 1000.0f);
       newHomeInfo = HIGH;
     }
     if (topic == "car/chargingPower/unit") {
