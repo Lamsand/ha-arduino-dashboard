@@ -1658,14 +1658,23 @@ void onMqttMessage(int messageSize) {
           newBlxmInfo = HIGH;
         }
       }
+      if (message == "STATE_UNAVAILABLE") {
+        currentImport = 99999;
+      }
     }
     if (topic == "energy/currentProduction") {
       message.replace(".0", "");
       currentProduction = message.toInt();
+      if (message == "STATE_UNAVAILABLE") {
+        currentProduction = 99999;
+      }
     }
     if (topic == "energy/currentConsumption") {
       message.replace(".0", "");
       currentConsumption = message.toInt();
+      if (message == "STATE_UNAVAILABLE") {
+        currentConsumption = 99999;
+      }
     }
   }
   if (topic == "home/interval") {
