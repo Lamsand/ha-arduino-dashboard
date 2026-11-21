@@ -286,15 +286,27 @@ void Dashboard::energyV(int currentImport, int currentProduction,
   display.setTextColor(publicTEXT, publicBackg);
   display.setCursor(480, 320);
   display.print("Verbruik: ");
-  display.print(currentConsumption);
+  if (currentConsumption != 99999) {
+    display.print(currentConsumption);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
   display.setCursor(480, 365);
   display.print("Import: ");
-  display.print(currentImport);
+  if (currentImport != 99999) {
+    display.print(currentImport);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
   display.setCursor(480, 410);
   display.print("Opbrengst: ");
-  display.print(currentProduction);
+  if (currentProduction != 99999) {
+    display.print(currentProduction);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
 
   // Overzicht
@@ -305,7 +317,11 @@ void Dashboard::energyV(int currentImport, int currentProduction,
   }
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(6);
-  display.print(currentImport);
+  if (currentImport != 99999) {
+    display.print(currentImport);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
   display.fillRect(799, 0, 2, 480, WHITE);
 }
