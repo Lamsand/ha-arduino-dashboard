@@ -101,11 +101,11 @@ int car_targetCharge = 0;
 #endif
 #ifdef ENABLE_ENERGY
 int importArr[360];
-int currentImport = 0;
+int currentImport = 99999;
 int consumptionArr[360];
-int currentConsumption = 0;
+int currentConsumption = 99999;
 int productionArr[360];
-int currentProduction = 0;
+int currentProduction = 99999;
 int timeArr[360];
 bool newMinute = LOW;
 int longImportArr[360];
