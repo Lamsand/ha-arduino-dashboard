@@ -1664,6 +1664,7 @@ void onMqttMessage(int messageSize) {
     }
     if (topic == "energy/currentProduction") {
       message.replace(".0", "");
+      newEnergyVal = HIGH;
       currentProduction = message.toInt();
       if (message == "unavailable") {
         currentProduction = 99999;
@@ -1671,6 +1672,7 @@ void onMqttMessage(int messageSize) {
     }
     if (topic == "energy/currentConsumption") {
       message.replace(".0", "");
+      newEnergyVal = HIGH;
       currentConsumption = message.toInt();
       if (message == "unavailable") {
         currentConsumption = 99999;
