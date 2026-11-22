@@ -12,6 +12,10 @@
 #define chipSelect 5
 #define buffSize 150000
 
+#ifdef ENABLE_LIGHTS
+class Lights;
+#endif
+
 class Dashboard {
 private:
   GigaDisplay_GFX display;
@@ -54,7 +58,7 @@ public:
   void globeLightImg(int xInput, int yInput, bool state);
   void PhilipsHueImg(int xInput, int yInput, bool state);
   void christmasLightsImg(int xInput, int yInput, bool state);
-  void lightRefresh(int lampnumber, bool state);
+  void lightRefresh(const Lights &lights, int lampnumber, bool state);
   // ** car **
   void carImageMini(int xInput, int yInput);
   void carImageLarge(int xInput, int yInput);
@@ -153,7 +157,7 @@ public:
                  int target, int range);
   void evcc(int PV, int grid, int consumption, float toCar, float currentPrice);
   // ** lights **
-  void detailLights();
+  void detailLights(const Lights &lights);
   void lightBr(int br);
   void lightSw();
   // ** music **

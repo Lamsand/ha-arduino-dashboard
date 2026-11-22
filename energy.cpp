@@ -6,43 +6,44 @@
 #ifdef ENABLE_ENERGY
 void Dashboard::bliksem(int xInput, int yInput, int state) {
   switch (state) {
-    case 0:
-      if (publicBackg == BLACK) {
-        file = sd.open("Energy/blxmGD.bin");
-      } else {
-        file = sd.open("Energy/blxmGL.bin");
-      }
-      break;
-    case 1:
-      if (publicBackg == BLACK) {
-        file = sd.open("Energy/blxmOD.bin");
-      } else {
-        file = sd.open("Energy/blxmOL.bin");
-      }
-      break;
-    case 2:
-      if (publicBackg == BLACK) {
-        file = sd.open("Energy/blxmRD.bin");
-      } else {
-        file = sd.open("Energy/blxmRL.bin");
-      }
-      break;
+  case 0:
+    if (publicBackg == BLACK) {
+      file = sd.open("Energy/blxmGD.bin");
+    } else {
+      file = sd.open("Energy/blxmGL.bin");
+    }
+    break;
+  case 1:
+    if (publicBackg == BLACK) {
+      file = sd.open("Energy/blxmOD.bin");
+    } else {
+      file = sd.open("Energy/blxmOL.bin");
+    }
+    break;
+  case 2:
+    if (publicBackg == BLACK) {
+      file = sd.open("Energy/blxmRD.bin");
+    } else {
+      file = sd.open("Energy/blxmRL.bin");
+    }
+    break;
   }
-  if (!file) return;
-  file.seek(4);  // Skip the 4-byte header of the file
+  if (!file)
+    return;
+  file.seek(4); // Skip the 4-byte header of the file
   int y = 0;
   const int h = 170;
   const int w = 132;
   int q = buffSize / w;
   while (y < h / q) {
-    file.read((uint16_t*)rowBuffer, w * 2 * q);
+    file.read((uint16_t *)rowBuffer, w * 2 * q);
     display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                          q);  // Draw one row at a time
+                          q); // Draw one row at a time
     y++;
   }
-  file.read((uint16_t*)rowBuffer, w * 2 * (h % q));
+  file.read((uint16_t *)rowBuffer, w * 2 * (h % q));
   display.drawRGBBitmap(xInput - w / 2, yInput - h / 2 + q * y, rowBuffer, w,
-                        h % q);  // Draw one row at a time
+                        h % q); // Draw one row at a time
   file.close();
 }
 
@@ -56,7 +57,11 @@ void Dashboard::homeEnergy(int x, int y, int w, int h, int state, int value) {
   }
   display.setTextColor(publicTEXT);
   display.setTextSize(6);
-  display.print(value);
+  if (value != 99999) {
+    display.print(value);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
 }
 void Dashboard::homeEnergyV(int x, int y, int w, int h, int state, int value) {
@@ -71,18 +76,23 @@ void Dashboard::homeEnergyV(int x, int y, int w, int h, int state, int value) {
   }
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(6);
-  display.print(value);
+  if (value != 99999) {
+    display.print(value);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
 }
 void Dashboard::homeEnergyImg(int x, int y, int w, int h, int state) {
   bliksem(x + w / 4, y + h / 2, state);
 }
 
-int median(int* arr, int i, int range) {
+int median(int *arr, int i, int range) {
   int buf[range * 2 + 1];
   int count = 0;
   for (int j = i - range; j <= i + range; j++) {
-    if (j >= 0 && j < 360) buf[count++] = arr[j];
+    if (j >= 0 && j < 360)
+      buf[count++] = arr[j];
   }
   // Simpele bubblesort
   for (int a = 0; a < count - 1; a++)
@@ -95,10 +105,10 @@ int median(int* arr, int i, int range) {
   return buf[count / 2];
 }
 
-void Dashboard::energy(int* import, int* prod, int* cons, int* longImport,
-                       int* longProd, int* longCons, int currentImport,
-                       int currentProduction, int currentConsumption, int* TIME,
-                       int* LONGTIME, int state, bool longGraph, bool rounded,
+void Dashboard::energy(int *import, int *prod, int *cons, int *longImport,
+                       int *longProd, int *longCons, int currentImport,
+                       int currentProduction, int currentConsumption, int *TIME,
+                       int *LONGTIME, int state, bool longGraph, bool rounded,
                        bool drawImport, bool drawProduction,
                        bool drawConsumption) {
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
@@ -108,9 +118,9 @@ void Dashboard::energy(int* import, int* prod, int* cons, int* longImport,
               drawConsumption);
   bliksem(450 + 340 / 4, 124 + 156 / 2, state);
 }
-void Dashboard::energyGraph(int* import, int* prod, int* cons, int* longImport,
-                            int* longProd, int* longCons, int* TIME,
-                            int* LONGTIME, bool longGraph, bool rounded,
+void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport,
+                            int *longProd, int *longCons, int *TIME,
+                            int *LONGTIME, bool longGraph, bool rounded,
                             bool drawImport, bool drawProduction,
                             bool drawConsumption) {
   if (drawConsumption) {
@@ -156,18 +166,21 @@ void Dashboard::energyGraph(int* import, int* prod, int* cons, int* longImport,
       display.print(" kW");
     }
     for (int i = 0; i < 359; i++) {
-      if (drawConsumption) {
+      if (drawConsumption &&
+          (longCons[i] != 99999 || longCons[i + 1] != 99999)) {
         display.drawLine(
             60 + i, 400 - map(median(longCons, i, 3), 0, 10000, 0, 360), 61 + i,
             400 - map(median(longCons, i + 1, 3), 0, 10000, 0, 360), HABlue);
       }
-      if (drawImport) {
+      if (drawImport &&
+          (longImport[i] != 99999 || longImport[i + 1] != 99999)) {
         display.drawLine(
             60 + i, 400 - map(median(longImport, i, 3), 0, 10000, 0, 360),
             61 + i, 400 - map(median(longImport, i + 1, 3), 0, 10000, 0, 360),
             ORANGE);
       }
-      if (drawProduction) {
+      if (drawProduction &&
+          (longProd[i] != 99999 || longProd[i + 1] != 99999)) {
         display.drawLine(
             60 + i, 400 - map(median(longProd, i, 3), 0, 10000, 0, 360), 61 + i,
             400 - map(median(longProd, i + 1, 3), 0, 10000, 0, 360), evccGREEN);
@@ -214,17 +227,17 @@ void Dashboard::energyGraph(int* import, int* prod, int* cons, int* longImport,
     }
     if (rounded) {
       for (int i = 0; i < 359; i++) {
-        if (drawConsumption) {
+        if (drawConsumption && (cons[i] != 99999 || cons[i + 1] != 99999)) {
           display.drawLine(
               60 + i, 400 - map(median(cons, i, 6), 0, 10000, 0, 360), 61 + i,
               400 - map(median(cons, i + 1, 6), 0, 10000, 0, 360), HABlue);
         }
-        if (drawImport) {
+        if (drawImport && (import[i] != 99999 || import[i + 1] != 99999)) {
           display.drawLine(
               60 + i, 400 - map(median(import, i, 6), 0, 10000, 0, 360), 61 + i,
               400 - map(median(import, i + 1, 6), 0, 10000, 0, 360), ORANGE);
         }
-        if (drawProduction) {
+        if (drawProduction && (prod[i] != 99999 || prod[i + 1] != 99999)) {
           display.drawLine(
               60 + i, 400 - map(median(prod, i, 6), 0, 10000, 0, 360), 61 + i,
               400 - map(median(prod, i + 1, 6), 0, 10000, 0, 360), evccGREEN);
@@ -232,16 +245,16 @@ void Dashboard::energyGraph(int* import, int* prod, int* cons, int* longImport,
       }
     } else {
       for (int i = 0; i < 359; i++) {
-        if (drawConsumption) {
+        if (drawConsumption && (cons[i] != 99999 || cons[i + 1] != 99999)) {
           display.drawLine(60 + i, 400 - map(cons[i], 0, 10000, 0, 360), 61 + i,
                            400 - map(cons[i + 1], 0, 10000, 0, 360), HABlue);
         }
-        if (drawImport) {
+        if (drawImport && (import[i] != 99999 || import[i + 1] != 99999)) {
           display.drawLine(60 + i, 400 - map(import[i], 0, 10000, 0, 360),
                            61 + i, 400 - map(import[i + 1], 0, 10000, 0, 360),
                            ORANGE);
         }
-        if (drawProduction) {
+        if (drawProduction && (prod[i] != 99999 || prod[i + 1] != 99999)) {
           display.drawLine(60 + i, 400 - map(prod[i], 0, 10000, 0, 360), 61 + i,
                            400 - map(prod[i + 1], 0, 10000, 0, 360), evccGREEN);
         }
@@ -273,15 +286,27 @@ void Dashboard::energyV(int currentImport, int currentProduction,
   display.setTextColor(publicTEXT, publicBackg);
   display.setCursor(480, 320);
   display.print("Verbruik: ");
-  display.print(currentConsumption);
+  if (currentConsumption != 99999) {
+    display.print(currentConsumption);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
   display.setCursor(480, 365);
   display.print("Import: ");
-  display.print(currentImport);
+  if (currentImport != 99999) {
+    display.print(currentImport);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
   display.setCursor(480, 410);
   display.print("Opbrengst: ");
-  display.print(currentProduction);
+  if (currentProduction != 99999) {
+    display.print(currentProduction);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
 
   // Overzicht
@@ -292,7 +317,11 @@ void Dashboard::energyV(int currentImport, int currentProduction,
   }
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(6);
-  display.print(currentImport);
+  if (currentImport != 99999) {
+    display.print(currentImport);
+  } else {
+    display.print("N/A");
+  }
   display.print("W");
   display.fillRect(799, 0, 2, 480, WHITE);
 }
