@@ -16,6 +16,10 @@
 class Lights;
 #endif
 
+#ifdef ENABLE_ENERGY
+class Energy;
+#endif
+
 class Dashboard {
 private:
   GigaDisplay_GFX display;
@@ -127,15 +131,8 @@ public:
   void homeRelaysImg(int x, int y, int w, int h);
   ////// DETAILS /////////////
   // ** energy **
-  void energy(int *import, int *prod, int *cons, int *longImport, int *longProd,
-              int *longCons, int currentImport, int currentProduction,
-              int currentConsumption, int *TIME, int *LONGTIME, int state,
-              bool longGraph, bool rounded, bool drawImport,
-              bool drawProduction, bool drawConsumption);
-  void energyGraph(int *import, int *prod, int *cons, int *longImport,
-                   int *longProd, int *longCons, int *TIME, int *LONGTIME,
-                   bool longGraph, bool rounded, bool drawImport,
-                   bool drawProduction, bool drawConsumption);
+  void energy(const Energy &energy);
+  void energyGraph(const Energy &energy);
   void energyV(int currentImport, int currentProduction,
                int currentConsumption);
   // ** prices **

@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "..\\..\\..,..\\..\\..,..\\..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..,..\\..",
+  "compiler.optimization_flags": "",
+  "customBuildProperties": "",
+  "fqbn": "arduino:mbed_giga:giga",
+  "hardwareFolders": "C:\\Users\\Sander\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_giga\\4.6.0,C:\\Users\\Sander\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_giga\\4.6.0",
+  "otherLibrariesFolders": "C:\\Users\\Sander\\OneDrive\\Documenten\\.Code\\Arduino\\libraries,C:\\Users\\Sander\\OneDrive\\Documenten\\Arduino\\libraries",
+  "sketchLocation": "C:\\Users\\Sander\\OneDrive\\Documenten\\.Code\\Arduino\\Giga R1 wifi\\Home assistant\\GitHub\\ha-arduino-dashboard"
+}

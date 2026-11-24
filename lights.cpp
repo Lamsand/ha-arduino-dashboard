@@ -5,18 +5,12 @@
 #include "config.h"
 
 #ifdef ENABLE_LIGHTS
-/*  lampXtype = type of lamp X
+/*  Lights::lampXimg = image of lamp X
     -  "Christmas lights"
     -  "Globe lamp"
     -  "Moonlamp"
     -  "Philips Hue"
 */
-const char *lamp1type = "Christmas lights";
-const char *lamp2type = "Globe lamp";
-const char *lamp3type = "Globe lamp";
-const char *lamp4type = "Moonlamp";
-const char *lamp5type = "Christmas lights";
-const char *lamp6type = "Philips Hue";
 
 void Dashboard::moonlampImg(int xInput, int yInput, bool state) {
   if (state == HIGH) {
@@ -256,17 +250,17 @@ void Dashboard::lightRefresh(const Lights &lights, int lampnumber, bool state) {
   switch (lampnumber) {
   case 1:
     if (lights.lamp1enabled) {
-      if (lamp1type == "Christmas lights") {
+      if (lights.lamp1img == "Christmas lights") {
         christmasLightsImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
                            (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14),
                            state);
-      } else if (lamp1type == "Globe lamp") {
+      } else if (lights.lamp1img == "Globe lamp") {
         globeLightImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
                       (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14), state);
-      } else if (lamp1type == "Moonlamp") {
+      } else if (lights.lamp1img == "Moonlamp") {
         moonlampImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
                     (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14), state);
-      } else if (lamp1type == "Philips Hue") {
+      } else if (lights.lamp1img == "Philips Hue") {
         PhilipsHueImg((lights.lamp1co[0] + lights.lamp1co[2] / 2),
                       (lights.lamp1co[1] + lights.lamp1co[3] / 2 + 14), state);
       }
@@ -274,17 +268,17 @@ void Dashboard::lightRefresh(const Lights &lights, int lampnumber, bool state) {
     break;
   case 2:
     if (lights.lamp2enabled) {
-      if (lamp2type == "Christmas lights") {
+      if (lights.lamp2img == "Christmas lights") {
         christmasLightsImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
                            (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14),
                            state);
-      } else if (lamp2type == "Globe lamp") {
+      } else if (lights.lamp2img == "Globe lamp") {
         globeLightImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
                       (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14), state);
-      } else if (lamp2type == "Moonlamp") {
+      } else if (lights.lamp2img == "Moonlamp") {
         moonlampImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
                     (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14), state);
-      } else if (lamp2type == "Philips Hue") {
+      } else if (lights.lamp2img == "Philips Hue") {
         PhilipsHueImg((lights.lamp2co[0] + lights.lamp2co[2] / 2),
                       (lights.lamp2co[1] + lights.lamp2co[3] / 2 + 14), state);
       }
@@ -292,17 +286,17 @@ void Dashboard::lightRefresh(const Lights &lights, int lampnumber, bool state) {
     break;
   case 3:
     if (lights.lamp3enabled) {
-      if (lamp3type == "Christmas lights") {
+      if (lights.lamp3img == "Christmas lights") {
         christmasLightsImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
                            (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14),
                            state);
-      } else if (lamp3type == "Globe lamp") {
+      } else if (lights.lamp3img == "Globe lamp") {
         globeLightImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
                       (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14), state);
-      } else if (lamp3type == "Moonlamp") {
+      } else if (lights.lamp3img == "Moonlamp") {
         moonlampImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
                     (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14), state);
-      } else if (lamp3type == "Philips Hue") {
+      } else if (lights.lamp3img == "Philips Hue") {
         PhilipsHueImg((lights.lamp3co[0] + lights.lamp3co[2] / 2),
                       (lights.lamp3co[1] + lights.lamp3co[3] / 2 + 14), state);
       }
@@ -310,17 +304,17 @@ void Dashboard::lightRefresh(const Lights &lights, int lampnumber, bool state) {
     break;
   case 4:
     if (lights.lamp4enabled) {
-      if (lamp4type == "Christmas lights") {
+      if (lights.lamp4img == "Christmas lights") {
         christmasLightsImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
                            (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14),
                            state);
-      } else if (lamp4type == "Globe lamp") {
+      } else if (lights.lamp4img == "Globe lamp") {
         globeLightImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
                       (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14), state);
-      } else if (lamp4type == "Moonlamp") {
+      } else if (lights.lamp4img == "Moonlamp") {
         moonlampImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
                     (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14), state);
-      } else if (lamp4type == "Philips Hue") {
+      } else if (lights.lamp4img == "Philips Hue") {
         PhilipsHueImg((lights.lamp4co[0] + lights.lamp4co[2] / 2),
                       (lights.lamp4co[1] + lights.lamp4co[3] / 2 + 14), state);
       }
@@ -328,17 +322,17 @@ void Dashboard::lightRefresh(const Lights &lights, int lampnumber, bool state) {
     break;
   case 5:
     if (lights.lamp5enabled) {
-      if (lamp5type == "Christmas lights") {
+      if (lights.lamp5img == "Christmas lights") {
         christmasLightsImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
                            (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14),
                            state);
-      } else if (lamp5type == "Globe lamp") {
+      } else if (lights.lamp5img == "Globe lamp") {
         globeLightImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
                       (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14), state);
-      } else if (lamp5type == "Moonlamp") {
+      } else if (lights.lamp5img == "Moonlamp") {
         moonlampImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
                     (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14), state);
-      } else if (lamp5type == "Philips Hue") {
+      } else if (lights.lamp5img == "Philips Hue") {
         PhilipsHueImg((lights.lamp5co[0] + lights.lamp5co[2] / 2),
                       (lights.lamp5co[1] + lights.lamp5co[3] / 2 + 14), state);
       }
@@ -346,17 +340,17 @@ void Dashboard::lightRefresh(const Lights &lights, int lampnumber, bool state) {
     break;
   case 6:
     if (lights.lamp6enabled) {
-      if (lamp6type == "Christmas lights") {
+      if (lights.lamp6img == "Christmas lights") {
         christmasLightsImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
                            (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14),
                            state);
-      } else if (lamp6type == "Globe lamp") {
+      } else if (lights.lamp6img == "Globe lamp") {
         globeLightImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
                       (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14), state);
-      } else if (lamp6type == "Moonlamp") {
+      } else if (lights.lamp6img == "Moonlamp") {
         moonlampImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
                     (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14), state);
-      } else if (lamp6type == "Philips Hue") {
+      } else if (lights.lamp6img == "Philips Hue") {
         PhilipsHueImg((lights.lamp6co[0] + lights.lamp6co[2] / 2),
                       (lights.lamp6co[1] + lights.lamp6co[3] / 2 + 14), state);
       }

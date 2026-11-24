@@ -2,7 +2,6 @@
 #define lights_h
 
 #include "Arduino.h"
-#include "config.h"
 
 class Lights {
 private:
@@ -19,36 +18,48 @@ public:
   int lamp1brightness = 0;
   bool lamp1OnOff = LOW;
   String lamp1name = "";
+  String lamp1img = "";
+  bool lamp1cstmImg = LOW;
 
   bool lamp2enabled = LOW;
   bool lamp2state = LOW;
   int lamp2brightness = 0;
   bool lamp2OnOff = LOW;
   String lamp2name = "";
+  String lamp2img = "";
+  bool lamp2cstmImg = LOW;
 
   bool lamp3enabled = LOW;
   bool lamp3state = LOW;
   int lamp3brightness = 0;
   bool lamp3OnOff = LOW;
   String lamp3name = "";
+  String lamp3img = "";
+  bool lamp3cstmImg = LOW;
 
   bool lamp4enabled = LOW;
   bool lamp4state = LOW;
   int lamp4brightness = 0;
   bool lamp4OnOff = LOW;
   String lamp4name = "";
+  String lamp4img = "";
+  bool lamp4cstmImg = LOW;
 
   bool lamp5enabled = LOW;
   bool lamp5state = LOW;
   int lamp5brightness = 0;
   bool lamp5OnOff = LOW;
   String lamp5name = "";
+  String lamp5img = "";
+  bool lamp5cstmImg = LOW;
 
   bool lamp6enabled = LOW;
   bool lamp6state = LOW;
   int lamp6brightness = 0;
   bool lamp6OnOff = LOW;
   String lamp6name = "";
+  String lamp6img = "";
+  bool lamp6cstmImg = LOW;
 
   bool lamp1change = LOW;
   bool lamp2change = LOW;

@@ -1,3 +1,4 @@
+#include "energy.h"
 #include "Arduino.h"
 #include "Colors.h"
 #include "Dashboard.h"
@@ -87,13 +88,15 @@ void Dashboard::homeEnergyImg(int x, int y, int w, int h, int state) {
   bliksem(x + w / 4, y + h / 2, state);
 }
 
-int median(int *arr, int i, int range) {
+int median(const int *arr, int i, int range) {
   int buf[range * 2 + 1];
   int count = 0;
   for (int j = i - range; j <= i + range; j++) {
-    if (j >= 0 && j < 360)
+    if (j >= 0 && j < 360 && arr[j] != 99999)
       buf[count++] = arr[j];
   }
+  if (count == 0)
+    return 99999;
   // Simpele bubblesort
   for (int a = 0; a < count - 1; a++)
     for (int b = 0; b < count - a - 1; b++)
@@ -105,37 +108,27 @@ int median(int *arr, int i, int range) {
   return buf[count / 2];
 }
 
-void Dashboard::energy(int *import, int *prod, int *cons, int *longImport,
-                       int *longProd, int *longCons, int currentImport,
-                       int currentProduction, int currentConsumption, int *TIME,
-                       int *LONGTIME, int state, bool longGraph, bool rounded,
-                       bool drawImport, bool drawProduction,
-                       bool drawConsumption) {
+void Dashboard::energy(const Energy &energy) {
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
-  energyV(currentImport, currentProduction, currentConsumption);
-  energyGraph(import, prod, cons, longImport, longProd, longCons, TIME,
-              LONGTIME, longGraph, rounded, drawImport, drawProduction,
-              drawConsumption);
-  bliksem(450 + 340 / 4, 124 + 156 / 2, state);
+  energyV(energy.currentImport, energy.currentProduction,
+          energy.currentConsumption);
+  energyGraph(energy);
+  bliksem(450 + 340 / 4, 124 + 156 / 2, energy.state);
 }
-void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport,
-                            int *longProd, int *longCons, int *TIME,
-                            int *LONGTIME, bool longGraph, bool rounded,
-                            bool drawImport, bool drawProduction,
-                            bool drawConsumption) {
-  if (drawConsumption) {
+void Dashboard::energyGraph(const Energy &energy) {
+  if (energy.drawConsumption) {
     display.fillCircle(460, 330, 10, HABlue);
   } else {
     display.fillCircle(460, 330, 10, publicBackg);
     display.drawCircle(460, 330, 10, HABlue);
   }
-  if (drawImport) {
+  if (energy.drawImport) {
     display.fillCircle(460, 375, 10, ORANGE);
   } else {
     display.fillCircle(460, 375, 10, publicBackg);
     display.drawCircle(460, 375, 10, ORANGE);
   }
-  if (drawProduction) {
+  if (energy.drawProduction) {
     display.fillCircle(460, 420, 10, evccGREEN);
   } else {
     display.fillCircle(460, 420, 10, publicBackg);
@@ -143,7 +136,7 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport,
   }
   display.fillRoundRect(61, 41, 358, 398, 9, publicBackg);
   display.fillRoundRect(450, 40, 340, 44, 10, publicTEXT);
-  if (longGraph) {
+  if (energy.longGraph) {
     display.fillRoundRect(625, 46, 160, 32, 5, publicBackg);
     display.setTextSize(3);
     display.setTextColor(publicBackg);
@@ -166,40 +159,53 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport,
       display.print(" kW");
     }
     for (int i = 0; i < 359; i++) {
-      if (drawConsumption &&
-          (longCons[i] != 99999 || longCons[i + 1] != 99999)) {
+      if (energy.drawConsumption && (energy.longConsumption[i] != 99999 &&
+                                     energy.longConsumption[i + 1] != 99999 &&
+                                     energy.longConsumption[i - 1] != 99999)) {
         display.drawLine(
-            60 + i, 400 - map(median(longCons, i, 3), 0, 10000, 0, 360), 61 + i,
-            400 - map(median(longCons, i + 1, 3), 0, 10000, 0, 360), HABlue);
+            60 + i,
+            400 - map(median(energy.longConsumption, i, 3), 0, 10000, 0, 360),
+            61 + i,
+            400 -
+                map(median(energy.longConsumption, i + 1, 3), 0, 10000, 0, 360),
+            HABlue);
       }
-      if (drawImport &&
-          (longImport[i] != 99999 || longImport[i + 1] != 99999)) {
+      if (energy.drawImport &&
+          (energy.longImport[i] != 99999 && energy.longImport[i + 1] != 99999 &&
+           energy.longImport[i - 1] != 99999)) {
         display.drawLine(
-            60 + i, 400 - map(median(longImport, i, 3), 0, 10000, 0, 360),
-            61 + i, 400 - map(median(longImport, i + 1, 3), 0, 10000, 0, 360),
+            60 + i,
+            400 - map(median(energy.longImport, i, 3), 0, 10000, 0, 360),
+            61 + i,
+            400 - map(median(energy.longImport, i + 1, 3), 0, 10000, 0, 360),
             ORANGE);
       }
-      if (drawProduction &&
-          (longProd[i] != 99999 || longProd[i + 1] != 99999)) {
+      if (energy.drawProduction && (energy.longProduction[i] != 99999 &&
+                                    energy.longProduction[i + 1] != 99999 &&
+                                    energy.longProduction[i - 1] != 99999)) {
         display.drawLine(
-            60 + i, 400 - map(median(longProd, i, 3), 0, 10000, 0, 360), 61 + i,
-            400 - map(median(longProd, i + 1, 3), 0, 10000, 0, 360), evccGREEN);
+            60 + i,
+            400 - map(median(energy.longProduction, i, 3), 0, 10000, 0, 360),
+            61 + i,
+            400 -
+                map(median(energy.longProduction, i + 1, 3), 0, 10000, 0, 360),
+            evccGREEN);
       }
     }
     display.fillRect(50, 444, 390, 20, publicBackg);
     for (int i = 0; i < 359; i++) {
-      if (LONGTIME[i] > 0) {
+      if (energy.longTimeArr[i] > 0) {
         for (int x = 0; x < 20; x++) {
           display.drawFastVLine(60 + i, 50 + x * 20, 5, GREY);
         }
         display.setTextColor(GREY);
         display.setTextSize(1);
-        if (LONGTIME[i] < 10) {
+        if (energy.longTimeArr[i] < 10) {
           display.setCursor(54 + i, 450);
         } else {
           display.setCursor(51 + i, 450);
         }
-        display.print(LONGTIME[i]);
+        display.print(energy.longTimeArr[i]);
         display.print("u");
       }
     }
@@ -225,55 +231,78 @@ void Dashboard::energyGraph(int *import, int *prod, int *cons, int *longImport,
       display.print(i);
       display.print(" kW");
     }
-    if (rounded) {
+    if (energy.roundState) {
       for (int i = 0; i < 359; i++) {
-        if (drawConsumption && (cons[i] != 99999 || cons[i + 1] != 99999)) {
+        if (energy.drawConsumption && (energy.consumption[i] != 99999 &&
+                                       energy.consumption[i + 1] != 99999 &&
+                                       energy.consumption[i - 1] != 99999)) {
           display.drawLine(
-              60 + i, 400 - map(median(cons, i, 6), 0, 10000, 0, 360), 61 + i,
-              400 - map(median(cons, i + 1, 6), 0, 10000, 0, 360), HABlue);
+              60 + i,
+              400 - map(median(energy.consumption, i, 6), 0, 10000, 0, 360),
+              61 + i,
+              400 - map(median(energy.consumption, i + 1, 6), 0, 10000, 0, 360),
+              HABlue);
         }
-        if (drawImport && (import[i] != 99999 || import[i + 1] != 99999)) {
+        if (energy.drawImport &&
+            (energy.import[i] != 99999 && energy.import[i + 1] != 99999 &&
+             energy.import[i - 1] != 99999)) {
           display.drawLine(
-              60 + i, 400 - map(median(import, i, 6), 0, 10000, 0, 360), 61 + i,
-              400 - map(median(import, i + 1, 6), 0, 10000, 0, 360), ORANGE);
+              60 + i, 400 - map(median(energy.import, i, 6), 0, 10000, 0, 360),
+              61 + i,
+              400 - map(median(energy.import, i + 1, 6), 0, 10000, 0, 360),
+              ORANGE);
         }
-        if (drawProduction && (prod[i] != 99999 || prod[i + 1] != 99999)) {
+        if (energy.drawProduction && (energy.production[i] != 99999 &&
+                                      energy.production[i + 1] != 99999 &&
+                                      energy.production[i - 1] != 99999)) {
           display.drawLine(
-              60 + i, 400 - map(median(prod, i, 6), 0, 10000, 0, 360), 61 + i,
-              400 - map(median(prod, i + 1, 6), 0, 10000, 0, 360), evccGREEN);
+              60 + i,
+              400 - map(median(energy.production, i, 6), 0, 10000, 0, 360),
+              61 + i,
+              400 - map(median(energy.production, i + 1, 6), 0, 10000, 0, 360),
+              evccGREEN);
         }
       }
     } else {
       for (int i = 0; i < 359; i++) {
-        if (drawConsumption && (cons[i] != 99999 || cons[i + 1] != 99999)) {
-          display.drawLine(60 + i, 400 - map(cons[i], 0, 10000, 0, 360), 61 + i,
-                           400 - map(cons[i + 1], 0, 10000, 0, 360), HABlue);
+        if (energy.drawConsumption && (energy.consumption[i] != 99999 &&
+                                       energy.consumption[i + 1] != 99999 &&
+                                       energy.consumption[i - 1] != 99999)) {
+          display.drawLine(
+              60 + i, 400 - map(energy.consumption[i], 0, 10000, 0, 360),
+              61 + i, 400 - map(energy.consumption[i + 1], 0, 10000, 0, 360),
+              HABlue);
         }
-        if (drawImport && (import[i] != 99999 || import[i + 1] != 99999)) {
-          display.drawLine(60 + i, 400 - map(import[i], 0, 10000, 0, 360),
-                           61 + i, 400 - map(import[i + 1], 0, 10000, 0, 360),
-                           ORANGE);
+        if (energy.drawImport &&
+            (energy.import[i] != 99999 && energy.import[i + 1] != 99999 &&
+             energy.import[i - 1] != 99999)) {
+          display.drawLine(
+              60 + i, 400 - map(energy.import[i], 0, 10000, 0, 360), 61 + i,
+              400 - map(energy.import[i + 1], 0, 10000, 0, 360), ORANGE);
         }
-        if (drawProduction && (prod[i] != 99999 || prod[i + 1] != 99999)) {
-          display.drawLine(60 + i, 400 - map(prod[i], 0, 10000, 0, 360), 61 + i,
-                           400 - map(prod[i + 1], 0, 10000, 0, 360), evccGREEN);
+        if (energy.drawProduction && (energy.production[i] != 99999 &&
+                                      energy.production[i + 1] != 99999 &&
+                                      energy.production[i - 1] != 99999)) {
+          display.drawLine(
+              60 + i, 400 - map(energy.production[i], 0, 10000, 0, 360), 61 + i,
+              400 - map(energy.production[i + 1], 0, 10000, 0, 360), evccGREEN);
         }
       }
     }
     display.fillRect(50, 444, 390, 20, publicBackg);
     for (int i = 0; i < 359; i++) {
-      if (TIME[i] > 0) {
+      if (energy.timeArr[i] > 0) {
         for (int x = 0; x < 20; x++) {
           display.drawFastVLine(60 + i, 50 + x * 20, 5, GREY);
         }
         display.setTextColor(GREY);
         display.setTextSize(1);
-        if (TIME[i] < 10) {
+        if (energy.timeArr[i] < 10) {
           display.setCursor(54 + i, 450);
         } else {
           display.setCursor(51 + i, 450);
         }
-        display.print(TIME[i]);
+        display.print(energy.timeArr[i]);
         display.print("u");
       }
     }
@@ -324,5 +353,18 @@ void Dashboard::energyV(int currentImport, int currentProduction,
   }
   display.print("W");
   display.fillRect(799, 0, 2, 480, WHITE);
+}
+Energy::Energy() {
+  for (int i = 0; i < 360; i++) {
+    import[i] = 99999;
+    consumption[i] = 99999;
+    production[i] = 99999;
+    timeArr[i] = 0;
+
+    longImport[i] = 99999;
+    longConsumption[i] = 99999;
+    longProduction[i] = 99999;
+    longTimeArr[i] = 0;
+  }
 }
 #endif

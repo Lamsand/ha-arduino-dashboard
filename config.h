@@ -1,4 +1,6 @@
 #include "Arduino.h"
+/////////////////////////////////////// Basics
+#define lastPage 3 // number of homepages, starting from 1
 /////////////////////////////////////// App Toggles
 #define ENABLE_MOWER
 #define ENABLE_CAR
