@@ -99,10 +99,6 @@ int car_chargingSpeed = 0;
 int car_cruisingRange = 0;
 int car_targetCharge = 0;
 #endif
-#ifdef ENABLE_ENERGY
-#include "energy.h"
-Energy energy;
-#endif
 #ifdef ENABLE_HEAT_PUMP
 bool compressor = LOW;
 int hotWaterTemp = 0;
@@ -412,7 +408,7 @@ void loop() {
                 energyCo[4] % primePageNr == 0)) { // Energy clicked
         page = "energy";
         dashboard.fillScreen(AllBackg);
-        dashboard.energy(energy);
+        dashboard.detailEnergy();
       }
 #endif
 #ifdef ENABLE_PRICES
@@ -823,14 +819,14 @@ void loop() {
       newEnergyGraph = HIGH;
       if (touch_x > 440 && touch_x < 800 && touch_y > 20 &&
           touch_y < 100) { // long graph clicked
-        energy.longGraph = !energy.longGraph;
+        dashboard.energy.longGraph = !dashboard.energy.longGraph;
       } else if (touch_x > 440 && touch_x < 480) {
         if (touch_y > 310 && touch_y < 350) {
-          energy.drawConsumption = !energy.drawConsumption;
+          dashboard.energy.drawConsumption = !dashboard.energy.drawConsumption;
         } else if (touch_y > 355 && touch_y < 395) {
-          energy.drawImport = !energy.drawImport;
+          dashboard.energy.drawImport = !dashboard.energy.drawImport;
         } else if (touch_y > 400 && touch_y < 440) {
-          energy.drawProduction = !energy.drawProduction;
+          dashboard.energy.drawProduction = !dashboard.energy.drawProduction;
         }
       }
 #ifdef ENABLE_evcc
@@ -842,13 +838,14 @@ void loop() {
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
-        dashboard.evcc(energy.currentProduction, energy.currentImport,
-                       energy.currentConsumption, car_chargingPower,
+        dashboard.evcc(dashboard.energy.currentProduction,
+                       dashboard.energy.currentImport,
+                       dashboard.energy.currentConsumption, car_chargingPower,
                        currentEpex);
       }
 #endif
-      else if (!energy.longGraph) {
-        energy.roundState = !energy.roundState;
+      else if (!dashboard.energy.longGraph) {
+        dashboard.energy.roundState = !dashboard.energy.roundState;
       } else {
         newEnergyGraph = LOW;
       }
@@ -955,8 +952,9 @@ void loop() {
         dashboard.fillScreen(AllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
-        dashboard.evcc(energy.currentProduction, energy.currentImport,
-                       energy.currentConsumption, car_chargingPower,
+        dashboard.evcc(dashboard.energy.currentProduction,
+                       dashboard.energy.currentImport,
+                       dashboard.energy.currentConsumption, car_chargingPower,
                        currentEpex);
       }
     }
@@ -1265,27 +1263,30 @@ void loop() {
   if (newEnergyVal || newEnergyGraph || newBlxmInfo) {
     if (page == "energy") {
       if (newEnergyVal) {
-        dashboard.energyV(energy.currentImport, energy.currentProduction,
-                          energy.currentConsumption);
+        dashboard.energyV(dashboard.energy.currentImport,
+                          dashboard.energy.currentProduction,
+                          dashboard.energy.currentConsumption);
       }
       if (newBlxmInfo) {
-        dashboard.bliksem(450 + 340 / 4, 124 + 156 / 2, energy.state);
+        dashboard.bliksem(450 + 340 / 4, 124 + 156 / 2, dashboard.energy.state);
       }
       if (newEnergyGraph) {
-        dashboard.energyGraph(energy);
+        dashboard.energyGraph();
       }
       // Serial.println("Refresh");
     }
     if (page == "home" && newBlxmInfo) {
       if (energyCo[4] != 0 && energyCo[4] % primes[homePage - 1] == 0) {
         dashboard.bliksem(energyCo[0] + energyCo[2] / 4,
-                          energyCo[1] + energyCo[3] / 2, energy.state);
+                          energyCo[1] + energyCo[3] / 2,
+                          dashboard.energy.state);
       }
     }
     if (page == "evcc") {
       Serial.println(currentEcopower);
-      dashboard.evcc(energy.currentProduction, energy.currentImport,
-                     energy.currentConsumption, car_chargingPower, currentEpex);
+      dashboard.evcc(
+          dashboard.energy.currentProduction, dashboard.energy.currentImport,
+          dashboard.energy.currentConsumption, car_chargingPower, currentEpex);
     }
     newBlxmInfo = LOW;
     newEnergyVal = LOW;
@@ -1377,8 +1378,8 @@ void onMqttMessage(int messageSize) {
         page = "home";
       }
     }
-    energy.newMinute = HIGH;
-    energy.longNewMinute = HIGH;
+    dashboard.energy.newMinute = HIGH;
+    dashboard.energy.longNewMinute = HIGH;
     if (lastReset == "Default") {
       lastReset = realTime;
     }
@@ -1696,41 +1697,41 @@ void onMqttMessage(int messageSize) {
       message.replace(".0", "");
       newHomeInfo = HIGH;
       newEnergyVal = HIGH;
-      energy.currentImport = message.toInt();
-      if (energy.currentImport < 0) {
-        if (energy.state != 0) {
-          energy.state = 0;
+      dashboard.energy.currentImport = message.toInt();
+      if (dashboard.energy.currentImport < 0) {
+        if (dashboard.energy.state != 0) {
+          dashboard.energy.state = 0;
           newBlxmInfo = HIGH;
         }
-      } else if (energy.currentImport < 4800) {
-        if (energy.state != 1) {
-          energy.state = 1;
+      } else if (dashboard.energy.currentImport < 4800) {
+        if (dashboard.energy.state != 1) {
+          dashboard.energy.state = 1;
           newBlxmInfo = HIGH;
         }
       } else {
-        if (energy.state != 2) {
-          energy.state = 2;
+        if (dashboard.energy.state != 2) {
+          dashboard.energy.state = 2;
           newBlxmInfo = HIGH;
         }
       }
       if (message == "unavailable") {
-        energy.currentImport = 99999;
+        dashboard.energy.currentImport = 99999;
       }
     }
     if (topic == "energy/currentProduction") {
       message.replace(".0", "");
       newEnergyVal = HIGH;
-      energy.currentProduction = message.toInt();
+      dashboard.energy.currentProduction = message.toInt();
       if (message == "unavailable") {
-        energy.currentProduction = 99999;
+        dashboard.energy.currentProduction = 99999;
       }
     }
     if (topic == "energy/currentConsumption") {
       message.replace(".0", "");
       newEnergyVal = HIGH;
-      energy.currentConsumption = message.toInt();
+      dashboard.energy.currentConsumption = message.toInt();
       if (message == "unavailable") {
-        energy.currentConsumption = 99999;
+        dashboard.energy.currentConsumption = 99999;
       }
     }
   }
@@ -1739,32 +1740,32 @@ void onMqttMessage(int messageSize) {
       String k = realTime;
       k.replace(":", "");
       for (int i = 0; i < 359; i++) {
-        energy.import[i] = energy.import[i + 1];
-        energy.consumption[i] = energy.consumption[i + 1];
-        energy.production[i] = energy.production[i + 1];
-        energy.timeArr[i] = energy.timeArr[i + 1];
-        // Serial.print(energy.import[i]);
+        dashboard.energy.import[i] = dashboard.energy.import[i + 1];
+        dashboard.energy.consumption[i] = dashboard.energy.consumption[i + 1];
+        dashboard.energy.production[i] = dashboard.energy.production[i + 1];
+        dashboard.energy.timeArr[i] = dashboard.energy.timeArr[i + 1];
+        // Serial.print(dashboard.energy.import[i]);
         // Serial.print(" ");
       }
-      if (energy.currentImport < -1111) {
-        energy.import[359] = -1111;
+      if (dashboard.energy.currentImport < -1111) {
+        dashboard.energy.import[359] = -1111;
       } else {
-        energy.import[359] = energy.currentImport;
+        dashboard.energy.import[359] = dashboard.energy.currentImport;
       }
-      if (energy.currentConsumption < -1111) {
-        energy.consumption[359] = -1111;
+      if (dashboard.energy.currentConsumption < -1111) {
+        dashboard.energy.consumption[359] = -1111;
       } else {
-        energy.consumption[359] = energy.currentConsumption;
+        dashboard.energy.consumption[359] = dashboard.energy.currentConsumption;
       }
-      energy.production[359] = energy.currentProduction;
-      // Serial.print(energy.import[359]);
+      dashboard.energy.production[359] = dashboard.energy.currentProduction;
+      // Serial.print(dashboard.energy.import[359]);
       // Serial.println();
 
-      if (k.toInt() % 100 == 0 && energy.newMinute) {
-        energy.timeArr[359] = k.toInt() / 100;
-        energy.newMinute = LOW;
+      if (k.toInt() % 100 == 0 && dashboard.energy.newMinute) {
+        dashboard.energy.timeArr[359] = k.toInt() / 100;
+        dashboard.energy.newMinute = LOW;
       } else {
-        energy.timeArr[359] = 0;
+        dashboard.energy.timeArr[359] = 0;
       }
       newEnergyGraph = HIGH;
     }
@@ -1772,31 +1773,34 @@ void onMqttMessage(int messageSize) {
       String k = realTime;
       k.replace(":", "");
       for (int i = 0; i < 359; i++) {
-        energy.longImport[i] = energy.longImport[i + 1];
-        energy.longConsumption[i] = energy.longConsumption[i + 1];
-        energy.longProduction[i] = energy.longProduction[i + 1];
-        energy.longTimeArr[i] = energy.longTimeArr[i + 1];
-        // Serial.print(energy.longImport[i]);
+        dashboard.energy.longImport[i] = dashboard.energy.longImport[i + 1];
+        dashboard.energy.longConsumption[i] =
+            dashboard.energy.longConsumption[i + 1];
+        dashboard.energy.longProduction[i] =
+            dashboard.energy.longProduction[i + 1];
+        dashboard.energy.longTimeArr[i] = dashboard.energy.longTimeArr[i + 1];
+        // Serial.print(dashboard.energy.longImport[i]);
         // Serial.print(" ");
       }
-      if (energy.currentImport < -1111) {
-        energy.longImport[359] = -1111;
+      if (dashboard.energy.currentImport < -1111) {
+        dashboard.energy.longImport[359] = -1111;
       } else {
-        energy.longImport[359] = energy.currentImport;
+        dashboard.energy.longImport[359] = dashboard.energy.currentImport;
       }
-      if (energy.currentConsumption < -1111) {
-        energy.longConsumption[359] = -1111;
+      if (dashboard.energy.currentConsumption < -1111) {
+        dashboard.energy.longConsumption[359] = -1111;
       } else {
-        energy.longConsumption[359] = energy.currentConsumption;
+        dashboard.energy.longConsumption[359] =
+            dashboard.energy.currentConsumption;
       }
-      energy.longProduction[359] = energy.currentProduction;
-      // Serial.print(energy.longImport[359]);
+      dashboard.energy.longProduction[359] = dashboard.energy.currentProduction;
+      // Serial.print(dashboard.energy.longImport[359]);
       // Serial.println();
-      if (k.toInt() % 100 == 0 && energy.longNewMinute) {
-        energy.longTimeArr[359] = k.toInt() / 100;
-        energy.longNewMinute = LOW;
+      if (k.toInt() % 100 == 0 && dashboard.energy.longNewMinute) {
+        dashboard.energy.longTimeArr[359] = k.toInt() / 100;
+        dashboard.energy.longNewMinute = LOW;
       } else {
-        energy.longTimeArr[359] = 0;
+        dashboard.energy.longTimeArr[359] = 0;
       }
       newEnergyGraph = HIGH;
     }
@@ -2277,7 +2281,8 @@ void print(int pageNr) {
 #ifdef ENABLE_ENERGY
   if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
     dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                         energy.state, energy.currentImport);
+                         dashboard.energy.state,
+                         dashboard.energy.currentImport);
   }
 #endif
 #ifdef ENABLE_WASTE
@@ -2320,7 +2325,8 @@ void printV(int pageNr) {
 #ifdef ENABLE_ENERGY
   if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
     dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                          energy.state, energy.currentImport);
+                          dashboard.energy.state,
+                          dashboard.energy.currentImport);
   }
 #endif
 #ifdef ENABLE_HEAT_PUMP
@@ -2351,7 +2357,7 @@ void printImg(int pageNr) {
 #ifdef ENABLE_ENERGY
   if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
     dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                            energy.state);
+                            dashboard.energy.state);
   }
 #endif
 #ifdef ENABLE_MUSIC

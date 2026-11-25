@@ -17,7 +17,7 @@ class Lights;
 #endif
 
 #ifdef ENABLE_ENERGY
-class Energy;
+#include "energy.h"
 #endif
 
 class Dashboard {
@@ -131,11 +131,15 @@ public:
   void homeRelaysImg(int x, int y, int w, int h);
   ////// DETAILS /////////////
   // ** energy **
-  void energy(const Energy &energy);
-  void energyGraph(const Energy &energy);
+#ifdef ENABLE_ENERGY
+  Energy energy;
+  void detailEnergy();
+  void energyGraph();
   void energyV(int currentImport, int currentProduction,
                int currentConsumption);
+#endif
   // ** prices **
+#ifdef ENABLE_PRICES
   void prices(float *epex, float *ecopower, float *tomorrowEpex,
               float *tomorrowEcopower, float currentEpex, float currentEcopower,
               bool tomorrowGraph, bool drawEpex, bool drawEcopower,
@@ -147,17 +151,23 @@ public:
   void pricesV(float currentEpex, float currentEcopower, int clickedX);
   void detailPrices(int clickedHour, int clickedMinute, float epex,
                     float ecopower);
+#endif
   // ** settings **
   void settings(bool theme, const String &time);
   // ** car **
+#ifdef ENABLE_CAR
   void detailCar(int battery, float chargingCapacity, int chargingSpeed,
                  int target, int range);
   void evcc(int PV, int grid, int consumption, float toCar, float currentPrice);
+#endif
   // ** lights **
+#ifdef ENABLE_LIGHTS
   void detailLights(const Lights &lights);
   void lightBr(int br);
   void lightSw();
+#endif
   // ** music **
+#ifdef ENABLE_MUSIC
   void music(const String &k_kanaal, const String &k_title, bool k_state,
              const String &s_kanaal, const String &s_title, bool s_state);
   void musicV(const String &k_kanaal, const String &k_title,
@@ -168,20 +178,29 @@ public:
   void s_state(bool s_state);
   String trimTitle(const String &title, int maxChars);
   void chooseChannel();
+#endif
   // ** ventilation **
+#ifdef ENABLE_VENTILATION
   void ventilationV(bool k_state, bool b_state, int k_CO2, int b_VOC, int k_hum,
                     int b_hum, int k_qua, int b_qua, int k_time, int b_time);
   void ventilationImg(bool k_state, bool b_state);
+#endif
   // ** heat pump **
+#ifdef ENABLE_HEAT_PUMP
   void heatPump(bool compr, int DHWtemp, int XDHW);
   void heatPumpChooseHour(int setH, int setM, bool clicked, bool PM);
   void heatPumpChooseMinute(int setH, int setM, bool clicked);
   void heatPumpTimeAlreadyPassed();
   void heatPumpAlreadyHot();
+#endif
   // ** mower **
+#ifdef ENABLE_MOWER
   void mower(int battery, bool mowing);
+#endif
   // ** relays **
+#ifdef ENABLE_RELAYS
   void detailRelays();
+#endif
 };
 
 #endif

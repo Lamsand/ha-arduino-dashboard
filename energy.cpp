@@ -108,14 +108,14 @@ int median(const int *arr, int i, int range) {
   return buf[count / 2];
 }
 
-void Dashboard::energy(const Energy &energy) {
+void Dashboard::detailEnergy() {
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
   energyV(energy.currentImport, energy.currentProduction,
           energy.currentConsumption);
-  energyGraph(energy);
+  energyGraph();
   bliksem(450 + 340 / 4, 124 + 156 / 2, energy.state);
 }
-void Dashboard::energyGraph(const Energy &energy) {
+void Dashboard::energyGraph() {
   if (energy.drawConsumption) {
     display.fillCircle(460, 330, 10, HABlue);
   } else {
