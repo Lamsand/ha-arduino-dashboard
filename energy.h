@@ -31,6 +31,10 @@ public:
   bool roundState = HIGH;
   int state = 0;
 
+  bool newEnergyGraph = LOW;
+  bool newEnergyVal = LOW;
+  bool newBlxmInfo = LOW;
+
   Energy();
 };
 

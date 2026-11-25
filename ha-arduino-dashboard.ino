@@ -186,11 +186,6 @@ bool newHomeInfo = LOW;
 #ifdef ENABLE_CAR
 bool newCarInfo = LOW;
 #endif
-#ifdef ENABLE_ENERGY
-bool newEnergyGraph = LOW;
-bool newEnergyVal = LOW;
-bool newBlxmInfo = LOW;
-#endif
 #ifdef ENABLE_MUSIC
 bool newKeukenChan = LOW;
 bool newSpeelkamerChan = LOW;
@@ -816,7 +811,7 @@ void loop() {
 #endif
 #ifdef ENABLE_ENERGY
     else if (page == "energy") {
-      newEnergyGraph = HIGH;
+      dashboard.energy.newEnergyGraph = HIGH;
       if (touch_x > 440 && touch_x < 800 && touch_y > 20 &&
           touch_y < 100) { // long graph clicked
         dashboard.energy.longGraph = !dashboard.energy.longGraph;
@@ -847,7 +842,7 @@ void loop() {
       else if (!dashboard.energy.longGraph) {
         dashboard.energy.roundState = !dashboard.energy.roundState;
       } else {
-        newEnergyGraph = LOW;
+        dashboard.energy.newEnergyGraph = LOW;
       }
     }
 #endif
@@ -1260,22 +1255,23 @@ void loop() {
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (newEnergyVal || newEnergyGraph || newBlxmInfo) {
+  if (dashboard.energy.newEnergyVal || dashboard.energy.newEnergyGraph ||
+      dashboard.energy.newBlxmInfo) {
     if (page == "energy") {
-      if (newEnergyVal) {
+      if (dashboard.energy.newEnergyVal) {
         dashboard.energyV(dashboard.energy.currentImport,
                           dashboard.energy.currentProduction,
                           dashboard.energy.currentConsumption);
       }
-      if (newBlxmInfo) {
+      if (dashboard.energy.newBlxmInfo) {
         dashboard.bliksem(450 + 340 / 4, 124 + 156 / 2, dashboard.energy.state);
       }
-      if (newEnergyGraph) {
+      if (dashboard.energy.newEnergyGraph) {
         dashboard.energyGraph();
       }
       // Serial.println("Refresh");
     }
-    if (page == "home" && newBlxmInfo) {
+    if (page == "home" && dashboard.energy.newBlxmInfo) {
       if (energyCo[4] != 0 && energyCo[4] % primes[homePage - 1] == 0) {
         dashboard.bliksem(energyCo[0] + energyCo[2] / 4,
                           energyCo[1] + energyCo[3] / 2,
@@ -1288,9 +1284,9 @@ void loop() {
           dashboard.energy.currentProduction, dashboard.energy.currentImport,
           dashboard.energy.currentConsumption, car_chargingPower, currentEpex);
     }
-    newBlxmInfo = LOW;
-    newEnergyVal = LOW;
-    newEnergyGraph = LOW;
+    dashboard.energy.newBlxmInfo = LOW;
+    dashboard.energy.newEnergyVal = LOW;
+    dashboard.energy.newEnergyGraph = LOW;
   }
 #endif
 #ifdef ENABLE_VENTILATION
@@ -1696,22 +1692,22 @@ void onMqttMessage(int messageSize) {
     if (topic == "energy/currentImport") {
       message.replace(".0", "");
       newHomeInfo = HIGH;
-      newEnergyVal = HIGH;
+      dashboard.energy.newEnergyVal = HIGH;
       dashboard.energy.currentImport = message.toInt();
       if (dashboard.energy.currentImport < 0) {
         if (dashboard.energy.state != 0) {
           dashboard.energy.state = 0;
-          newBlxmInfo = HIGH;
+          dashboard.energy.newBlxmInfo = HIGH;
         }
       } else if (dashboard.energy.currentImport < 4800) {
         if (dashboard.energy.state != 1) {
           dashboard.energy.state = 1;
-          newBlxmInfo = HIGH;
+          dashboard.energy.newBlxmInfo = HIGH;
         }
       } else {
         if (dashboard.energy.state != 2) {
           dashboard.energy.state = 2;
-          newBlxmInfo = HIGH;
+          dashboard.energy.newBlxmInfo = HIGH;
         }
       }
       if (message == "unavailable") {
@@ -1720,7 +1716,7 @@ void onMqttMessage(int messageSize) {
     }
     if (topic == "energy/currentProduction") {
       message.replace(".0", "");
-      newEnergyVal = HIGH;
+      dashboard.energy.newEnergyVal = HIGH;
       dashboard.energy.currentProduction = message.toInt();
       if (message == "unavailable") {
         dashboard.energy.currentProduction = 99999;
@@ -1728,7 +1724,7 @@ void onMqttMessage(int messageSize) {
     }
     if (topic == "energy/currentConsumption") {
       message.replace(".0", "");
-      newEnergyVal = HIGH;
+      dashboard.energy.newEnergyVal = HIGH;
       dashboard.energy.currentConsumption = message.toInt();
       if (message == "unavailable") {
         dashboard.energy.currentConsumption = 99999;
@@ -1767,7 +1763,7 @@ void onMqttMessage(int messageSize) {
       } else {
         dashboard.energy.timeArr[359] = 0;
       }
-      newEnergyGraph = HIGH;
+      dashboard.energy.newEnergyGraph = HIGH;
     }
     if (message == "30s") {
       String k = realTime;
@@ -1802,7 +1798,7 @@ void onMqttMessage(int messageSize) {
       } else {
         dashboard.energy.longTimeArr[359] = 0;
       }
-      newEnergyGraph = HIGH;
+      dashboard.energy.newEnergyGraph = HIGH;
     }
   }
 #endif // ENABLE_ENERGY
@@ -1811,11 +1807,9 @@ void onMqttMessage(int messageSize) {
   /////////////////////////////////////////////////////// prices/#
   if (topic.startsWith("prices/") == HIGH) {
     if (topic == "prices/currentEpex") {
-      // newEnergyVal = HIGH;
       currentEpex = message.toFloat();
     }
     if (topic == "prices/currentEcopower") {
-      // newEnergyVal = HIGH;
       currentEcopower = message.toFloat();
     }
     if (topic == "prices/todayEpex") {
