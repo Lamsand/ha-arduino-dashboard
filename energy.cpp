@@ -367,4 +367,118 @@ Energy::Energy() {
     longTimeArr[i] = 0;
   }
 }
+void Energy::mqtt(const String &topic, const String &message, bool &newHomeInfo,
+                  const String &realTime) {
+  String normalizedMessage = message;
+  if (topic.startsWith("energy/")) {
+    if (topic == "energy/currentImport") {
+      normalizedMessage.replace(".0", "");
+      newHomeInfo = HIGH;
+      newEnergyVal = HIGH;
+      currentImport = normalizedMessage.toInt();
+      if (currentImport < 0) {
+        if (state != 0) {
+          state = 0;
+          newBlxmInfo = HIGH;
+        }
+      } else if (currentImport < 4800) {
+        if (state != 1) {
+          state = 1;
+          newBlxmInfo = HIGH;
+        }
+      } else {
+        if (state != 2) {
+          state = 2;
+          newBlxmInfo = HIGH;
+        }
+      }
+      if (normalizedMessage == "unavailable") {
+        currentImport = 99999;
+      }
+    }
+    if (topic == "energy/currentProduction") {
+      normalizedMessage.replace(".0", "");
+      newEnergyVal = HIGH;
+      currentProduction = normalizedMessage.toInt();
+      if (normalizedMessage == "unavailable") {
+        currentProduction = 99999;
+      }
+    }
+    if (topic == "energy/currentConsumption") {
+      normalizedMessage.replace(".0", "");
+      newEnergyVal = HIGH;
+      currentConsumption = normalizedMessage.toInt();
+      if (normalizedMessage == "unavailable") {
+        currentConsumption = 99999;
+      }
+    }
+  }
+  if (topic == "home/interval") {
+    if (message == "5s") {
+      String k = realTime;
+      k.replace(":", "");
+      for (int i = 0; i < 359; i++) {
+        import[i] = import[i + 1];
+        consumption[i] = consumption[i + 1];
+        production[i] = production[i + 1];
+        timeArr[i] = timeArr[i + 1];
+        // Serial.print(import[i]);
+        // Serial.print(" ");
+      }
+      if (currentImport < -1111) {
+        import[359] = -1111;
+      } else {
+        import[359] = currentImport;
+      }
+      if (currentConsumption < -1111) {
+        consumption[359] = -1111;
+      } else {
+        consumption[359] = currentConsumption;
+      }
+      production[359] = currentProduction;
+      // Serial.print(import[359]);
+      // Serial.println();
+
+      if (k.toInt() % 100 == 0 && newMinute) {
+        timeArr[359] = k.toInt() / 100;
+        newMinute = LOW;
+      } else {
+        timeArr[359] = 0;
+      }
+      newEnergyGraph = HIGH;
+    }
+    if (message == "30s") {
+      String k = realTime;
+      k.replace(":", "");
+      for (int i = 0; i < 359; i++) {
+        longImport[i] = longImport[i + 1];
+        longConsumption[i] = longConsumption[i + 1];
+        longProduction[i] = longProduction[i + 1];
+        longTimeArr[i] = longTimeArr[i + 1];
+        // Serial.print(longImport[i]);
+        // Serial.print(" ");
+      }
+      if (currentImport < -1111) {
+        longImport[359] = -1111;
+      } else {
+        longImport[359] = currentImport;
+      }
+      if (currentConsumption < -1111) {
+        longConsumption[359] = -1111;
+      } else {
+        longConsumption[359] = currentConsumption;
+      }
+      longProduction[359] = currentProduction;
+      // Serial.print(longImport[359]);
+      // Serial.println();
+      if (k.toInt() % 100 == 0 && longNewMinute) {
+        longTimeArr[359] = k.toInt() / 100;
+        longNewMinute = LOW;
+      } else {
+        longTimeArr[359] = 0;
+      }
+      newEnergyGraph = HIGH;
+    }
+  }
+}
 #endif

@@ -36,6 +36,8 @@ public:
   bool newBlxmInfo = LOW;
 
   Energy();
+  void mqtt(const String &topic, const String &message, bool &newHomeInfo,
+            const String &realTime);
 };
 
 #endif
