@@ -3,6 +3,8 @@
 
 #include "Arduino.h"
 
+class Dashboard;
+
 class Energy {
 private:
 public:
@@ -38,6 +40,9 @@ public:
   Energy();
   void mqtt(const String &topic, const String &message, bool &newHomeInfo,
             const String &realTime);
+  void newInfo(Dashboard &dashboard, const String &page, const int *energyCo,
+               const int *primes, int homePage, float car_chargingPower,
+               float currentEpex);
 };
 
 #endif

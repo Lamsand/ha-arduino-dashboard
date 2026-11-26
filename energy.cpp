@@ -481,4 +481,34 @@ void Energy::mqtt(const String &topic, const String &message, bool &newHomeInfo,
     }
   }
 }
+void Energy::newInfo(Dashboard &dashboard, const String &page,
+                     const int *energyCo, const int *primes, int homePage,
+                     float car_chargingPower, float currentEpex) {
+  if (newEnergyVal || newEnergyGraph || newBlxmInfo) {
+    if (page == "energy") {
+      if (newEnergyVal) {
+        dashboard.energyV(currentImport, currentProduction, currentConsumption);
+      }
+      if (newBlxmInfo) {
+        dashboard.bliksem(450 + 340 / 4, 124 + 156 / 2, state);
+      }
+      if (newEnergyGraph) {
+        dashboard.energyGraph();
+      }
+    }
+    if (page == "home" && newBlxmInfo) {
+      if (energyCo[4] != 0 && energyCo[4] % primes[homePage - 1] == 0) {
+        dashboard.bliksem(energyCo[0] + energyCo[2] / 4,
+                          energyCo[1] + energyCo[3] / 2, state);
+      }
+    }
+    if (page == "evcc") {
+      dashboard.evcc(currentProduction, currentImport, currentConsumption,
+                     car_chargingPower, currentEpex);
+    }
+    newBlxmInfo = LOW;
+    newEnergyVal = LOW;
+    newEnergyGraph = LOW;
+  }
+}
 #endif

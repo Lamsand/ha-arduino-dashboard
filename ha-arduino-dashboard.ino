@@ -1255,39 +1255,8 @@ void loop() {
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (dashboard.energy.newEnergyVal || dashboard.energy.newEnergyGraph ||
-      dashboard.energy.newBlxmInfo) {
-    if (page == "energy") {
-      if (dashboard.energy.newEnergyVal) {
-        dashboard.energyV(dashboard.energy.currentImport,
-                          dashboard.energy.currentProduction,
-                          dashboard.energy.currentConsumption);
-      }
-      if (dashboard.energy.newBlxmInfo) {
-        dashboard.bliksem(450 + 340 / 4, 124 + 156 / 2, dashboard.energy.state);
-      }
-      if (dashboard.energy.newEnergyGraph) {
-        dashboard.energyGraph();
-      }
-      // Serial.println("Refresh");
-    }
-    if (page == "home" && dashboard.energy.newBlxmInfo) {
-      if (energyCo[4] != 0 && energyCo[4] % primes[homePage - 1] == 0) {
-        dashboard.bliksem(energyCo[0] + energyCo[2] / 4,
-                          energyCo[1] + energyCo[3] / 2,
-                          dashboard.energy.state);
-      }
-    }
-    if (page == "evcc") {
-      Serial.println(currentEcopower);
-      dashboard.evcc(
-          dashboard.energy.currentProduction, dashboard.energy.currentImport,
-          dashboard.energy.currentConsumption, car_chargingPower, currentEpex);
-    }
-    dashboard.energy.newBlxmInfo = LOW;
-    dashboard.energy.newEnergyVal = LOW;
-    dashboard.energy.newEnergyGraph = LOW;
-  }
+  dashboard.energy.newInfo(dashboard, page, energyCo, primes, homePage,
+                           car_chargingPower, currentEpex);
 #endif
 #ifdef ENABLE_VENTILATION
   if (newVentiV || newVentiImg) {
