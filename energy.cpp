@@ -352,7 +352,7 @@ void Dashboard::energyV(int currentImport, int currentProduction,
     display.print("N/A");
   }
   display.print("W");
-  display.fillRect(799, 0, 2, 480, WHITE);
+  display.fillRect(799, 0, 2, 480, publicAllBackg);
 }
 Energy::Energy() {
   for (int i = 0; i < 360; i++) {

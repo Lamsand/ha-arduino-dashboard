@@ -175,9 +175,6 @@ String lastReset = "Default";
 int last5sInterval = 40000;
 String page = "setup";
 int lastRefresh = 0;
-int BACKG = BLACK;
-int TEXT = WHITE;
-int AllBackg = WHITE;
 bool darkMode = HIGH;
 
 ////////////// new info /////////////
@@ -235,9 +232,9 @@ void setup() {
       ;
   }
   // set colors in dashboard.h
-  dashboard.publicTEXT = TEXT;
-  dashboard.publicBackg = BACKG;
-  dashboard.publicAllBackg = AllBackg;
+  dashboard.publicTEXT = WHITE;
+  dashboard.publicBackg = BLACK;
+  dashboard.publicAllBackg = WHITE;
   // attempt to connect to WiFi network:
   Serial.print("Attempting to connect to SSID: ");
   Serial.println(SECRET_SSID);
@@ -386,7 +383,7 @@ void loop() {
                (lightCo[4] != 0 &&
                 lightCo[4] % primePageNr == 0)) { // Lights clicked
         page = "detailLights";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.detailLights(lights);
         dashboard.lightRefresh(lights, 1, lights.lamp1state);
         dashboard.lightRefresh(lights, 2, lights.lamp2state);
@@ -402,7 +399,7 @@ void loop() {
                (energyCo[4] != 0 &&
                 energyCo[4] % primePageNr == 0)) { // Energy clicked
         page = "energy";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.detailEnergy();
       }
 #endif
@@ -412,7 +409,7 @@ void loop() {
                (priceCo[4] != 0 &&
                 priceCo[4] % primePageNr == 0)) { // Prices clicked
         page = "prices";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.prices(todayEpex, todayEcopower, tomorrowEpex,
                          tomorrowEcopower, currentEpex, currentEcopower,
                          tomorrowGraph, drawEpex, drawEcopower, clickedX);
@@ -424,7 +421,7 @@ void loop() {
                (musicCo[4] != 0 &&
                 musicCo[4] % primePageNr == 0)) { // Music clicked
         page = "music";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.music(keuken_channel, keuken_title, keuken_state,
                         speelkamer_channel, speelkamer_title, speelkamer_state);
       }
@@ -437,7 +434,7 @@ void loop() {
                (heatPumpCo[4] != 0 &&
                 heatPumpCo[4] % primePageNr == 0)) { // Heat Pump clicked
         page = "heatPump";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.heatPump(compressor, hotWaterTemp, XDHW);
       }
 #endif
@@ -447,7 +444,7 @@ void loop() {
                (mowerCo[4] != 0 &&
                 mowerCo[4] % primePageNr == 0)) { // Mower clicked
         page = "mower";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.mower(mowerBattery, mowerState);
       }
 #endif
@@ -457,7 +454,7 @@ void loop() {
                (ventiCo[4] != 0 &&
                 ventiCo[4] % primePageNr == 0)) { // Ventilation clicked
         page = "venti";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.homeEmpty(0, 0, 798, 239);
         dashboard.homeEmpty(0, 239, 798, 239);
         dashboard.ventilationV(keuken_boost, kelder_boost, keuken_CO2,
@@ -473,7 +470,7 @@ void loop() {
                (relayCo[4] != 0 &&
                 relayCo[4] % primePageNr == 0)) { // Relays clicked
         page = "detailRelays";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.detailRelays();
         dashboard.relayRefresh(1, relay1state);
         dashboard.relayRefresh(2, relay2state);
@@ -493,19 +490,13 @@ void loop() {
           touch_y > 109) { // darkMode clicked
         darkMode = !darkMode;
         if (darkMode) {
-          BACKG = BLACK;
-          TEXT = WHITE;
-          AllBackg = WHITE;
-          dashboard.publicTEXT = TEXT;
-          dashboard.publicBackg = BACKG;
-          dashboard.publicAllBackg = AllBackg;
+          dashboard.publicTEXT = WHITE;
+          dashboard.publicBackg = BLACK;
+          dashboard.publicAllBackg = WHITE;
         } else {
-          BACKG = WHITE;
-          TEXT = BLACK;
-          AllBackg = BLACK;
-          dashboard.publicTEXT = TEXT;
-          dashboard.publicBackg = BACKG;
-          dashboard.publicAllBackg = AllBackg;
+          dashboard.publicTEXT = BLACK;
+          dashboard.publicBackg = WHITE;
+          dashboard.publicAllBackg = BLACK;
         }
         dashboard.settings(darkMode, lastReset);
       } else if (touch_x < 170 && touch_x > 130 && touch_y < 462 &&
@@ -710,7 +701,7 @@ void loop() {
           (touch_y < 40 || touch_y > 440)) { // Return
         Serial.println("return");
         page = "detailLights";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.detailLights(lights);
         dashboard.lightRefresh(lights, 1, lights.lamp1state);
         dashboard.lightRefresh(lights, 2, lights.lamp2state);
@@ -830,7 +821,7 @@ void loop() {
                touch_y <
                    124 + 156 / 2 + 85) { // lightning bolt clicked: to evcc
         page = "evcc";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
         dashboard.evcc(dashboard.energy.currentProduction,
@@ -944,7 +935,7 @@ void loop() {
     else if (page == "detailCar") {
       if (touch_x > 600) {
         page = "evcc";
-        dashboard.fillScreen(AllBackg);
+        dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.homeEmpty(0, 0, 798, 479);
         Serial.println(currentEpex);
         dashboard.evcc(dashboard.energy.currentProduction,
@@ -960,7 +951,7 @@ void loop() {
       if (touch_x < 300) { // HeatpumpIcon clicked
         if (heatPumpTime.indexOf("warm") == -1) {
           page = "heatPump/ChooseHour";
-          dashboard.fillScreen(AllBackg);
+          dashboard.fillScreen(dashboard.publicAllBackg);
           dashboard.heatPumpChooseHour(heatPumpHour, heatPumpMinute, LOW,
                                        heatPumpPM);
         } else {
