@@ -511,4 +511,43 @@ void Energy::newInfo(Dashboard &dashboard, const String &page,
     newEnergyGraph = LOW;
   }
 }
+bool Energy::touchHandler(Dashboard &dashboard, int touch_x, int touch_y,
+                          String &page, float car_chargingPower,
+                          float currentEpex) {
+  bool handled = LOW;
+  if (page == "energy") {
+    newEnergyGraph = HIGH;
+    handled = HIGH;
+    if (touch_x > 440 && touch_x < 800 && touch_y > 20 &&
+        touch_y < 100) { // long graph clicked
+      longGraph = !longGraph;
+    } else if (touch_x > 440 && touch_x < 480) {
+      if (touch_y > 310 && touch_y < 350) {
+        drawConsumption = !drawConsumption;
+      } else if (touch_y > 355 && touch_y < 395) {
+        drawImport = !drawImport;
+      } else if (touch_y > 400 && touch_y < 440) {
+        drawProduction = !drawProduction;
+      }
+    }
+#ifdef ENABLE_evcc
+    else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 &&
+             touch_y > 124 + 156 / 2 - 85 &&
+             touch_y < 124 + 156 / 2 + 85) { // lightning bolt clicked: to evcc
+      page = "evcc";
+      dashboard.fillScreen(dashboard.publicAllBackg);
+      dashboard.homeEmpty(0, 0, 798, 479);
+      Serial.println(currentEpex);
+      dashboard.evcc(currentProduction, currentImport, currentConsumption,
+                     car_chargingPower, currentEpex);
+    }
+#endif
+    else if (!longGraph) {
+      roundState = !roundState;
+    } else {
+      newEnergyGraph = LOW;
+    }
+  }
+  return handled;
+}
 #endif

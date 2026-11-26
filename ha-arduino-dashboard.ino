@@ -315,12 +315,9 @@ void setup() {
 #endif
 
   delay(2000);
-  // topics can be unsubscribed using:
-  // mqttClient.unsubscribe("home/connection");
   page = "home";
   mqttClient.poll();
   print(homePage);
-  // printImg();
   newHomeInfo = LOW;
 }
 void loop() {
@@ -801,40 +798,8 @@ void loop() {
     }
 #endif
 #ifdef ENABLE_ENERGY
-    else if (page == "energy") {
-      dashboard.energy.newEnergyGraph = HIGH;
-      if (touch_x > 440 && touch_x < 800 && touch_y > 20 &&
-          touch_y < 100) { // long graph clicked
-        dashboard.energy.longGraph = !dashboard.energy.longGraph;
-      } else if (touch_x > 440 && touch_x < 480) {
-        if (touch_y > 310 && touch_y < 350) {
-          dashboard.energy.drawConsumption = !dashboard.energy.drawConsumption;
-        } else if (touch_y > 355 && touch_y < 395) {
-          dashboard.energy.drawImport = !dashboard.energy.drawImport;
-        } else if (touch_y > 400 && touch_y < 440) {
-          dashboard.energy.drawProduction = !dashboard.energy.drawProduction;
-        }
-      }
-#ifdef ENABLE_evcc
-      else if (touch_x > 450 + 340 / 4 - 66 && touch_x < 450 + 340 / 4 + 66 &&
-               touch_y > 124 + 156 / 2 - 85 &&
-               touch_y <
-                   124 + 156 / 2 + 85) { // lightning bolt clicked: to evcc
-        page = "evcc";
-        dashboard.fillScreen(dashboard.publicAllBackg);
-        dashboard.homeEmpty(0, 0, 798, 479);
-        Serial.println(currentEpex);
-        dashboard.evcc(dashboard.energy.currentProduction,
-                       dashboard.energy.currentImport,
-                       dashboard.energy.currentConsumption, car_chargingPower,
-                       currentEpex);
-      }
-#endif
-      else if (!dashboard.energy.longGraph) {
-        dashboard.energy.roundState = !dashboard.energy.roundState;
-      } else {
-        dashboard.energy.newEnergyGraph = LOW;
-      }
+    else if (dashboard.energy.touchHandler(dashboard, touch_x, touch_y, page,
+                                           car_chargingPower, currentEpex)) {
     }
 #endif
 #ifdef ENABLE_PRICES
@@ -1131,7 +1096,6 @@ void loop() {
   if (newHomeInfo) {
     if (page == "home") {
       printV(homePage);
-      // Serial.println("Refresh");
     }
     newHomeInfo = LOW;
   }

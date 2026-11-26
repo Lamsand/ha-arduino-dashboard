@@ -43,6 +43,8 @@ public:
   void newInfo(Dashboard &dashboard, const String &page, const int *energyCo,
                const int *primes, int homePage, float car_chargingPower,
                float currentEpex);
+  bool touchHandler(Dashboard &dashboard, int touch_x, int touch_y,
+                    String &page, float car_chargingPower, float currentEpex);
 };
 
 #endif
