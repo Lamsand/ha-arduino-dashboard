@@ -3,9 +3,19 @@
 
 #include "Arduino.h"
 
+class Dashboard;
+class MqttClient;
+class Arduino_GigaDisplayTouch;
+
 class Lights {
 private:
 public:
+  int x;
+  int y;
+  int w;
+  int h;
+  int prime;
+
   int lamp1co[4];
   int lamp2co[4];
   int lamp3co[4];
@@ -69,6 +79,15 @@ public:
   bool lamp6change = LOW;
 
   void reconfigureCoordinates();
+  void mqtt(const String &topic, const String &message, bool &newHomeInfo);
+  void newInfo(Dashboard &dashboard, const String &page, const int *primes,
+               int homePage);
+  bool touchHandler(Dashboard &dashboard, MqttClient &mqttClient,
+                    Arduino_GigaDisplayTouch &touchDetector, int touch_x,
+                    int touch_y, String &page);
+  void setCoordinates(int *lightsCo);
+  bool clicked(int touch_x, int touch_y, int primePageNr);
+  bool onHomePage(int primePageNr);
 };
 
 #endif

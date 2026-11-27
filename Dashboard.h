@@ -19,6 +19,9 @@ class Lights;
 #ifdef ENABLE_ENERGY
 #include "energy.h"
 #endif
+#ifdef ENABLE_LIGHTS
+#include "lights.h"
+#endif
 
 class Dashboard {
 private:
@@ -161,6 +164,7 @@ public:
 #endif
   // ** lights **
 #ifdef ENABLE_LIGHTS
+  Lights lights;
   void detailLights(const Lights &lights);
   void lightBr(int br);
   void lightSw();
