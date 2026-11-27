@@ -48,44 +48,51 @@ void Dashboard::bliksem(int xInput, int yInput, int state) {
   file.close();
 }
 
-void Dashboard::homeEnergy(int x, int y, int w, int h, int state, int value) {
-  display.fillRoundRect(x + 1, y + 1, w - 1, h - 1, 10, publicBackg);
-  // bliksem(x + w / 4, y + h / 2, state);
-  if (value <= -1000) {
-    display.setCursor(x + w / 2 - 36, y + h / 2 - 24);
+void Dashboard::homeEnergy() {
+  display.fillRoundRect(energy.x + 1, energy.y + 1, energy.w - 1, energy.h - 1,
+                        10, publicBackg);
+  // bliksem(energy.x + energy.w / 4, y + energy.h / 2, energy.state);
+  if (energy.currentImport <= -1000) {
+    display.setCursor(energy.x + energy.w / 2 - 36,
+                      energy.y + energy.h / 2 - 24);
   } else {
-    display.setCursor(x + w / 2, y + h / 2 - 24);
+    display.setCursor(energy.x + energy.w / 2, energy.y + energy.h / 2 - 24);
   }
   display.setTextColor(publicTEXT);
   display.setTextSize(6);
-  if (value != 99999) {
-    display.print(value);
+  if (energy.currentImport != 99999) {
+    display.print(energy.currentImport);
   } else {
     display.print("N/A");
   }
   display.print("W");
 }
-void Dashboard::homeEnergyV(int x, int y, int w, int h, int state, int value) {
-  display.fillRect(x + w / 2, y + h / 4, w / 2, h / 2, publicBackg);
-  display.fillRect(x + w, y + h / 4, 1, h / 2, publicTEXT);
-  display.fillRect(x + w + 2, y + h / 4, 30, h / 2, publicBackg);
-  display.fillRect(x + w / 2 - 36, y + h / 4, 36, h / 2, publicBackg);
-  if (value <= -1000) {
-    display.setCursor(x + w / 2 - 36, y + h / 2 - 24);
+void Dashboard::homeEnergyV() {
+  display.fillRect(energy.x + energy.w / 2, energy.y + energy.h / 4,
+                   energy.w / 2, energy.h / 2, publicBackg);
+  display.fillRect(energy.x + energy.w, energy.y + energy.h / 4, 1,
+                   energy.h / 2, publicTEXT);
+  display.fillRect(energy.x + energy.w + 2, energy.y + energy.h / 4, 30,
+                   energy.h / 2, publicBackg);
+  display.fillRect(energy.x + energy.w / 2 - 36, energy.y + energy.h / 4, 36,
+                   energy.h / 2, publicBackg);
+  if (energy.currentImport <= -1000) {
+    display.setCursor(energy.x + energy.w / 2 - 36,
+                      energy.y + energy.h / 2 - 24);
   } else {
-    display.setCursor(x + w / 2, y + h / 2 - 24);
+    display.setCursor(energy.x + energy.w / 2, energy.y + energy.h / 2 - 24);
   }
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(6);
-  if (value != 99999) {
-    display.print(value);
+  if (energy.currentImport != 99999) {
+    display.print(energy.currentImport);
   } else {
     display.print("N/A");
   }
   display.print("W");
 }
-void Dashboard::homeEnergyImg(int x, int y, int w, int h, int state) {
-  bliksem(x + w / 4, y + h / 2, state);
+void Dashboard::homeEnergyImg() {
+  bliksem(energy.x + energy.w / 4, energy.y + energy.h / 2, energy.state);
 }
 
 int median(const int *arr, int i, int range) {
@@ -110,8 +117,7 @@ int median(const int *arr, int i, int range) {
 
 void Dashboard::detailEnergy() {
   display.fillRoundRect(1, 1, SCREEN_W - 2, SCREEN_H - 2, 10, publicBackg);
-  energyV(energy.currentImport, energy.currentProduction,
-          energy.currentConsumption);
+  energyV();
   energyGraph();
   bliksem(450 + 340 / 4, 124 + 156 / 2, energy.state);
 }
@@ -309,51 +315,51 @@ void Dashboard::energyGraph() {
   }
   display.drawRoundRect(60, 40, 360, 400, 10, publicTEXT);
 }
-void Dashboard::energyV(int currentImport, int currentProduction,
-                        int currentConsumption) {
+void Dashboard::energyV() {
   display.setTextSize(3);
   display.setTextColor(publicTEXT, publicBackg);
   display.setCursor(480, 320);
   display.print("Verbruik: ");
-  if (currentConsumption != 99999) {
-    display.print(currentConsumption);
+  if (energy.currentConsumption != 99999) {
+    display.print(energy.currentConsumption);
   } else {
     display.print("N/A");
   }
   display.print("W");
   display.setCursor(480, 365);
   display.print("Import: ");
-  if (currentImport != 99999) {
-    display.print(currentImport);
+  if (energy.currentImport != 99999) {
+    display.print(energy.currentImport);
   } else {
     display.print("N/A");
   }
   display.print("W");
   display.setCursor(480, 410);
   display.print("Opbrengst: ");
-  if (currentProduction != 99999) {
-    display.print(currentProduction);
+  if (energy.currentProduction != 99999) {
+    display.print(energy.currentProduction);
   } else {
     display.print("N/A");
   }
   display.print("W");
 
   // Overzicht
-  if (currentImport <= -1000) {
+  if (energy.currentImport <= -1000) {
     display.setCursor(450 + 340 / 2 - 36, 124 + 156 / 2 - 24);
   } else {
     display.setCursor(450 + 340 / 2, 124 + 156 / 2 - 24);
   }
   display.setTextColor(publicTEXT, publicBackg);
   display.setTextSize(6);
-  if (currentImport != 99999) {
-    display.print(currentImport);
+  if (energy.currentImport != 99999) {
+    display.print(energy.currentImport);
   } else {
     display.print("N/A");
   }
   display.print("W");
   display.fillRect(799, 0, 2, 480, publicAllBackg);
 }
+
 Energy::Energy() {
   for (int i = 0; i < 360; i++) {
     import[i] = 99999;
@@ -480,14 +486,18 @@ void Energy::mqtt(const String &topic, const String &message, bool &newHomeInfo,
       newEnergyGraph = HIGH;
     }
   }
+  if (topic == "home/time") {
+    newMinute = HIGH;
+    longNewMinute = HIGH;
+  }
 }
 void Energy::newInfo(Dashboard &dashboard, const String &page,
-                     const int *energyCo, const int *primes, int homePage,
-                     float car_chargingPower, float currentEpex) {
+                     const int *primes, int homePage, float car_chargingPower,
+                     float currentEpex) {
   if (newEnergyVal || newEnergyGraph || newBlxmInfo) {
     if (page == "energy") {
       if (newEnergyVal) {
-        dashboard.energyV(currentImport, currentProduction, currentConsumption);
+        dashboard.energyV();
       }
       if (newBlxmInfo) {
         dashboard.bliksem(450 + 340 / 4, 124 + 156 / 2, state);
@@ -497,9 +507,8 @@ void Energy::newInfo(Dashboard &dashboard, const String &page,
       }
     }
     if (page == "home" && newBlxmInfo) {
-      if (energyCo[4] != 0 && energyCo[4] % primes[homePage - 1] == 0) {
-        dashboard.bliksem(energyCo[0] + energyCo[2] / 4,
-                          energyCo[1] + energyCo[3] / 2, state);
+      if (prime != 0 && prime % primes[homePage - 1] == 0) {
+        dashboard.bliksem(x + w / 4, y + h / 2, state);
       }
     }
     if (page == "evcc") {
@@ -549,5 +558,19 @@ bool Energy::touchHandler(Dashboard &dashboard, int touch_x, int touch_y,
     }
   }
   return handled;
+}
+void Energy::setCoordinates(int *energyCo) {
+  x = energyCo[0];
+  y = energyCo[1];
+  w = energyCo[2];
+  h = energyCo[3];
+  prime = energyCo[4];
+}
+bool Energy::clicked(int touch_x, int touch_y, int primePageNr) {
+  return (touch_x > x && touch_x < x + w && touch_y > y && touch_y < y + h &&
+          onHomePage(primePageNr));
+}
+bool Energy::onHomePage(int primePageNr) {
+  return (prime != 0 && prime % primePageNr == 0);
 }
 #endif

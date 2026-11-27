@@ -8,6 +8,12 @@ class Dashboard;
 class Energy {
 private:
 public:
+  int x;
+  int y;
+  int w;
+  int h;
+  int prime;
+
   int currentImport = 99999;
   int currentConsumption = 99999;
   int currentProduction = 99999;
@@ -40,11 +46,13 @@ public:
   Energy();
   void mqtt(const String &topic, const String &message, bool &newHomeInfo,
             const String &realTime);
-  void newInfo(Dashboard &dashboard, const String &page, const int *energyCo,
-               const int *primes, int homePage, float car_chargingPower,
-               float currentEpex);
+  void newInfo(Dashboard &dashboard, const String &page, const int *primes,
+               int homePage, float car_chargingPower, float currentEpex);
   bool touchHandler(Dashboard &dashboard, int touch_x, int touch_y,
                     String &page, float car_chargingPower, float currentEpex);
+  void setCoordinates(int *energyCo);
+  bool clicked(int touch_x, int touch_y, int primePageNr);
+  bool onHomePage(int primePageNr);
 };
 
 #endif

@@ -45,7 +45,7 @@ MqttClient mqttClient(wifiClient);
 /*
           ________________________________________
          | TIME                               set.|
-         |__________________  ____________________|
+         |________________________________________|
          |                   |                    |
          | 0,  44, 400, 218  | 400,  44, 399, 218 |
          |___________________|____________________|
@@ -53,12 +53,11 @@ MqttClient mqttClient(wifiClient);
          | 0, 262, 400, 217  | 400, 262, 399, 217 |
          |___________________|____________________|
 
-  co[4]: 0 = every homepage, 1 = only first homepage, 2 = only second homepage,
-  3 = hide
-
   xCo[4]: 0 = no homepage, multiply 1 with the number of every homepage you want
-  the tile to appear on: 2 = homepage 1, 3 = homepage 2, 5 = homepage 3, 6 =
-  homepage 1 and 2, 10 = homepage 1 and 3, etc.
+  the tile to appear on:
+  homePages | none | 1 | 2 | 3 | 1, 2 | 1, 3 | 1, 2, 3 | etc.
+  xCo[4]    |  0   | 2 | 3 | 5 |  6   |  10  |   30    | etc.
+
 */
 #ifdef ENABLE_CAR
 int carCo[5] = {400, 44, 399, 218, 2};
@@ -206,6 +205,10 @@ bool newVentiImg = LOW;
 int loopCount = 0;
 
 void setup() {
+#ifdef ENABLE_ENERGY
+  dashboard.energy.setCoordinates(energyCo);
+#endif
+
   Serial.begin(9600);
   delay(500); // give SD card time to power up properly
 
@@ -391,10 +394,8 @@ void loop() {
       }
 #endif
 #ifdef ENABLE_ENERGY
-      else if (touch_y < energyCo[1] + energyCo[3] && touch_y > energyCo[1] &&
-               touch_x < energyCo[0] + energyCo[2] && touch_x > energyCo[0] &&
-               (energyCo[4] != 0 &&
-                energyCo[4] % primePageNr == 0)) { // Energy clicked
+      else if (dashboard.energy.clicked(touch_x, touch_y,
+                                        primePageNr)) { // Energy clicked
         page = "energy";
         dashboard.fillScreen(dashboard.publicAllBackg);
         dashboard.detailEnergy();
@@ -1210,8 +1211,8 @@ void loop() {
   }
 #endif
 #ifdef ENABLE_ENERGY
-  dashboard.energy.newInfo(dashboard, page, energyCo, primes, homePage,
-                           car_chargingPower, currentEpex);
+  dashboard.energy.newInfo(dashboard, page, primes, homePage, car_chargingPower,
+                           currentEpex);
 #endif
 #ifdef ENABLE_VENTILATION
   if (newVentiV || newVentiImg) {
@@ -1298,8 +1299,6 @@ void onMqttMessage(int messageSize) {
         page = "home";
       }
     }
-    dashboard.energy.newMinute = HIGH;
-    dashboard.energy.longNewMinute = HIGH;
     if (lastReset == "Default") {
       lastReset = realTime;
     }
@@ -2084,10 +2083,8 @@ void print(int pageNr) {
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
-    dashboard.homeEnergy(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                         dashboard.energy.state,
-                         dashboard.energy.currentImport);
+  if (dashboard.energy.onHomePage(primePageNr)) {
+    dashboard.homeEnergy();
   }
 #endif
 #ifdef ENABLE_WASTE
@@ -2128,10 +2125,8 @@ void printV(int pageNr) {
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
-    dashboard.homeEnergyV(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                          dashboard.energy.state,
-                          dashboard.energy.currentImport);
+  if (dashboard.energy.onHomePage(primePageNr)) {
+    dashboard.homeEnergyV();
   }
 #endif
 #ifdef ENABLE_HEAT_PUMP
@@ -2160,9 +2155,8 @@ void printImg(int pageNr) {
   }
 #endif
 #ifdef ENABLE_ENERGY
-  if (energyCo[4] != 0 && energyCo[4] % primePageNr == 0) {
-    dashboard.homeEnergyImg(energyCo[0], energyCo[1], energyCo[2], energyCo[3],
-                            dashboard.energy.state);
+  if (dashboard.energy.onHomePage(primePageNr)) {
+    dashboard.homeEnergyImg();
   }
 #endif
 #ifdef ENABLE_MUSIC

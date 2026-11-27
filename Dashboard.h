@@ -107,20 +107,20 @@ public:
   void switchImg(int xInput, int yInput, bool state);
   void relayRefresh(int relaynumber, bool state);
   ////// HOME ///////////////
-  void homeEnergy(int x, int y, int w, int h, int state, int value);
+  void homeEnergy();
   void homeCar(int x, int y, int w, int h, int battery, float chargingCapacity,
                int target);
   void homeEmpty(int x, int y, int w, int h);
   void homeHeatPump(int x, int y, int w, int h, int DHWtemp);
   void homePrices(int x, int y, int w, int h, float currentPrice);
   // ** value refresh **
-  void homeEnergyV(int x, int y, int w, int h, int state, int value);
+  void homeEnergyV();
   void homeCarV(int x, int y, int w, int h, int battery, float chargingCapacity,
                 int target);
   void homeHeatPumpV(int x, int y, int w, int h, int DHWtemp);
   void homePricesV(int x, int y, int w, int h, float currentPrice);
   // ** image draw **
-  void homeEnergyImg(int x, int y, int w, int h, int state);
+  void homeEnergyImg();
   void homeLightsImg(int x, int y, int w, int h);
   void homeCarImg(int x, int y, int w, int h);
   void homeMusicImg(int x, int y, int w, int h);
@@ -135,8 +135,7 @@ public:
   Energy energy;
   void detailEnergy();
   void energyGraph();
-  void energyV(int currentImport, int currentProduction,
-               int currentConsumption);
+  void energyV();
 #endif
   // ** prices **
 #ifdef ENABLE_PRICES
